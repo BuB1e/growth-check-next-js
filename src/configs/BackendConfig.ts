@@ -1,0 +1,15 @@
+import { createEnv } from "@t3-oss/env-nextjs";
+import { z } from "zod";
+
+export const EnvConfig = createEnv({
+    server: {
+        BACKEND_ENDPOINT: z.url(),
+    },
+    client: {
+        NEXT_PUBLIC_BETTER_AUTH_ENDPOINT: z.url(),   
+    },
+    runtimeEnv: {
+        BACKEND_ENDPOINT: process.env.BACKEND_ENDPOINT,
+        NEXT_PUBLIC_BETTER_AUTH_ENDPOINT: process.env.NEXT_PUBLIC_BETTER_AUTH_ENDPOINT,
+    }
+});
