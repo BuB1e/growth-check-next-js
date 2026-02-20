@@ -1,0 +1,22 @@
+$ bun --bun next build
+▲ Next.js 16.1.6 (Turbopack, Cache Components)
+- Environments: .env.production
+
+⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+  Creating an optimized production build ...
+✓ Compiled successfully in 3.7s
+  Running TypeScript ...
+Failed to compile.
+
+./app/dashboard/page.tsx:20:31
+Type error: Property 'role' does not exist on type '{ id: string; createdAt: Date; updatedAt: Date; email: string; emailVerified: boolean; name: string; image?: string | null | undefined; }'.
+
+[0m [90m 18 |[39m     }
+ [90m 19 |[39m
+[31m[1m>[22m[39m[90m 20 |[39m     [36mconst[39m role [33m=[39m session[33m.[39muser[33m.[39mrole[33m;[39m
+ [90m    |[39m                               [31m[1m^[22m[39m
+ [90m 21 |[39m
+ [90m 22 |[39m     [36mif[39m (role [33m===[39m [32m"ADMIN"[39m) {
+ [90m 23 |[39m       router[33m.[39mreplace([32m"/admin/dashboard"[39m)[33m;[39m[0m
+Next.js build worker exited with code: 1 and signal: null
+error: script "build" exited with code 1

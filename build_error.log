@@ -1,0 +1,9 @@
+$ bun --bun next build
+▲ Next.js 16.1.6 (Turbopack, Cache Components)
+- Environments: .env.production
+
+
+> Build error occurred
+Error: Both middleware file "./middleware.ts" and proxy file "./proxy.ts" are detected. Please use "./proxy.ts" only. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+    at processTicksAndRejections (null)
+error: script "build" exited with code 1

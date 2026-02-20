@@ -1,0 +1,198 @@
+openapi: 3.0.0
+info:
+  title: GrowthCheck API
+  version: 1.0.0
+  description: API for GrowthCheck Webapp (Next.js Frontend)
+
+paths:
+  /auth/session:
+    get:
+      summary: Get current session and role
+      responses:
+        '200':
+          description: Session active
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/User'
+
+  /children:
+    get:
+      summary: List children (for Staff/Head)
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: locationId
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Paginated children list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ChildIndex'
+                  meta:
+                    $ref: '#/components/schemas/PaginationMeta'
+
+  /children/{id}:
+    get:
+      summary: Get child details by ID
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Child'
+
+  /children/{id}/measurements:
+    post:
+      summary: Add new measurement
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MeasurementInput'
+      responses:
+        '201':
+          description: Created
+
+  /admin/stats:
+    get:
+      summary: Get area statistics (Head/Admin)
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalChildren:
+                    type: integer
+                  malnutritionRate:
+                    type: number
+
+  /admin/requests:
+    get:
+      summary: List pending requests (Admin)
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Request'
+
+  /admin/requests/{id}/approve:
+    post:
+      summary: Approve request
+      responses:
+        '200':
+          description: Approved
+
+  /admin/requests/{id}/reject:
+    post:
+      summary: Reject request
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason:
+                  type: string
+                  minLength: 10
+      responses:
+        '200':
+          description: Rejected
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        role:
+          type: string
+          enum: [ADMIN, HEAD, STAFF]
+
+    Child:
+      type: object
+      properties:
+        id:
+          type: integer
+        firstName:
+          type: string
+        lastName:
+          type: string
+        birthDate:
+          type: string
+          format: date
+
+    ChildIndex:
+      type: object
+      properties:
+        id:
+          type: integer
+        fullName:
+          type: string
+        ageMonths:
+          type: integer
+        status:
+          type: string
+
+    MeasurementInput:
+      type: object
+      properties:
+        height:
+          type: number
+        weight:
+          type: number
+        date:
+          type: string
+          format: date-time
+
+    Request:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          type: string
+        requester:
+          type: string
+        status:
+          type: string
+
+    PaginationMeta:
+      type: object
+      properties:
+        page:
+          type: integer
+        limit:
+          type: integer
+        total:
+          type: integer
