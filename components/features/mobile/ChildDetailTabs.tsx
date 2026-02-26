@@ -3,7 +3,14 @@
 import { useState } from "react";
 import { ChildResponse, ChildDataResponse } from "@/dto";
 import { DevelopmentCard } from "./DevelopmentCard";
-import { User, Activity, MapPin } from "lucide-react";
+import { DevelopmentChart } from "./DevelopmentChart"; // <-- Added Chart Import
+import {
+  User,
+  Activity,
+  MapPin,
+  List,
+  LineChart as LineChartIcon,
+} from "lucide-react";
 
 export function ChildDetailTabs({
   child,
@@ -15,6 +22,9 @@ export function ChildDetailTabs({
   const [activeTab, setActiveTab] = useState<"personal" | "development">(
     "personal",
   );
+  const [developmentView, setDevelopmentView] = useState<"list" | "chart">(
+    "list",
+  ); // <-- Added View State
 
   return (
     <div className="w-full">
@@ -132,12 +142,54 @@ export function ChildDetailTabs({
 
         {activeTab === "development" && (
           <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
+            {/* View Toggle Header */}
+            {history.length > 0 && (
+              <div className="flex items-center justify-between px-1 mb-2">
+                <h3 className="text-[15px] font-bold text-gray-800 tracking-tight">
+                  {developmentView === "list"
+                    ? "ประวัติการวัด"
+                    : "ภาพรวมพัฒนาการ"}
+                </h3>
+                <div className="flex bg-gray-100/80 p-1 rounded-xl">
+                  <button
+                    onClick={() => setDevelopmentView("list")}
+                    className={`p-1.5 rounded-lg transition-all ${
+                      developmentView === "list"
+                        ? "bg-white text-orange-600 shadow-sm"
+                        : "text-gray-400 hover:text-gray-600"
+                    }`}
+                  >
+                    <List className="w-4 h-4" strokeWidth={2.5} />
+                  </button>
+                  <button
+                    onClick={() => setDevelopmentView("chart")}
+                    className={`p-1.5 rounded-lg transition-all ${
+                      developmentView === "chart"
+                        ? "bg-white text-blue-600 shadow-sm"
+                        : "text-gray-400 hover:text-gray-600"
+                    }`}
+                  >
+                    <LineChartIcon className="w-4 h-4" strokeWidth={2.5} />
+                  </button>
+                </div>
+              </div>
+            )}
+
             {history.length > 0 ? (
-              history.map((record) => (
-                <DevelopmentCard key={record.id} data={record} />
-              ))
+              developmentView === "list" ? (
+                // List View
+                <div className="space-y-4">
+                  {history.map((record) => (
+                    <DevelopmentCard key={record.id} data={record} />
+                  ))}
+                </div>
+              ) : (
+                // Chart View
+                <DevelopmentChart history={history} />
+              )
             ) : (
-              <div className="text-center py-12 px-4 bg-white rounded-3xl border border-gray-100 border-dashed">
+              // Empty State
+              <div className="text-center py-12 px-4 bg-white rounded-3xl border border-gray-100 border-dashed mt-8">
                 <div className="bg-orange-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 text-orange-400">
                   <Activity className="w-8 h-8" strokeWidth={1.5} />
                 </div>
