@@ -1,1 +1,1 @@
-export * from './EBottomNavbar';
+export * from './EMobilePage';

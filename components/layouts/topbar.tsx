@@ -1,7 +1,9 @@
-export default function Topbar() {
+"use client";
+
+export default function TopbarDesktop() {
   return(
     <div>
-      
+
     </div>
   );
 }
