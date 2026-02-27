@@ -42,7 +42,7 @@ export default async function StaffPage({
   }
 
   return (
-    <div className="flex flex-col gap-4 p-8 w-full max-w-6xl mx-auto">
+    <div className="flex flex-col gap-4 p-4 md:p-8 w-full max-w-6xl mx-auto">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">ข้อมูลเจ้าหน้าที่</h1>
         <p className="text-muted-foreground">

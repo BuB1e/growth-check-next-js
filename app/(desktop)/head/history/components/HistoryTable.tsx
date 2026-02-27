@@ -115,7 +115,7 @@ export function HistoryTable({ rawData }: HistoryTableProps) {
   return (
     <div className="space-y-4">
       {/* Controls */}
-      <div className="flex flex-col sm:flex-row gap-3 justify-between">
+      <div className="flex flex-wrap gap-3 justify-between">
         <form onSubmit={handleSearch} className="flex items-center gap-2">
           <div className="relative">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -146,65 +146,67 @@ export function HistoryTable({ rawData }: HistoryTableProps) {
 
       {/* Table */}
       <div className="rounded-md border overflow-hidden">
-        <table className="w-full text-sm">
-          <thead className="bg-muted/50 border-b">
-            <tr>
-              <th className="text-left font-medium px-4 py-3 w-[52%]">
-                <SortBtn label="หัวข้อ" col="title" onSort={handleSort} />
-              </th>
-              <th className="text-left font-medium px-4 py-3 w-[28%]">
-                <SortBtn label="โดย" col="actor" onSort={handleSort} />
-              </th>
-              <th className="text-left font-medium px-4 py-3 w-[16%]">
-                <SortBtn label="วันที่" col="createdAt" onSort={handleSort} />
-              </th>
-              <th className="w-10" />
-            </tr>
-          </thead>
-          <tbody>
-            {rawData.data.length ? (
-              rawData.data.map((entry) => (
-                <tr
-                  key={entry.id}
-                  className="border-b last:border-0 cursor-pointer hover:bg-muted/40 transition-colors"
-                  onClick={() => router.push(`/head/history/${entry.id}`)}
-                >
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-2">
-                      <StatusIcon status={entry.status} />
-                      <span className="line-clamp-1">{entry.title}</span>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3">
-                    <ActorLabel actor={entry.actor} />
-                  </td>
-                  <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">
-                    {format(new Date(entry.createdAt), "d MMM yy", {
-                      locale: th,
-                    })}
-                  </td>
-                  <td
-                    className="px-2 py-3"
-                    onClick={(e) => e.stopPropagation()}
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="bg-muted/50 border-b">
+              <tr>
+                <th className="text-left font-medium px-4 py-3 w-[52%]">
+                  <SortBtn label="หัวข้อ" col="title" onSort={handleSort} />
+                </th>
+                <th className="text-left font-medium px-4 py-3 w-[28%]">
+                  <SortBtn label="โดย" col="actor" onSort={handleSort} />
+                </th>
+                <th className="text-left font-medium px-4 py-3 w-[16%]">
+                  <SortBtn label="วันที่" col="createdAt" onSort={handleSort} />
+                </th>
+                <th className="w-10" />
+              </tr>
+            </thead>
+            <tbody>
+              {rawData.data.length ? (
+                rawData.data.map((entry) => (
+                  <tr
+                    key={entry.id}
+                    className="border-b last:border-0 cursor-pointer hover:bg-muted/40 transition-colors"
+                    onClick={() => router.push(`/head/history/${entry.id}`)}
                   >
-                    <Button variant="ghost" size="icon" className="h-8 w-8">
-                      <MoreVertical className="h-4 w-4" />
-                    </Button>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-2">
+                        <StatusIcon status={entry.status} />
+                        <span className="line-clamp-1">{entry.title}</span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3">
+                      <ActorLabel actor={entry.actor} />
+                    </td>
+                    <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">
+                      {format(new Date(entry.createdAt), "d MMM yy", {
+                        locale: th,
+                      })}
+                    </td>
+                    <td
+                      className="px-2 py-3"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <Button variant="ghost" size="icon" className="h-8 w-8">
+                        <MoreVertical className="h-4 w-4" />
+                      </Button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td
+                    colSpan={4}
+                    className="px-4 py-16 text-center text-muted-foreground"
+                  >
+                    ไม่พบประวัติการดำเนินการ
                   </td>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td
-                  colSpan={4}
-                  className="px-4 py-16 text-center text-muted-foreground"
-                >
-                  ไม่พบประวัติการดำเนินการ
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* Pagination */}

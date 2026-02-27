@@ -93,7 +93,7 @@ async function RequestDetailContent({
             <CardDescription>รายละเอียดที่เจ้าหน้าที่ส่งมา</CardDescription>
           </CardHeader>
           <CardContent>
-            <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-5 text-sm">
+            <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-5 text-base">
               <InfoRow
                 label="ชื่อสถานที่ (ที่ขอสร้าง)"
                 value={request.locationName}
@@ -107,7 +107,7 @@ async function RequestDetailContent({
 
             {request.locationMap && (
               <div className="mt-5 pt-4 border-t">
-                <p className="text-xs text-muted-foreground mb-2 font-medium flex items-center gap-1.5">
+                <p className="text-sm text-muted-foreground mb-2 font-medium flex items-center gap-1.5">
                   <MapPin className="h-3.5 w-3.5" />
                   Google Maps / ลิงก์พิกัด
                 </p>
@@ -176,8 +176,8 @@ async function RequestDetailContent({
 function InfoRow({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <dt className="text-muted-foreground text-xs font-medium">{label}</dt>
-      <dd className="mt-1 font-medium text-sm">{value || "—"}</dd>
+      <dt className="text-muted-foreground text-sm font-medium">{label}</dt>
+      <dd className="mt-1 font-medium text-base">{value || "—"}</dd>
     </div>
   );
 }

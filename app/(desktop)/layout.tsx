@@ -17,7 +17,12 @@ export default function DesktopLayout({
         <Suspense fallback={null}>
           <TopbarDesktop />
         </Suspense>
-        <main className="flex-1 w-full bg-slate-50">{children}</main>
+        <main
+          className="flex-1 w-full bg-slate-50"
+          style={{ fontSize: "18px" }}
+        >
+          {children}
+        </main>
       </div>
     </SidebarProvider>
   );

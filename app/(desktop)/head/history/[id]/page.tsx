@@ -25,7 +25,9 @@ export default function HistoryDetailPage({
           </Link>
         </Button>
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">รายละเอียด</h2>
+          <h2 className="text-2xl md:text-3xl font-bold tracking-tight">
+            รายละเอียด
+          </h2>
           <p className="text-muted-foreground mt-1">
             ข้อมูลการดำเนินการ (ดูได้อย่างเดียว)
           </p>
@@ -91,7 +93,7 @@ async function HistoryDetailContent({
       : `${entry.actor.role} ${entry.actor.locationName ?? ""}`.trim();
 
   return (
-    <div className="max-w-2xl space-y-5">
+    <div className="w-full space-y-5">
       {/* Main Info Card */}
       <Card>
         <CardHeader>
@@ -102,8 +104,8 @@ async function HistoryDetailContent({
             {/* Title — full width */}
             <ReadOnlyField label="หัวข้อ" value={entry.title} />
 
-            {/* Two-column grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            {/* Two-column grid — 3 cols on xl */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
               <ReadOnlyField label="ทำเรื่องโดย" value={entry.actor.name} />
               <ReadOnlyField label="ตำแหน่ง" value={actorPosition} />
 
@@ -167,7 +169,7 @@ async function HistoryDetailContent({
         <CardHeader>
           <CardTitle className="text-base">ข้อมูลเวลา</CardTitle>
         </CardHeader>
-        <CardContent className="grid grid-cols-2 gap-5 text-sm">
+        <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-5 text-sm">
           <ReadOnlyField
             label="วันที่ดำเนินการ"
             value={new Date(entry.createdAt).toLocaleDateString("th-TH", {
@@ -193,10 +195,10 @@ async function HistoryDetailContent({
 function ReadOnlyField({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <label className="block text-xs text-muted-foreground font-medium mb-1.5">
+      <label className="block text-sm text-muted-foreground font-medium mb-1.5">
         {label}
       </label>
-      <div className="rounded-lg border bg-muted/30 px-4 py-2.5 text-sm font-medium text-foreground">
+      <div className="rounded-lg border bg-muted/30 px-4 py-2.5 text-sm font-medium text-foreground wrap-break-word">
         {value || "—"}
       </div>
     </div>

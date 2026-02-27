@@ -52,7 +52,7 @@ export default function DashboardPage({
   };
 
   return (
-    <div className="flex flex-col gap-6 p-8 w-full max-w-7xl mx-auto">
+    <div className="flex flex-col gap-6 p-4 md:p-8 w-full max-w-7xl mx-auto">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">
@@ -163,7 +163,7 @@ export default function DashboardPage({
       </div>
 
       {/* Charts Layer */}
-      <div className="grid gap-4 lg:grid-cols-7 mt-2">
+      <div className="grid gap-4 grid-cols-1 lg:grid-cols-7 mt-2">
         <Card className="lg:col-span-4 shadow-sm border-slate-200/60 flex flex-col">
           <CardHeader>
             <CardTitle>แนวโน้มภาวะโภชนาการ (6 เดือนล่าสุด)</CardTitle>

@@ -53,18 +53,21 @@ export default function StaffFilters() {
   };
 
   return (
-    <div className="flex items-center justify-between gap-4 py-4">
-      <form onSubmit={handleSearchSubmit} className="flex items-center gap-2">
-        <div className="relative">
+    <div className="flex flex-wrap items-center gap-3 py-4">
+      <form
+        onSubmit={handleSearchSubmit}
+        className="flex flex-1 min-w-0 items-center gap-2"
+      >
+        <div className="relative flex-1 min-w-0">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="ค้นหาชื่อ..."
             value={searchValue}
             onChange={(e) => setSearchValue(e.target.value)}
-            className="max-w-sm pl-8"
+            className="w-full sm:max-w-sm pl-8"
           />
         </div>
-        <Button type="submit" variant="secondary">
+        <Button type="submit" variant="secondary" className="shrink-0">
           ค้นหา
         </Button>
       </form>

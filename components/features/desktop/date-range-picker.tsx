@@ -69,7 +69,7 @@ export function DateRangePicker({
             id="date"
             variant={"outline"}
             className={cn(
-              "w-[300px] justify-start text-left font-normal bg-white",
+              "w-full md:w-[300px] justify-start text-left font-normal bg-white",
               !date && "text-muted-foreground",
             )}
           >
@@ -97,6 +97,17 @@ export function DateRangePicker({
             onSelect={handleSelect}
             numberOfMonths={2}
             locale={th}
+            className="hidden md:block"
+          />
+          <Calendar
+            initialFocus
+            mode="range"
+            defaultMonth={date?.from}
+            selected={date}
+            onSelect={handleSelect}
+            numberOfMonths={1}
+            locale={th}
+            className="block md:hidden"
           />
         </PopoverContent>
       </Popover>
