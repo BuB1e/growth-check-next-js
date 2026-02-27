@@ -49,7 +49,7 @@ const sidebarNavItems = [
   },
   {
     title: ESidebarToThai[ESidebar.REQUEST],
-    url: "/head/request",
+    url: "/head/requests",
     icon: FileText,
     type: ESidebar.REQUEST,
   },

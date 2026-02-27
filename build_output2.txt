@@ -1,9 +1,0 @@
-
-> growth-check-nextjs@0.1.0 build D:\SeniorProject\new\growth-check-next-js
-> next build
-
-▲ Next.js 16.1.6 (Turbopack, Cache Components)
-- Environments: .env.production, .env
-
-  Creating an optimized production build ...
- ELIFECYCLE  Command failed with exit code 1.
