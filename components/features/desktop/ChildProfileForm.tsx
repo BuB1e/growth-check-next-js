@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { ChildResponse } from "@/dto";
 import { Button } from "@/components/ui/button";
-import { updateChildAction } from "../actions";
+import { updateChildAction } from "../../../app/(desktop)/head/children/actions";
 import {
   Form,
   FormControl,

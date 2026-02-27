@@ -11,9 +11,9 @@ import {
 import { ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { ChildProfileForm } from "../components/ChildProfileForm";
-import { MeasurementHistory } from "../components/MeasurementHistory";
-import { GrowthChart } from "../components/GrowthChart";
+import { ChildProfileForm } from "../../../../../components/features/desktop/ChildProfileForm";
+import { MeasurementHistory } from "../../../../../components/features/desktop/MeasurementHistory";
+import { GrowthChart } from "../../../../../components/features/desktop/GrowthChart";
 
 export const metadata = {
   title: "รายละเอียดข้อมูลเด็ก",

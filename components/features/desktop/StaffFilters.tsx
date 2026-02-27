@@ -58,7 +58,7 @@ export default function StaffFilters() {
         onSubmit={handleSearchSubmit}
         className="flex flex-1 min-w-0 items-center gap-2"
       >
-        <div className="relative flex-1 min-w-0">
+        <div className="relative flex-1 min-w-0 space-x-2">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="ค้นหาชื่อ..."
@@ -66,10 +66,10 @@ export default function StaffFilters() {
             onChange={(e) => setSearchValue(e.target.value)}
             className="w-full sm:max-w-sm pl-8"
           />
+          <Button type="submit" variant="secondary" className="shrink-0">
+            ค้นหา
+          </Button>
         </div>
-        <Button type="submit" variant="secondary" className="shrink-0">
-          ค้นหา
-        </Button>
       </form>
 
       <Select

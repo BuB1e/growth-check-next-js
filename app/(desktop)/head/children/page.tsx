@@ -7,7 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { ChildrenTable } from "./components/ChildrenTable";
+import { ChildrenTable } from "../../../../components/features/desktop/ChildrenTable";
 import { Loader2 } from "lucide-react";
 import { ChildResponse } from "@/dto";
 
