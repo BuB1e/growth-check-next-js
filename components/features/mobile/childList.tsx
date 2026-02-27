@@ -28,17 +28,7 @@ export async function MobileChildList({
 }: MobileChildListProps) {
   let paginatedData: PaginatedChildResponse | null = null;
   try {
-    paginatedData = await ChildAction.getChildrenMock(
-      page,
-      limit,
-      search,
-      status,
-      minAge,
-      maxAge,
-      heightDev,
-      weightDev,
-      locationId,
-    );
+    paginatedData = await ChildAction.getChildren(page, limit, search, status);
   } catch (error) {
     console.error("Failed to load children", error);
   }

@@ -1,0 +1,75 @@
+"use client";
+
+import { ColumnDef } from "@tanstack/react-table";
+import { UserResponse } from "@/dto";
+import { ArrowUpDown } from "lucide-react";
+import { Button } from "@/components/ui/button";
+
+export const columns: ColumnDef<UserResponse>[] = [
+  {
+    accessorKey: "firstName",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          ชื่อจริง
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
+  },
+  {
+    accessorKey: "lastName",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          นามสกุล
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
+  },
+  {
+    accessorKey: "role",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          ตำแหน่ง
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => {
+      const role = row.getValue("role") as string;
+      const roleText =
+        role === "ADMIN" ? "แอดมิน" : role === "HEAD" ? "หัวหน้า" : "ผู้ใช้งาน";
+      return <div>{roleText}</div>;
+    },
+  },
+  {
+    accessorKey: "updatedAt",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          วันที่แก้ไขล่าสุด
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => {
+      const date = new Date(row.getValue("updatedAt"));
+      return <div>{date.toLocaleDateString("th-TH")}</div>;
+    },
+  },
+];

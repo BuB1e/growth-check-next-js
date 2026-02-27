@@ -2,12 +2,7 @@
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useState } from "react";
-import {
-  Search,
-  SlidersHorizontal,
-  ChevronDown,
-  ChevronUp,
-} from "lucide-react";
+import { Search, SlidersHorizontal } from "lucide-react";
 
 export function ChildListFilters() {
   const router = useRouter();

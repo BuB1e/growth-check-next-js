@@ -1,0 +1,27 @@
+
+> growth-check-nextjs@0.1.0 build D:\SeniorProject\new\growth-check-next-js
+> next build
+
+▲ Next.js 16.1.6 (Turbopack, Cache Components)
+- Environments: .env.production, .env
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 6.3s
+  Running TypeScript ...
+Failed to compile.
+
+./app/(desktop)/head/children/components/ChildProfileForm.tsx:51:5
+Type error: Type 'Resolver<{ firstName: string; lastName: string; locationId: unknown; }, any, { firstName: string; lastName: string; locationId: number; }>' is not assignable to type 'Resolver<{ firstName: string; lastName: string; locationId: number; }, any, { firstName: string; lastName: string; locationId: number; }>'.
+  Types of parameters 'options' and 'options' are incompatible.
+    Type 'ResolverOptions<{ firstName: string; lastName: string; locationId: number; }>' is not assignable to type 'ResolverOptions<{ firstName: string; lastName: string; locationId: unknown; }>'.
+      Type 'unknown' is not assignable to type 'number'.
+
+[0m [90m 49 |[39m
+ [90m 50 |[39m   [36mconst[39m form [33m=[39m useForm[33m<[39m[33mz[39m[33m.[39minfer[33m<[39m[36mtypeof[39m profileFormSchema[33m>>[39m({
+[31m[1m>[22m[39m[90m 51 |[39m     resolver[33m:[39m zodResolver(profileFormSchema)[33m,[39m
+ [90m    |[39m     [31m[1m^[22m[39m
+ [90m 52 |[39m     defaultValues[33m:[39m {
+ [90m 53 |[39m       firstName[33m:[39m child[33m.[39mfirst_name[33m,[39m
+ [90m 54 |[39m       lastName[33m:[39m child[33m.[39mlast_name[33m,[39m[0m
+Next.js build worker exited with code: 1 and signal: null
+ ELIFECYCLE  Command failed with exit code 1.

@@ -30,7 +30,6 @@ interface MeasurementDrawerProps {
 }
 
 export function MeasurementDrawer({
-  childId,
   open,
   onOpenChange,
 }: MeasurementDrawerProps) {
