@@ -12,7 +12,7 @@ import {
   PaginatedRequestResponse,
 } from "@/actions/LocationCreateRequestAction";
 import { LocationCreateRequestResponse } from "@/dto";
-import { RequestsTable } from "../../../../components/features/desktop/RequestsTable";
+import { RequestsTable } from "@/components/features/desktop/RequestsTable";
 
 export const metadata = {
   title: "คำร้องขอสร้างสถานที่",

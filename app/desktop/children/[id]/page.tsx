@@ -11,9 +11,9 @@ import {
 import { ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { ChildProfileForm } from "../../../../../components/features/desktop/ChildProfileForm";
-import { MeasurementHistory } from "../../../../../components/features/desktop/MeasurementHistory";
-import { GrowthChart } from "../../../../../components/features/desktop/GrowthChart";
+import { ChildProfileForm } from "@/components/features/desktop/ChildProfileForm";
+import { MeasurementHistory } from "@/components/features/desktop/MeasurementHistory";
+import { GrowthChart } from "@/components/features/desktop/GrowthChart";
 
 export const metadata = {
   title: "รายละเอียดข้อมูลเด็ก",
@@ -30,7 +30,8 @@ export default function ChildDetailPage({
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
       <div className="flex items-center space-x-4 mb-4">
         <Button variant="ghost" size="icon" asChild>
-          <Link href="/head/children">
+          {/* Back to the shared children list */}
+          <Link href="/children">
             <ArrowLeft className="h-5 w-5" />
             <span className="sr-only">กลับไปหน้ารายชื่อเด็ก</span>
           </Link>

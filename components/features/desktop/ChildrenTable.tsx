@@ -63,7 +63,7 @@ export function ChildrenTable({ rawData }: ChildrenTableProps) {
         params.set(key, value);
       }
     });
-    router.push(`/head/children?${params.toString()}`);
+    router.push(`/children?${params.toString()}`);
   };
 
   const handleSearch = (e: React.FormEvent) => {
@@ -265,9 +265,7 @@ export function ChildrenTable({ rawData }: ChildrenTableProps) {
                     key={row.id}
                     data-state={row.getIsSelected() && "selected"}
                     className="cursor-pointer hover:bg-muted/50 transition-colors"
-                    onClick={() =>
-                      router.push(`/head/children/${row.original.id}`)
-                    }
+                    onClick={() => router.push(`/children/${row.original.id}`)}
                   >
                     {row.getVisibleCells().map((cell) => (
                       <TableCell key={cell.id} className="py-3">

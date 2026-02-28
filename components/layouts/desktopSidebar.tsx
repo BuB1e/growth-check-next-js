@@ -25,37 +25,37 @@ import { usePathname } from "next/navigation";
 const sidebarNavItems = [
   {
     title: ESidebarToThai[ESidebar.DASHBOARD],
-    url: "/head/dashboard",
+    url: "/dashboard",
     icon: LayoutDashboard,
     type: ESidebar.DASHBOARD,
   },
   {
     title: ESidebarToThai[ESidebar.LOCATION],
-    url: "/head/location",
+    url: "/location",
     icon: MapPin,
     type: ESidebar.LOCATION,
   },
   {
     title: ESidebarToThai[ESidebar.STAFF],
-    url: "/head/staff",
+    url: "/staff",
     icon: Users,
     type: ESidebar.STAFF,
   },
   {
     title: ESidebarToThai[ESidebar.CHILD],
-    url: "/head/children",
+    url: "/children",
     icon: Baby,
     type: ESidebar.CHILD,
   },
   {
     title: ESidebarToThai[ESidebar.REQUEST],
-    url: "/head/requests",
+    url: "/requests",
     icon: FileText,
     type: ESidebar.REQUEST,
   },
   {
     title: ESidebarToThai[ESidebar.HISTORY],
-    url: "/head/history",
+    url: "/history",
     icon: History,
     type: ESidebar.HISTORY,
   },

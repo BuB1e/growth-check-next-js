@@ -7,7 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { ChildrenTable } from "../../../../components/features/desktop/ChildrenTable";
+import { ChildrenTable } from "@/components/features/desktop/ChildrenTable";
 import { Loader2 } from "lucide-react";
 import { ChildResponse } from "@/dto";
 
@@ -15,9 +15,6 @@ export const metadata = {
   title: "ข้อมูลเด็กทั้งหมด",
 };
 
-// The outer page component does NOT touch searchParams directly.
-// It renders a Suspense boundary so Next.js can do partial prerendering
-// without blocking on the dynamic data.
 export default function ChildrenPage({
   searchParams,
 }: {
@@ -60,8 +57,6 @@ function TableLoadingSkeleton() {
   );
 }
 
-// This is always an async server component that reads from the dynamic
-// searchParams promise — placed inside Suspense so it never blocks the route.
 async function ChildrenDataWrapper({
   searchParams,
 }: {

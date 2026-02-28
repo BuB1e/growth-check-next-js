@@ -2,7 +2,7 @@
 trigger: always_on
 ---
 
-- This project have 1 role in Mobile is Staff. And 2 Roles in Desktop 1.Admin 2.Head.
+- This project designed using RBAC which role is 1 role in Mobile is Staff. And 2 Roles in Desktop 1.Admin 2.Head.
 - Target user age around 30-55 years old, so make text size large and good readability.
 - Using NextJS modern best practice.
 - Use Pnpm.

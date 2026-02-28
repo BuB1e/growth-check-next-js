@@ -12,7 +12,7 @@ import {
   HistoryEntry,
   PaginatedHistoryResponse,
 } from "@/actions/HistoryAction";
-import { HistoryTable } from "../../../../components/features/desktop/HistoryTable";
+import { HistoryTable } from "@/components/features/desktop/HistoryTable";
 
 export const metadata = {
   title: "ประวัติการดำเนินการ",

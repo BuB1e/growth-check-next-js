@@ -13,6 +13,10 @@ import {
 import { Baby, Users, MapPin, Activity } from "lucide-react";
 import { Suspense } from "react";
 
+export const metadata = {
+  title: "ภาพรวมระบบ",
+};
+
 // Server component handling searchParams
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
 
@@ -43,7 +47,7 @@ export default function DashboardPage({
 }: {
   searchParams: SearchParams;
 }) {
-  // Mock KPI Metrics
+  // TODO: Replace mock metrics with real API data when backend is ready
   const mockMetrics = {
     totalChildren: 600,
     totalArea: 10,

@@ -14,7 +14,8 @@ export async function updateChildAction(
 ) {
   try {
     await ChildAction.updateChild(childId, data);
-    revalidatePath(`/head/children/${childId}`);
+    // Revalidate the shared children detail page path
+    revalidatePath(`/children/${childId}`);
     return { success: true };
   } catch (error) {
     console.error("Failed to update child:", error);

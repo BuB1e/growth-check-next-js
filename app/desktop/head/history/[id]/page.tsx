@@ -19,7 +19,7 @@ export default function HistoryDetailPage({
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
       <div className="flex items-center gap-4 mb-4">
         <Button variant="ghost" size="icon" asChild>
-          <Link href="/head/history">
+          <Link href="/history">
             <ArrowLeft className="h-5 w-5" />
             <span className="sr-only">กลับ</span>
           </Link>
