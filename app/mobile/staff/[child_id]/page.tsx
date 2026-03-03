@@ -20,6 +20,7 @@ async function ChildProfileContent({
   // Fetch both sets of data concurrently
   const [child, history] = await Promise.all([
     ChildAction.getChildById(childId),
+    // TODO: Replace getChildDataMock with real API call
     ChildDataAction.getChildDataMock(childId),
   ]);
 

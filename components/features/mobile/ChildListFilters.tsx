@@ -118,6 +118,7 @@ export function ChildListFilters() {
             <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
               เขต
             </label>
+            {/* TODO: Fetch location data from API */}
             <select
               value={locationId}
               onChange={(e) => handleFilterChange("locationId", e.target.value)}

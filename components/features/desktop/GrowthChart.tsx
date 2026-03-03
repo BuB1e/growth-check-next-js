@@ -26,7 +26,7 @@ interface GrowthChartProps {
   childId: number;
 }
 
-// Temporary individual mock history data matching real measurement data points format
+// TODO: Temporary individual mock history data matching real measurement data points format
 const mockGrowthHistory = [
   { date: "2023-01-10", weight: 22.5, height: 110 },
   { date: "2023-04-12", weight: 23.2, height: 112 },
@@ -58,7 +58,7 @@ export function GrowthChart({ childId: _childId }: GrowthChartProps) {
 
   // Render a reference line denoting normal growth channels.
   // Normally this would be dynamic calculated based on age array logic from the Department of Health.
-  // Hardcoding mock Safe Zone for illustration
+  // TODO: Hardcoding mock Safe Zone for illustration
   const yAxisDomain = metric === "weight" ? [15, 35] : [100, 140];
   const referenceZone =
     metric === "weight"

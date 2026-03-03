@@ -11,6 +11,7 @@ export interface PaginatedChildResponse {
   };
 }
 
+// TODO: Replace persistentMockData with real API calls when backend is ready
 const persistentMockData: ChildResponse[] = [
   {
     id: 1,
@@ -173,7 +174,7 @@ export class ChildAction {
       last_name: payload.lastName,
       location_id: payload.locationId,
       birth_date: payload.birthDate,
-      gender: "male", // default mock value
+      gender: "male", // TODO: default mock value
       created_by_user: "user_mock",
       created_at: new Date(),
       updated_at: new Date(),

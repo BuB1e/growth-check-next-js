@@ -205,6 +205,7 @@ export default function CreateChildPage() {
               >
                 ศูนย์พัฒนาเด็กเล็ก
               </Label>
+              {/* TODO: Fetch location data from API */}
               <select
                 id="locationId"
                 name="locationId"

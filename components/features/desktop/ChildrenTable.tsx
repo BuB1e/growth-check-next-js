@@ -136,7 +136,7 @@ export function ChildrenTable({ rawData }: ChildrenTableProps) {
       accessorKey: "location_id",
       header: "สถานที่",
       cell: ({ row }) => {
-        // Mock Location Resolver
+        // TODO: Mock Location Resolver
         const id = row.original.location_id;
         if (id === 1) return "ชุมชน A";
         if (id === 2) return "ชุมชน B";
