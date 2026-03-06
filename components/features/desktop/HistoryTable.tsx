@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
+import { formatBE } from "@/lib/date-utils";
 
 interface HistoryTableProps {
   rawData: PaginatedHistoryResponse;
@@ -180,9 +181,7 @@ export function HistoryTable({ rawData }: HistoryTableProps) {
                       <ActorLabel actor={entry.actor} />
                     </td>
                     <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">
-                      {format(new Date(entry.createdAt), "d MMM yy", {
-                        locale: th,
-                      })}
+                      {formatBE(entry.createdAt, "d MMM yyyy")}
                     </td>
                     <td
                       className="px-2 py-3"

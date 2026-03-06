@@ -1,10 +1,11 @@
 "use client";
 
 import * as React from "react";
-import { format, subDays } from "date-fns";
+import { subDays } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { DateRange } from "react-day-picker";
-import { th } from "date-fns/locale";
+import { formatBE } from "@/lib/date-utils";
+import { th } from "react-day-picker/locale";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -77,11 +78,11 @@ export function DateRangePicker({
             {date?.from ? (
               date.to ? (
                 <>
-                  {format(date.from, "LLL dd, y", { locale: th })} -{" "}
-                  {format(date.to, "LLL dd, y", { locale: th })}
+                  {formatBE(date.from, "LLL dd, yyyy")} -{" "}
+                  {formatBE(date.to, "LLL dd, yyyy")}
                 </>
               ) : (
-                format(date.from, "LLL dd, y", { locale: th })
+                formatBE(date.from, "LLL dd, yyyy")
               )
             ) : (
               <span>เลือกช่วงเวลา</span>
@@ -97,6 +98,7 @@ export function DateRangePicker({
             onSelect={handleSelect}
             numberOfMonths={2}
             locale={th}
+            numerals="latn"
             className="hidden md:block"
           />
           <Calendar
@@ -107,6 +109,7 @@ export function DateRangePicker({
             onSelect={handleSelect}
             numberOfMonths={1}
             locale={th}
+            numerals="latn"
             className="block md:hidden"
           />
         </PopoverContent>

@@ -12,6 +12,7 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
+import { formatBE } from "@/lib/date-utils";
 
 interface DevelopmentChartProps {
   history: ChildDataResponse[];
@@ -26,11 +27,7 @@ export function DevelopmentChart({ history }: DevelopmentChartProps) {
   const chartData = useMemo(() => {
     return [...history].reverse().map((record) => {
       // Create a short date label "DD MMM"
-      const dateObj = new Date(record.heightDate);
-      const shortDate = new Intl.DateTimeFormat("th-TH", {
-        day: "numeric",
-        month: "short",
-      }).format(dateObj);
+      const shortDate = formatBE(record.heightDate, "d MMM");
 
       return {
         name: `ครั้งที่ ${record.index}`,

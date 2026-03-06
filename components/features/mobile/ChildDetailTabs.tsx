@@ -11,6 +11,7 @@ import {
   List,
   LineChart as LineChartIcon,
 } from "lucide-react";
+import { formatBE } from "@/lib/date-utils";
 
 export function ChildDetailTabs({
   child,
@@ -95,11 +96,7 @@ export function ChildDetailTabs({
                     วัน/เดือน/ปีเกิด
                   </p>
                   <p className="text-[17px] font-medium text-gray-800">
-                    {new Intl.DateTimeFormat("th-TH", {
-                      day: "numeric",
-                      month: "long",
-                      year: "numeric",
-                    }).format(new Date(child.birth_date))}
+                    {formatBE(child.birth_date, "d MMMM yyyy")}
                   </p>
                 </div>
 

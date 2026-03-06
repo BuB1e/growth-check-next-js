@@ -35,9 +35,10 @@ import {
   Clock,
   CheckCircle2,
   XCircle,
-} from "lucide-react";
+} from "lucide-react"; // Assuming these icons are from lucide-react
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
+import { formatBE } from "@/lib/date-utils";
 
 interface RequestsTableProps {
   rawData: PaginatedRequestResponse;
@@ -150,14 +151,12 @@ export function RequestsTable({ rawData }: RequestsTableProps) {
     {
       accessorKey: "createdAt",
       header: () => <SortHeader label="วันที่ร้องขอ" col="createdAt" />,
-      cell: ({ row }) =>
-        format(new Date(row.original.createdAt), "d MMM yyyy", { locale: th }),
+      cell: ({ row }) => formatBE(row.original.createdAt, "d MMM yyyy"),
     },
     {
       accessorKey: "updatedAt",
       header: () => <SortHeader label="วันที่แก้ไขล่าสุด" col="updatedAt" />,
-      cell: ({ row }) =>
-        format(new Date(row.original.updatedAt), "d MMM yyyy", { locale: th }),
+      cell: ({ row }) => formatBE(row.original.updatedAt, "d MMM yyyy"),
     },
     {
       accessorKey: "status",

@@ -11,6 +11,7 @@ import {
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
 import { CheckCircle2, AlertCircle, XCircle } from "lucide-react";
+import { formatBE } from "@/lib/date-utils";
 
 interface MeasurementHistoryProps {
   childId: number;
@@ -71,7 +72,7 @@ export function MeasurementHistory({
                 className="hover:bg-muted/50 transition-colors"
               >
                 <TableCell className="py-3">
-                  {format(record.date, "d MMM yyyy", { locale: th })}
+                  {formatBE(record.date, "d MMM yyyy")}
                 </TableCell>
                 <TableCell className="py-3 text-right font-medium">
                   {record.weight}

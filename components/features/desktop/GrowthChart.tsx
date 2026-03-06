@@ -10,6 +10,7 @@ import {
 } from "recharts";
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
+import { formatBE } from "@/lib/date-utils";
 
 import {
   ChartConfig,
@@ -53,7 +54,7 @@ export function GrowthChart({ childId: _childId }: GrowthChartProps) {
   // Format data points for correct rendering and sorting
   const chartData = mockGrowthHistory.map((d) => ({
     ...d,
-    formattedDate: format(new Date(d.date), "MMM yyyy", { locale: th }),
+    formattedDate: formatBE(d.date, "MMM yyyy"),
   }));
 
   // Render a reference line denoting normal growth channels.

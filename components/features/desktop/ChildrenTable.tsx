@@ -35,9 +35,10 @@ import {
   CheckCircle2,
   XCircle,
   AlertCircle,
-} from "lucide-react";
+} from "lucide-react"; // Assuming lucide-react as the source for these icons
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
+import { formatBE } from "@/lib/date-utils";
 
 interface ChildrenTableProps {
   rawData: PaginatedChildResponse;
@@ -128,8 +129,7 @@ export function ChildrenTable({ rawData }: ChildrenTableProps) {
         </Button>
       ),
       cell: ({ row }) => {
-        const date = new Date(row.original.birth_date);
-        return format(date, "d MMM yyyy", { locale: th });
+        return formatBE(row.original.birth_date, "d MMM yyyy");
       },
     },
     {
@@ -184,8 +184,7 @@ export function ChildrenTable({ rawData }: ChildrenTableProps) {
         </Button>
       ),
       cell: ({ row }) => {
-        const date = new Date(row.original.updated_at);
-        return format(date, "d MMM yyyy", { locale: th });
+        return formatBE(row.original.updated_at, "d MMM yyyy");
       },
     },
   ];

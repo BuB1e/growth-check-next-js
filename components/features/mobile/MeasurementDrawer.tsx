@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2, Save } from "lucide-react";
+import { formatBE } from "@/lib/date-utils";
 
 const measurementSchema = z.object({
   height: z.number().positive("ส่วนสูงต้องมากกว่า 0"),
@@ -37,11 +38,13 @@ export function MeasurementDrawer({
   const now = new Date();
   const [height, setHeight] = useState("");
   const [weight, setWeight] = useState("");
-  const [day, setDay] = useState(now.getDate().toString().padStart(2, "0"));
-  const [month, setMonth] = useState(
-    (now.getMonth() + 1).toString().padStart(2, "0"),
-  );
-  const [year, setYear] = useState((now.getFullYear() + 543).toString());
+
+  const nowStr = formatBE(now, "dd-MM-yyyy");
+  const [defaultDay, defaultMonth, defaultYear] = nowStr.split("-");
+
+  const [day, setDay] = useState(defaultDay);
+  const [month, setMonth] = useState(defaultMonth);
+  const [year, setYear] = useState(defaultYear);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const [isPending, setIsPending] = useState(false);
@@ -50,9 +53,9 @@ export function MeasurementDrawer({
   const resetForm = () => {
     setHeight("");
     setWeight("");
-    setDay(now.getDate().toString().padStart(2, "0"));
-    setMonth((now.getMonth() + 1).toString().padStart(2, "0"));
-    setYear((now.getFullYear() + 543).toString());
+    setDay(defaultDay);
+    setMonth(defaultMonth);
+    setYear(defaultYear);
     setErrors({});
   };
 

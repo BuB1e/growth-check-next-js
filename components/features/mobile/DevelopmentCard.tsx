@@ -2,6 +2,7 @@
 
 import { ChildDataResponse } from "@/dto";
 import { CheckCircle2, AlertTriangle, AlertCircle } from "lucide-react";
+import { formatBE } from "@/lib/date-utils";
 
 export function DevelopmentCard({ data }: { data: ChildDataResponse }) {
   // Determine the overall status for conditional styling
@@ -35,19 +36,9 @@ export function DevelopmentCard({ data }: { data: ChildDataResponse }) {
     StatusIcon = AlertTriangle;
   }
 
-  // Format Date (Assume Thai BE format required downstream)
-  // Simplified formatting here for brevity, adjust according to project date utils
-  const dateFormatted = new Intl.DateTimeFormat("th-TH", {
-    day: "2-digit",
-    month: "long",
-    year: "numeric",
-  }).format(new Date(data.heightDate));
-
-  const rawDateStr = new Intl.DateTimeFormat("th-TH", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  }).format(new Date(data.heightDate));
+  // Format Date (Thai BE format)
+  const dateFormatted = formatBE(data.heightDate, "d MMMM yyyy");
+  const rawDateStr = formatBE(data.heightDate, "dd-MM-yyyy");
 
   return (
     <div className="bg-white rounded-3xl overflow-hidden shadow-sm border border-gray-100 mb-4 transition-all hover:shadow-md">
