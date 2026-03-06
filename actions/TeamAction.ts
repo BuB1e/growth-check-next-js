@@ -1,3 +1,4 @@
+import axios from "axios";
 import { EnvConfig } from "@/configs/BackendConfig";
 import { TeamResponse } from "@/dto";
 
@@ -7,13 +8,7 @@ export class TeamAction {
   static ACTION_ENDPOINT = this.BACKEND_ENDPOINT + this.API_ENDPOINT;
 
   static async getTeams(): Promise<TeamResponse[]> {
-    const response = await fetch(this.ACTION_ENDPOINT, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    const data = await response.json();
-    return data as TeamResponse[];
+    const response = await axios.get(this.ACTION_ENDPOINT);
+    return response.data as TeamResponse[];
   }
 }

@@ -1,3 +1,4 @@
+import axios from "axios";
 import { EnvConfig } from "@/configs/BackendConfig";
 import { UserCreateStatusResponse } from "@/dto";
 
@@ -7,13 +8,7 @@ export class UserCreateStatusAction {
   static ACTION_ENDPOINT = this.BACKEND_ENDPOINT + this.API_ENDPOINT;
 
   static async getStatuses(): Promise<UserCreateStatusResponse[]> {
-    const response = await fetch(this.ACTION_ENDPOINT, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    const data = await response.json();
-    return data as UserCreateStatusResponse[];
+    const response = await axios.get(this.ACTION_ENDPOINT);
+    return response.data as UserCreateStatusResponse[];
   }
 }

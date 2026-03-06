@@ -1,3 +1,4 @@
+import axios from "axios";
 import { EnvConfig } from "@/configs/BackendConfig";
 import { ChildDataResponse } from "@/dto";
 
@@ -221,13 +222,9 @@ export class ChildDataAction {
   }
 
   static async getChildData(childId: number): Promise<ChildDataResponse[]> {
-    const response = await fetch(`${this.ACTION_ENDPOINT}?childId=${childId}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    const data = await response.json();
-    return data as ChildDataResponse[];
+    const response = await axios.get(
+      `${this.ACTION_ENDPOINT}?childId=${childId}`,
+    );
+    return response.data as ChildDataResponse[];
   }
 }
