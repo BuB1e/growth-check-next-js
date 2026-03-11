@@ -75,10 +75,11 @@ export async function createChildServerAction(
     await ChildAction.createChild({
       firstName,
       lastName,
-      birthDate,
+      birthDate: birthDate.toISOString(),
       locationId: parseInt(locationId),
-      weight: parseFloat(weight),
-      height: parseFloat(height),
+      // TODO: Replace with actual user ID from session
+      createdByUser: "current-user",
+      updatedByUser: "current-user",
     });
   } catch (error) {
     console.error("Failed to create child:", error);

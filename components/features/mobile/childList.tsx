@@ -1,4 +1,5 @@
-import { ChildAction, PaginatedChildResponse } from "@/actions/ChildAction";
+import { ChildAction } from "@/actions/ChildAction";
+import type { ChildResponse, PaginatedResponse } from "@/dto";
 import { MobileChildListItem } from "./childListItem";
 import { FileQuestion, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
@@ -26,9 +27,10 @@ export async function MobileChildList({
   weightDev = "",
   locationId = "",
 }: MobileChildListProps) {
-  let paginatedData: PaginatedChildResponse | null = null;
+  let paginatedData: PaginatedResponse<ChildResponse> | null = null;
   try {
-    paginatedData = await ChildAction.getChildren(page, limit, search, status);
+    // TODO: Map search/status params to API query params
+    paginatedData = await ChildAction.getChildren({ page, limit, firstName: search || undefined });
   } catch (error) {
     console.error("Failed to load children", error);
   }

@@ -7,11 +7,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
-import {
-  LocationCreateRequestAction,
-  PaginatedRequestResponse,
-} from "@/actions/LocationCreateRequestAction";
-import { LocationCreateRequestResponse } from "@/dto";
+import { LocationCreateRequestAction } from "@/actions/LocationCreateRequestAction";
+import type { LocationCreateRequestResponse, PaginatedResponse } from "@/dto";
 import { RequestsTable } from "@/components/features/desktop/RequestsTable";
 
 export const metadata = {
@@ -74,17 +71,15 @@ async function RequestsDataWrapper({
     (sp?.orderBy as keyof LocationCreateRequestResponse) || "updatedAt";
   const orderDirection = (sp?.orderDirection as "asc" | "desc") || "desc";
 
-  let data: PaginatedRequestResponse | null = null;
+  let data: PaginatedResponse<LocationCreateRequestResponse> | null = null;
 
   try {
-    data = await LocationCreateRequestAction.getRequests(
-      page,
-      limit,
-      search,
-      status,
-      orderBy,
-      orderDirection,
+    // TODO: Pass query params to API when backend supports list endpoint
+    const result = await LocationCreateRequestAction.getRequestsByUserId(
+      "all",
+      { page, limit },
     );
+    data = { data: result, meta: { total: result.length, page, limit, totalPages: Math.ceil(result.length / limit) } };
   } catch (error) {
     console.error("Failed to load requests:", error);
   }

@@ -17,12 +17,13 @@ async function ChildProfileContent({
     notFound();
   }
 
-  // Fetch both sets of data concurrently
-  const [child, history] = await Promise.all([
-    ChildAction.getChildById(childId),
-    // TODO: Replace getChildDataMock with real API call
-    ChildDataAction.getChildDataMock(childId),
+  const [child, childDataResponse] = await Promise.all([
+    ChildAction.getChildById(p.child_id.replace("child_", "")),
+    // TODO: Replace with real API call filtered by childId
+    ChildDataAction.getChildDataList({ childId: childId }),
   ]);
+
+  const history = childDataResponse?.data || [];
 
   if (!child) {
     notFound();

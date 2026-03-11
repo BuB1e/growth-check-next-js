@@ -67,22 +67,18 @@ async function ChildrenDataWrapper({
   const limit = Number(sp?.limit) || 10;
   const search = sp?.search;
   const status = sp?.status;
-  const orderBy = (sp?.orderBy as keyof ChildResponse) || "updated_at";
+  const orderBy = (sp?.orderBy as keyof ChildResponse) || "updatedAt";
   const orderDirection = (sp?.orderDirection as "asc" | "desc") || "desc";
 
   let data = null;
 
   try {
-    data = await ChildAction.getChildren(
+    data = await ChildAction.getChildren({
       page,
       limit,
-      search,
-      status,
-      undefined,
-      undefined,
-      orderBy,
-      orderDirection,
-    );
+      firstName: search,
+      deleteStatus: false,
+    });
   } catch (error) {
     console.error("Failed to load children", error);
   }

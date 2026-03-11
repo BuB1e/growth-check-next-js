@@ -11,3 +11,4 @@ export * from "./DevelopmentDTO";
 export * from "./LocationCreateRequestDTO";
 export * from "./TeamDTO";
 export * from "./UserCreateStatusDTO";
+export * from "./PaginatedResponse";

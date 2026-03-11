@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/table";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ChildResponse } from "@/dto";
-import { PaginatedChildResponse } from "@/actions/ChildAction";
+import type { PaginatedResponse } from "@/dto";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -41,7 +41,7 @@ import { th } from "date-fns/locale";
 import { formatBE } from "@/lib/date-utils";
 
 interface ChildrenTableProps {
-  rawData: PaginatedChildResponse;
+  rawData: PaginatedResponse<ChildResponse>;
 }
 
 export function ChildrenTable({ rawData }: ChildrenTableProps) {
@@ -91,11 +91,11 @@ export function ChildrenTable({ rawData }: ChildrenTableProps) {
 
   const columns: ColumnDef<ChildResponse>[] = [
     {
-      accessorKey: "first_name",
+      accessorKey: "firstName",
       header: () => (
         <Button
           variant="ghost"
-          onClick={() => handleSort("first_name")}
+          onClick={() => handleSort("firstName")}
           className="-ml-4 h-8 data-[state=open]:bg-accent"
         >
           ชื่อจริง
@@ -104,11 +104,11 @@ export function ChildrenTable({ rawData }: ChildrenTableProps) {
       ),
     },
     {
-      accessorKey: "last_name",
+      accessorKey: "lastName",
       header: () => (
         <Button
           variant="ghost"
-          onClick={() => handleSort("last_name")}
+          onClick={() => handleSort("lastName")}
           className="-ml-4 h-8 data-[state=open]:bg-accent"
         >
           นามสกุล
@@ -117,11 +117,11 @@ export function ChildrenTable({ rawData }: ChildrenTableProps) {
       ),
     },
     {
-      accessorKey: "birth_date",
+      accessorKey: "birthDate",
       header: () => (
         <Button
           variant="ghost"
-          onClick={() => handleSort("birth_date")}
+          onClick={() => handleSort("birthDate")}
           className="-ml-4 h-8 data-[state=open]:bg-accent"
         >
           วันเกิด
@@ -129,15 +129,15 @@ export function ChildrenTable({ rawData }: ChildrenTableProps) {
         </Button>
       ),
       cell: ({ row }) => {
-        return formatBE(row.original.birth_date, "d MMM yyyy");
+        return formatBE(row.original.birthDate, "d MMM yyyy");
       },
     },
     {
-      accessorKey: "location_id",
+      accessorKey: "locationId",
       header: "สถานที่",
       cell: ({ row }) => {
         // TODO: Mock Location Resolver
-        const id = row.original.location_id;
+        const id = row.original.locationId;
         if (id === 1) return "ชุมชน A";
         if (id === 2) return "ชุมชน B";
         return "ชุมชนอื่น";
@@ -149,19 +149,19 @@ export function ChildrenTable({ rawData }: ChildrenTableProps) {
       cell: ({ row }) => {
         const status = row.original.status;
         switch (status) {
-          case "In_Area":
+          case "IN_AREA":
             return (
               <div className="flex items-center text-green-600 font-medium">
                 <CheckCircle2 className="mr-1.5 h-4 w-4" /> สมส่วน
               </div>
             );
-          case "Out_Area":
+          case "OUT_AREA":
             return (
               <div className="flex items-center text-yellow-500 font-medium">
                 <AlertCircle className="mr-1.5 h-4 w-4" /> สูงกว่าเกณฑ์
               </div>
             );
-          case "Unknown":
+          case "UNKNOWN":
           default:
             return (
               <div className="flex items-center text-red-500 font-medium">
@@ -172,11 +172,11 @@ export function ChildrenTable({ rawData }: ChildrenTableProps) {
       },
     },
     {
-      accessorKey: "updated_at",
+      accessorKey: "updatedAt",
       header: () => (
         <Button
           variant="ghost"
-          onClick={() => handleSort("updated_at")}
+          onClick={() => handleSort("updatedAt")}
           className="-ml-4 h-8 data-[state=open]:bg-accent"
         >
           วันที่แก้ไขล่าสุด
@@ -184,7 +184,7 @@ export function ChildrenTable({ rawData }: ChildrenTableProps) {
         </Button>
       ),
       cell: ({ row }) => {
-        return formatBE(row.original.updated_at, "d MMM yyyy");
+        return formatBE(row.original.updatedAt, "d MMM yyyy");
       },
     },
   ];

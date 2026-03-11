@@ -1,0 +1,3609 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Elysia Documentation",
+    "description": "Development documentation",
+    "version": "0.0.0"
+  },
+  "paths": {
+    "/ai-predictions/": {
+      "get": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "number"
+            },
+            "in": "query",
+            "name": "page",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "number"
+            },
+            "in": "query",
+            "name": "limit",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "number"
+            },
+            "in": "query",
+            "name": "childId",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "number"
+            },
+            "in": "query",
+            "name": "month",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "modelUsed",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "modelVersion",
+            "required": false
+          }
+        ],
+        "operationId": "getAi-predictions",
+        "tags": [
+          "Ai Predictions"
+        ],
+        "responses": {
+          "200": {}
+        }
+      },
+      "post": {
+        "parameters": [],
+        "operationId": "postAi-predictions",
+        "tags": [
+          "Ai Predictions"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "type": "object",
+                "properties": {
+                  "childId": {
+                    "type": "number"
+                  },
+                  "heightDevelopmentId": {
+                    "type": "number"
+                  },
+                  "weightDevelopmentId": {
+                    "type": "number"
+                  },
+                  "dataMonthsUsed": {
+                    "type": "number"
+                  },
+                  "modelUsed": {
+                    "type": "string"
+                  },
+                  "modelVersion": {
+                    "type": "string"
+                  },
+                  "dateTime": {
+                    "type": "string"
+                  },
+                  "month": {
+                    "type": "number"
+                  },
+                  "height": {
+                    "type": "number"
+                  },
+                  "weight": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "childId",
+                  "heightDevelopmentId",
+                  "weightDevelopmentId",
+                  "dataMonthsUsed",
+                  "modelUsed",
+                  "modelVersion",
+                  "dateTime",
+                  "month",
+                  "height",
+                  "weight"
+                ]
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "additionalProperties": false,
+                "type": "object",
+                "properties": {
+                  "childId": {
+                    "type": "number"
+                  },
+                  "heightDevelopmentId": {
+                    "type": "number"
+                  },
+                  "weightDevelopmentId": {
+                    "type": "number"
+                  },
+                  "dataMonthsUsed": {
+                    "type": "number"
+                  },
+                  "modelUsed": {
+                    "type": "string"
+                  },
+                  "modelVersion": {
+                    "type": "string"
+                  },
+                  "dateTime": {
+                    "type": "string"
+                  },
+                  "month": {
+                    "type": "number"
+                  },
+                  "height": {
+                    "type": "number"
+                  },
+                  "weight": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "childId",
+                  "heightDevelopmentId",
+                  "weightDevelopmentId",
+                  "dataMonthsUsed",
+                  "modelUsed",
+                  "modelVersion",
+                  "dateTime",
+                  "month",
+                  "height",
+                  "weight"
+                ]
+              }
+            },
+            "text/plain": {
+              "schema": {
+                "additionalProperties": false,
+                "type": "object",
+                "properties": {
+                  "childId": {
+                    "type": "number"
+                  },
+                  "heightDevelopmentId": {
+                    "type": "number"
+                  },
+                  "weightDevelopmentId": {
+                    "type": "number"
+                  },
+                  "dataMonthsUsed": {
+                    "type": "number"
+                  },
+                  "modelUsed": {
+                    "type": "string"
+                  },
+                  "modelVersion": {
+                    "type": "string"
+                  },
+                  "dateTime": {
+                    "type": "string"
+                  },
+                  "month": {
+                    "type": "number"
+                  },
+                  "height": {
+                    "type": "number"
+                  },
+                  "weight": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "childId",
+                  "heightDevelopmentId",
+                  "weightDevelopmentId",
+                  "dataMonthsUsed",
+                  "modelUsed",
+                  "modelVersion",
+                  "dateTime",
+                  "month",
+                  "height",
+                  "weight"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {}
+        }
+      }
+    },
+    "/ai-predictions/{id}": {
+      "get": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "operationId": "getAi-predictionsById",
+        "tags": [
+          "Ai Predictions"
+        ],
+        "responses": {
+          "200": {}
+        }
+      },
+      "patch": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "operationId": "patchAi-predictionsById",
+        "tags": [
+          "Ai Predictions"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "type": "object",
+                "properties": {
+                  "childId": {
+                    "type": "number"
+                  },
+                  "heightDevelopmentId": {
+                    "type": "number"
+                  },
+                  "weightDevelopmentId": {
+                    "type": "number"
+                  },
+                  "dataMonthsUsed": {
+                    "type": "number"
+                  },
+                  "modelUsed": {
+                    "type": "string"
+                  },
+                  "modelVersion": {
+                    "type": "string"
+                  },
+                  "dateTime": {
+                    "type": "string"
+                  },
+                  "month": {
+                    "type": "number"
+                  },
+                  "height": {
+                    "type": "number"
+                  },
+                  "weight": {
+                    "type": "number"
+                  }
+                }
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "additionalProperties": false,
+                "type": "object",
+                "properties": {
+                  "childId": {
+                    "type": "number"
+                  },
+                  "heightDevelopmentId": {
+                    "type": "number"
+                  },
+                  "weightDevelopmentId": {
+                    "type": "number"
+                  },
+                  "dataMonthsUsed": {
+                    "type": "number"
+                  },
+                  "modelUsed": {
+                    "type": "string"
+                  },
+                  "modelVersion": {
+                    "type": "string"
+                  },
+                  "dateTime": {
+                    "type": "string"
+                  },
+                  "month": {
+                    "type": "number"
+                  },
+                  "height": {
+                    "type": "number"
+                  },
+                  "weight": {
+                    "type": "number"
+                  }
+                }
+              }
+            },
+            "text/plain": {
+              "schema": {
+                "additionalProperties": false,
+                "type": "object",
+                "properties": {
+                  "childId": {
+                    "type": "number"
+                  },
+                  "heightDevelopmentId": {
+                    "type": "number"
+                  },
+                  "weightDevelopmentId": {
+                    "type": "number"
+                  },
+                  "dataMonthsUsed": {
+                    "type": "number"
+                  },
+                  "modelUsed": {
+                    "type": "string"
+                  },
+                  "modelVersion": {
+                    "type": "string"
+                  },
+                  "dateTime": {
+                    "type": "string"
+                  },
+                  "month": {
+                    "type": "number"
+                  },
+                  "height": {
+                    "type": "number"
+                  },
+                  "weight": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {}
+        }
+      },
+      "delete": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "operationId": "deleteAi-predictionsById",
+        "tags": [
+          "Ai Predictions"
+        ],
+        "responses": {
+          "200": {}
+        }
+      }
+    },
+    "/child-data/": {
+      "get": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "number"
+            },
+            "in": "query",
+            "name": "page",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "number"
+            },
+            "in": "query",
+            "name": "limit",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "number"
+            },
+            "in": "query",
+            "name": "childId",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "number"
+            },
+            "in": "query",
+            "name": "locationId",
+            "required": false
+          },
+          {
+            "schema": {
+              "anyOf": [
+                {
+                  "const": "IN_AREA",
+                  "type": "string"
+                },
+                {
+                  "const": "OUT_AREA",
+                  "type": "string"
+                },
+                {
+                  "const": "UNKNOWN",
+                  "type": "string"
+                },
+                {
+                  "const": "DIED",
+                  "type": "string"
+                }
+              ]
+            },
+            "in": "query",
+            "name": "status",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "boolean"
+            },
+            "in": "query",
+            "name": "deleteStatus",
+            "required": false
+          }
+        ],
+        "operationId": "getChild-data",
+        "tags": [
+          "Child Data"
+        ],
+        "responses": {
+          "200": {}
+        }
+      },
+      "post": {
+        "parameters": [],
+        "operationId": "postChild-data",
+        "tags": [
+          "Child Data"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "type": "object",
+                "properties": {
+                  "childId": {
+                    "type": "number"
+                  },
+                  "locationId": {
+                    "type": "number"
+                  },
+                  "height": {
+                    "type": "number"
+                  },
+                  "weight": {
+                    "type": "number"
+                  },
+                  "heightDevelopmentId": {
+                    "type": "number"
+                  },
+                  "weightDevelopmentId": {
+                    "type": "number"
+                  },
+                  "index": {
+                    "type": "number"
+                  },
+                  "heightDate": {
+                    "type": "string"
+                  },
+                  "userCreated": {
+                    "type": "string"
+                  },
+                  "userUpdated": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "anyOf": [
+                      {
+                        "const": "IN_AREA",
+                        "type": "string"
+                      },
+                      {
+                        "const": "OUT_AREA",
+                        "type": "string"
+                      },
+                      {
+                        "const": "UNKNOWN",
+                        "type": "string"
+                      },
+                      {
+                        "const": "DIED",
+                        "type": "string"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "childId",
+                  "locationId",
+                  "height",
+                  "weight",
+                  "heightDevelopmentId",
+                  "weightDevelopmentId",
+                  "index",
+                  "heightDate",
+                  "userCreated",
+                  "userUpdated"
+                ]
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "additionalProperties": false,
+                "type": "object",
+                "properties": {
+                  "childId": {
+                    "type": "number"
+                  },
+                  "locationId": {
+                    "type": "number"
+                  },
+                  "height": {
+                    "type": "number"
+                  },
+                  "weight": {
+                    "type": "number"
+                  },
+                  "heightDevelopmentId": {
+                    "type": "number"
+                  },
+                  "weightDevelopmentId": {
+                    "type": "number"
+                  },
+                  "index": {
+                    "type": "number"
+                  },
+                  "heightDate": {
+                    "type": "string"
+                  },
+                  "userCreated": {
+                    "type": "string"
+                  },
+                  "userUpdated": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "anyOf": [
+                      {
+                        "const": "IN_AREA",
+                        "type": "string"
+                      },
+                      {
+                        "const": "OUT_AREA",
+                        "type": "string"
+                      },
+                      {
+                        "const": "UNKNOWN",
+                        "type": "string"
+                      },
+                      {
+                        "const": "DIED",
+                        "type": "string"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "childId",
+                  "locationId",
+                  "height",
+                  "weight",
+                  "heightDevelopmentId",
+                  "weightDevelopmentId",
+                  "index",
+                  "heightDate",
+                  "userCreated",
+                  "userUpdated"
+                ]
+              }
+            },
+            "text/plain": {
+              "schema": {
+                "additionalProperties": false,
+                "type": "object",
+                "properties": {
+                  "childId": {
+                    "type": "number"
+                  },
+                  "locationId": {
+                    "type": "number"
+                  },
+                  "height": {
+                    "type": "number"
+                  },
+                  "weight": {
+                    "type": "number"
+                  },
+                  "heightDevelopmentId": {
+                    "type": "number"
+                  },
+                  "weightDevelopmentId": {
+                    "type": "number"
+                  },
+                  "index": {
+                    "type": "number"
+                  },
+                  "heightDate": {
+                    "type": "string"
+                  },
+                  "userCreated": {
+                    "type": "string"
+                  },
+                  "userUpdated": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "anyOf": [
+                      {
+                        "const": "IN_AREA",
+                        "type": "string"
+                      },
+                      {
+                        "const": "OUT_AREA",
+                        "type": "string"
+                      },
+                      {
+                        "const": "UNKNOWN",
+                        "type": "string"
+                      },
+                      {
+                        "const": "DIED",
+                        "type": "string"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "childId",
+                  "locationId",
+                  "height",
+                  "weight",
+                  "heightDevelopmentId",
+                  "weightDevelopmentId",
+                  "index",
+                  "heightDate",
+                  "userCreated",
+                  "userUpdated"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {}
+        }
+      }
+    },
+    "/child-data/{id}": {
+      "get": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "operationId": "getChild-dataById",
+        "tags": [
+          "Child Data"
+        ],
+        "responses": {
+          "200": {}
+        }
+      },
+      "patch": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "operationId": "patchChild-dataById",
+        "tags": [
+          "Child Data"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "type": "object",
+                "properties": {
+                  "childId": {
+                    "type": "number"
+                  },
+                  "locationId": {
+                    "type": "number"
+                  },
+                  "height": {
+                    "type": "number"
+                  },
+                  "weight": {
+                    "type": "number"
+                  },
+                  "heightDevelopmentId": {
+                    "type": "number"
+                  },
+                  "weightDevelopmentId": {
+                    "type": "number"
+                  },
+                  "index": {
+                    "type": "number"
+                  },
+                  "heightDate": {
+                    "type": "string"
+                  },
+                  "userUpdated": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "anyOf": [
+                      {
+                        "const": "IN_AREA",
+                        "type": "string"
+                      },
+                      {
+                        "const": "OUT_AREA",
+                        "type": "string"
+                      },
+                      {
+                        "const": "UNKNOWN",
+                        "type": "string"
+                      },
+                      {
+                        "const": "DIED",
+                        "type": "string"
+                      }
+                    ]
+                  }
+                }
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "additionalProperties": false,
+                "type": "object",
+                "properties": {
+                  "childId": {
+                    "type": "number"
+                  },
+                  "locationId": {
+                    "type": "number"
+                  },
+                  "height": {
+                    "type": "number"
+                  },
+                  "weight": {
+                    "type": "number"
+                  },
+                  "heightDevelopmentId": {
+                    "type": "number"
+                  },
+                  "weightDevelopmentId": {
+                    "type": "number"
+                  },
+                  "index": {
+                    "type": "number"
+                  },
+                  "heightDate": {
+                    "type": "string"
+                  },
+                  "userUpdated": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "anyOf": [
+                      {
+                        "const": "IN_AREA",
+                        "type": "string"
+                      },
+                      {
+                        "const": "OUT_AREA",
+                        "type": "string"
+                      },
+                      {
+                        "const": "UNKNOWN",
+                        "type": "string"
+                      },
+                      {
+                        "const": "DIED",
+                        "type": "string"
+                      }
+                    ]
+                  }
+                }
+              }
+            },
+            "text/plain": {
+              "schema": {
+                "additionalProperties": false,
+                "type": "object",
+                "properties": {
+                  "childId": {
+                    "type": "number"
+                  },
+                  "locationId": {
+                    "type": "number"
+                  },
+                  "height": {
+                    "type": "number"
+                  },
+                  "weight": {
+                    "type": "number"
+                  },
+                  "heightDevelopmentId": {
+                    "type": "number"
+                  },
+                  "weightDevelopmentId": {
+                    "type": "number"
+                  },
+                  "index": {
+                    "type": "number"
+                  },
+                  "heightDate": {
+                    "type": "string"
+                  },
+                  "userUpdated": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "anyOf": [
+                      {
+                        "const": "IN_AREA",
+                        "type": "string"
+                      },
+                      {
+                        "const": "OUT_AREA",
+                        "type": "string"
+                      },
+                      {
+                        "const": "UNKNOWN",
+                        "type": "string"
+                      },
+                      {
+                        "const": "DIED",
+                        "type": "string"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {}
+        }
+      },
+      "delete": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "operationId": "deleteChild-dataById",
+        "tags": [
+          "Child Data"
+        ],
+        "responses": {
+          "200": {}
+        }
+      }
+    },
+    "/developments/": {
+      "get": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "number"
+            },
+            "in": "query",
+            "name": "page",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "number"
+            },
+            "in": "query",
+            "name": "limit",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "status",
+            "required": false
+          },
+          {
+            "schema": {
+              "anyOf": [
+                {
+                  "const": "WA",
+                  "type": "string"
+                },
+                {
+                  "const": "HA",
+                  "type": "string"
+                },
+                {
+                  "const": "BMI",
+                  "type": "string"
+                },
+                {
+                  "const": "WH",
+                  "type": "string"
+                },
+                {
+                  "const": "WL",
+                  "type": "string"
+                }
+              ]
+            },
+            "in": "query",
+            "name": "metric",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "boolean"
+            },
+            "in": "query",
+            "name": "deleteStatus",
+            "required": false
+          }
+        ],
+        "operationId": "getDevelopments",
+        "tags": [
+          "Developments"
+        ],
+        "responses": {
+          "200": {}
+        }
+      },
+      "post": {
+        "parameters": [],
+        "operationId": "postDevelopments",
+        "tags": [
+          "Developments"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string"
+                  },
+                  "metric": {
+                    "anyOf": [
+                      {
+                        "const": "WA",
+                        "type": "string"
+                      },
+                      {
+                        "const": "HA",
+                        "type": "string"
+                      },
+                      {
+                        "const": "BMI",
+                        "type": "string"
+                      },
+                      {
+                        "const": "WH",
+                        "type": "string"
+                      },
+                      {
+                        "const": "WL",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "detail": {
+                    "type": "string"
+                  },
+                  "minAge": {
+                    "type": "number"
+                  },
+                  "maxAge": {
+                    "type": "number"
+                  },
+                  "suggestion": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "status",
+                  "metric",
+                  "minAge",
+                  "maxAge",
+                  "suggestion"
+                ]
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "additionalProperties": false,
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string"
+                  },
+                  "metric": {
+                    "anyOf": [
+                      {
+                        "const": "WA",
+                        "type": "string"
+                      },
+                      {
+                        "const": "HA",
+                        "type": "string"
+                      },
+                      {
+                        "const": "BMI",
+                        "type": "string"
+                      },
+                      {
+                        "const": "WH",
+                        "type": "string"
+                      },
+                      {
+                        "const": "WL",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "detail": {
+                    "type": "string"
+                  },
+                  "minAge": {
+                    "type": "number"
+                  },
+                  "maxAge": {
+                    "type": "number"
+                  },
+                  "suggestion": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "status",
+                  "metric",
+                  "minAge",
+                  "maxAge",
+                  "suggestion"
+                ]
+              }
+            },
+            "text/plain": {
+              "schema": {
+                "additionalProperties": false,
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string"
+                  },
+                  "metric": {
+                    "anyOf": [
+                      {
+                        "const": "WA",
+                        "type": "string"
+                      },
+                      {
+                        "const": "HA",
+                        "type": "string"
+                      },
+                      {
+                        "const": "BMI",
+                        "type": "string"
+                      },
+                      {
+                        "const": "WH",
+                        "type": "string"
+                      },
+                      {
+                        "const": "WL",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "detail": {
+                    "type": "string"
+                  },
+                  "minAge": {
+                    "type": "number"
+                  },
+                  "maxAge": {
+                    "type": "number"
+                  },
+                  "suggestion": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "status",
+                  "metric",
+                  "minAge",
+                  "maxAge",
+                  "suggestion"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {}
+        }
+      }
+    },
+    "/developments/{id}": {
+      "get": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "operationId": "getDevelopmentsById",
+        "tags": [
+          "Developments"
+        ],
+        "responses": {
+          "200": {}
+        }
+      },
+      "patch": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "operationId": "patchDevelopmentsById",
+        "tags": [
+          "Developments"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string"
+                  },
+                  "metric": {
+                    "anyOf": [
+                      {
+                        "const": "WA",
+                        "type": "string"
+                      },
+                      {
+                        "const": "HA",
+                        "type": "string"
+                      },
+                      {
+                        "const": "BMI",
+                        "type": "string"
+                      },
+                      {
+                        "const": "WH",
+                        "type": "string"
+                      },
+                      {
+                        "const": "WL",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "detail": {
+                    "type": "string"
+                  },
+                  "minAge": {
+                    "type": "number"
+                  },
+                  "maxAge": {
+                    "type": "number"
+                  },
+                  "suggestion": {
+                    "type": "string"
+                  },
+                  "deleteStatus": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "additionalProperties": false,
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string"
+                  },
+                  "metric": {
+                    "anyOf": [
+                      {
+                        "const": "WA",
+                        "type": "string"
+                      },
+                      {
+                        "const": "HA",
+                        "type": "string"
+                      },
+                      {
+                        "const": "BMI",
+                        "type": "string"
+                      },
+                      {
+                        "const": "WH",
+                        "type": "string"
+                      },
+                      {
+                        "const": "WL",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "detail": {
+                    "type": "string"
+                  },
+                  "minAge": {
+                    "type": "number"
+                  },
+                  "maxAge": {
+                    "type": "number"
+                  },
+                  "suggestion": {
+                    "type": "string"
+                  },
+                  "deleteStatus": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            },
+            "text/plain": {
+              "schema": {
+                "additionalProperties": false,
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string"
+                  },
+                  "metric": {
+                    "anyOf": [
+                      {
+                        "const": "WA",
+                        "type": "string"
+                      },
+                      {
+                        "const": "HA",
+                        "type": "string"
+                      },
+                      {
+                        "const": "BMI",
+                        "type": "string"
+                      },
+                      {
+                        "const": "WH",
+                        "type": "string"
+                      },
+                      {
+                        "const": "WL",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "detail": {
+                    "type": "string"
+                  },
+                  "minAge": {
+                    "type": "number"
+                  },
+                  "maxAge": {
+                    "type": "number"
+                  },
+                  "suggestion": {
+                    "type": "string"
+                  },
+                  "deleteStatus": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {}
+        }
+      },
+      "delete": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "operationId": "deleteDevelopmentsById",
+        "tags": [
+          "Developments"
+        ],
+        "responses": {
+          "200": {}
+        }
+      }
+    },
+    "/children/": {
+      "get": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "number"
+            },
+            "in": "query",
+            "name": "page",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "number"
+            },
+            "in": "query",
+            "name": "limit",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "firstName",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "lastName",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "number"
+            },
+            "in": "query",
+            "name": "locationId",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "createdByUser",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "boolean"
+            },
+            "in": "query",
+            "name": "deleteStatus",
+            "required": false
+          }
+        ],
+        "operationId": "getChildren",
+        "tags": [
+          "Children"
+        ],
+        "responses": {
+          "200": {}
+        }
+      },
+      "post": {
+        "parameters": [],
+        "operationId": "postChildren",
+        "tags": [
+          "Children"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "type": "object",
+                "properties": {
+                  "firstName": {
+                    "type": "string"
+                  },
+                  "lastName": {
+                    "type": "string"
+                  },
+                  "locationId": {
+                    "type": "number"
+                  },
+                  "birthDate": {
+                    "type": "string"
+                  },
+                  "createdByUser": {
+                    "type": "string"
+                  },
+                  "updatedByUser": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "firstName",
+                  "lastName",
+                  "locationId",
+                  "birthDate",
+                  "createdByUser",
+                  "updatedByUser"
+                ]
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "additionalProperties": false,
+                "type": "object",
+                "properties": {
+                  "firstName": {
+                    "type": "string"
+                  },
+                  "lastName": {
+                    "type": "string"
+                  },
+                  "locationId": {
+                    "type": "number"
+                  },
+                  "birthDate": {
+                    "type": "string"
+                  },
+                  "createdByUser": {
+                    "type": "string"
+                  },
+                  "updatedByUser": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "firstName",
+                  "lastName",
+                  "locationId",
+                  "birthDate",
+                  "createdByUser",
+                  "updatedByUser"
+                ]
+              }
+            },
+            "text/plain": {
+              "schema": {
+                "additionalProperties": false,
+                "type": "object",
+                "properties": {
+                  "firstName": {
+                    "type": "string"
+                  },
+                  "lastName": {
+                    "type": "string"
+                  },
+                  "locationId": {
+                    "type": "number"
+                  },
+                  "birthDate": {
+                    "type": "string"
+                  },
+                  "createdByUser": {
+                    "type": "string"
+                  },
+                  "updatedByUser": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "firstName",
+                  "lastName",
+                  "locationId",
+                  "birthDate",
+                  "createdByUser",
+                  "updatedByUser"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {}
+        }
+      }
+    },
+    "/children/{id}": {
+      "get": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "operationId": "getChildrenById",
+        "tags": [
+          "Children"
+        ],
+        "responses": {
+          "200": {}
+        }
+      },
+      "patch": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "operationId": "patchChildrenById",
+        "tags": [
+          "Children"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "type": "object",
+                "properties": {
+                  "firstName": {
+                    "type": "string"
+                  },
+                  "lastName": {
+                    "type": "string"
+                  },
+                  "locationId": {
+                    "type": "number"
+                  },
+                  "birthDate": {
+                    "type": "string"
+                  },
+                  "updatedByUser": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "additionalProperties": false,
+                "type": "object",
+                "properties": {
+                  "firstName": {
+                    "type": "string"
+                  },
+                  "lastName": {
+                    "type": "string"
+                  },
+                  "locationId": {
+                    "type": "number"
+                  },
+                  "birthDate": {
+                    "type": "string"
+                  },
+                  "updatedByUser": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "text/plain": {
+              "schema": {
+                "additionalProperties": false,
+                "type": "object",
+                "properties": {
+                  "firstName": {
+                    "type": "string"
+                  },
+                  "lastName": {
+                    "type": "string"
+                  },
+                  "locationId": {
+                    "type": "number"
+                  },
+                  "birthDate": {
+                    "type": "string"
+                  },
+                  "updatedByUser": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {}
+        }
+      },
+      "delete": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "operationId": "deleteChildrenById",
+        "tags": [
+          "Children"
+        ],
+        "responses": {
+          "200": {}
+        }
+      }
+    },
+    "/child-transfer-requests/": {
+      "get": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "number"
+            },
+            "in": "query",
+            "name": "page",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "number"
+            },
+            "in": "query",
+            "name": "limit",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "userId",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "number"
+            },
+            "in": "query",
+            "name": "childId",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "number"
+            },
+            "in": "query",
+            "name": "fromLocation",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "number"
+            },
+            "in": "query",
+            "name": "toLocation",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "handledBy",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "boolean"
+            },
+            "in": "query",
+            "name": "deleteStatus",
+            "required": false
+          }
+        ],
+        "operationId": "getChild-transfer-requests",
+        "tags": [
+          "Child Transfer Requests"
+        ],
+        "responses": {
+          "200": {}
+        }
+      },
+      "post": {
+        "parameters": [],
+        "operationId": "postChild-transfer-requests",
+        "tags": [
+          "Child Transfer Requests"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "type": "object",
+                "properties": {
+                  "userId": {
+                    "type": "string"
+                  },
+                  "childId": {
+                    "type": "number"
+                  },
+                  "fromLocation": {
+                    "type": "number"
+                  },
+                  "toLocation": {
+                    "type": "number"
+                  },
+                  "handledBy": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "userId",
+                  "childId",
+                  "fromLocation",
+                  "toLocation",
+                  "handledBy"
+                ]
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "additionalProperties": false,
+                "type": "object",
+                "properties": {
+                  "userId": {
+                    "type": "string"
+                  },
+                  "childId": {
+                    "type": "number"
+                  },
+                  "fromLocation": {
+                    "type": "number"
+                  },
+                  "toLocation": {
+                    "type": "number"
+                  },
+                  "handledBy": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "userId",
+                  "childId",
+                  "fromLocation",
+                  "toLocation",
+                  "handledBy"
+                ]
+              }
+            },
+            "text/plain": {
+              "schema": {
+                "additionalProperties": false,
+                "type": "object",
+                "properties": {
+                  "userId": {
+                    "type": "string"
+                  },
+                  "childId": {
+                    "type": "number"
+                  },
+                  "fromLocation": {
+                    "type": "number"
+                  },
+                  "toLocation": {
+                    "type": "number"
+                  },
+                  "handledBy": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "userId",
+                  "childId",
+                  "fromLocation",
+                  "toLocation",
+                  "handledBy"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {}
+        }
+      }
+    },
+    "/child-transfer-requests/{id}": {
+      "get": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "operationId": "getChild-transfer-requestsById",
+        "tags": [
+          "Child Transfer Requests"
+        ],
+        "responses": {
+          "200": {}
+        }
+      },
+      "patch": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "operationId": "patchChild-transfer-requestsById",
+        "tags": [
+          "Child Transfer Requests"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "type": "object",
+                "properties": {
+                  "userId": {
+                    "type": "string"
+                  },
+                  "childId": {
+                    "type": "number"
+                  },
+                  "fromLocation": {
+                    "type": "number"
+                  },
+                  "toLocation": {
+                    "type": "number"
+                  },
+                  "handledBy": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "additionalProperties": false,
+                "type": "object",
+                "properties": {
+                  "userId": {
+                    "type": "string"
+                  },
+                  "childId": {
+                    "type": "number"
+                  },
+                  "fromLocation": {
+                    "type": "number"
+                  },
+                  "toLocation": {
+                    "type": "number"
+                  },
+                  "handledBy": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "text/plain": {
+              "schema": {
+                "additionalProperties": false,
+                "type": "object",
+                "properties": {
+                  "userId": {
+                    "type": "string"
+                  },
+                  "childId": {
+                    "type": "number"
+                  },
+                  "fromLocation": {
+                    "type": "number"
+                  },
+                  "toLocation": {
+                    "type": "number"
+                  },
+                  "handledBy": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {}
+        }
+      },
+      "delete": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "operationId": "deleteChild-transfer-requestsById",
+        "tags": [
+          "Child Transfer Requests"
+        ],
+        "responses": {
+          "200": {}
+        }
+      }
+    },
+    "/locations/{id}": {
+      "get": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "operationId": "getLocationsById",
+        "tags": [
+          "Locations"
+        ],
+        "responses": {
+          "200": {}
+        }
+      },
+      "patch": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "operationId": "patchLocationsById",
+        "tags": [
+          "Locations"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "type": "object",
+                "properties": {
+                  "map": {
+                    "type": "string"
+                  },
+                  "province": {
+                    "type": "string"
+                  },
+                  "district": {
+                    "type": "string"
+                  },
+                  "subDistrict": {
+                    "type": "string"
+                  },
+                  "zipCode": {
+                    "type": "string"
+                  },
+                  "isPrivate": {
+                    "type": "boolean"
+                  },
+                  "privateReason": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "additionalProperties": false,
+                "type": "object",
+                "properties": {
+                  "map": {
+                    "type": "string"
+                  },
+                  "province": {
+                    "type": "string"
+                  },
+                  "district": {
+                    "type": "string"
+                  },
+                  "subDistrict": {
+                    "type": "string"
+                  },
+                  "zipCode": {
+                    "type": "string"
+                  },
+                  "isPrivate": {
+                    "type": "boolean"
+                  },
+                  "privateReason": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "text/plain": {
+              "schema": {
+                "additionalProperties": false,
+                "type": "object",
+                "properties": {
+                  "map": {
+                    "type": "string"
+                  },
+                  "province": {
+                    "type": "string"
+                  },
+                  "district": {
+                    "type": "string"
+                  },
+                  "subDistrict": {
+                    "type": "string"
+                  },
+                  "zipCode": {
+                    "type": "string"
+                  },
+                  "isPrivate": {
+                    "type": "boolean"
+                  },
+                  "privateReason": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {}
+        }
+      },
+      "delete": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "operationId": "deleteLocationsById",
+        "tags": [
+          "Locations"
+        ],
+        "responses": {
+          "200": {}
+        }
+      }
+    },
+    "/locations/": {
+      "post": {
+        "parameters": [],
+        "operationId": "postLocations",
+        "tags": [
+          "Locations"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "map": {
+                    "type": "string"
+                  },
+                  "province": {
+                    "type": "string"
+                  },
+                  "district": {
+                    "type": "string"
+                  },
+                  "subDistrict": {
+                    "type": "string"
+                  },
+                  "zipCode": {
+                    "type": "string"
+                  },
+                  "teamId": {
+                    "type": "number"
+                  },
+                  "requestId": {
+                    "type": "number"
+                  },
+                  "createdByUser": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name",
+                  "map",
+                  "province",
+                  "district",
+                  "subDistrict",
+                  "zipCode",
+                  "teamId",
+                  "requestId",
+                  "createdByUser"
+                ]
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "additionalProperties": false,
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "map": {
+                    "type": "string"
+                  },
+                  "province": {
+                    "type": "string"
+                  },
+                  "district": {
+                    "type": "string"
+                  },
+                  "subDistrict": {
+                    "type": "string"
+                  },
+                  "zipCode": {
+                    "type": "string"
+                  },
+                  "teamId": {
+                    "type": "number"
+                  },
+                  "requestId": {
+                    "type": "number"
+                  },
+                  "createdByUser": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name",
+                  "map",
+                  "province",
+                  "district",
+                  "subDistrict",
+                  "zipCode",
+                  "teamId",
+                  "requestId",
+                  "createdByUser"
+                ]
+              }
+            },
+            "text/plain": {
+              "schema": {
+                "additionalProperties": false,
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "map": {
+                    "type": "string"
+                  },
+                  "province": {
+                    "type": "string"
+                  },
+                  "district": {
+                    "type": "string"
+                  },
+                  "subDistrict": {
+                    "type": "string"
+                  },
+                  "zipCode": {
+                    "type": "string"
+                  },
+                  "teamId": {
+                    "type": "number"
+                  },
+                  "requestId": {
+                    "type": "number"
+                  },
+                  "createdByUser": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name",
+                  "map",
+                  "province",
+                  "district",
+                  "subDistrict",
+                  "zipCode",
+                  "teamId",
+                  "requestId",
+                  "createdByUser"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {}
+        }
+      }
+    },
+    "/location-create-requests/": {
+      "post": {
+        "parameters": [],
+        "operationId": "postLocation-create-requests",
+        "tags": [
+          "Location Create Requests"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "type": "object",
+                "properties": {
+                  "userId": {
+                    "type": "string"
+                  },
+                  "locationName": {
+                    "type": "string"
+                  },
+                  "locationMap": {
+                    "type": "string"
+                  },
+                  "province": {
+                    "type": "string"
+                  },
+                  "district": {
+                    "type": "string"
+                  },
+                  "sub_district": {
+                    "type": "string"
+                  },
+                  "zip_code": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "userId",
+                  "locationName",
+                  "locationMap",
+                  "province",
+                  "district",
+                  "sub_district",
+                  "zip_code"
+                ]
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "additionalProperties": false,
+                "type": "object",
+                "properties": {
+                  "userId": {
+                    "type": "string"
+                  },
+                  "locationName": {
+                    "type": "string"
+                  },
+                  "locationMap": {
+                    "type": "string"
+                  },
+                  "province": {
+                    "type": "string"
+                  },
+                  "district": {
+                    "type": "string"
+                  },
+                  "sub_district": {
+                    "type": "string"
+                  },
+                  "zip_code": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "userId",
+                  "locationName",
+                  "locationMap",
+                  "province",
+                  "district",
+                  "sub_district",
+                  "zip_code"
+                ]
+              }
+            },
+            "text/plain": {
+              "schema": {
+                "additionalProperties": false,
+                "type": "object",
+                "properties": {
+                  "userId": {
+                    "type": "string"
+                  },
+                  "locationName": {
+                    "type": "string"
+                  },
+                  "locationMap": {
+                    "type": "string"
+                  },
+                  "province": {
+                    "type": "string"
+                  },
+                  "district": {
+                    "type": "string"
+                  },
+                  "sub_district": {
+                    "type": "string"
+                  },
+                  "zip_code": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "userId",
+                  "locationName",
+                  "locationMap",
+                  "province",
+                  "district",
+                  "sub_district",
+                  "zip_code"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {}
+        }
+      }
+    },
+    "/location-create-requests/{id}": {
+      "get": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "number"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "operationId": "getLocation-create-requestsById",
+        "tags": [
+          "Location Create Requests"
+        ],
+        "responses": {
+          "200": {}
+        }
+      },
+      "patch": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "number"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "operationId": "patchLocation-create-requestsById",
+        "tags": [
+          "Location Create Requests"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "type": "object",
+                "properties": {
+                  "locationName": {
+                    "type": "string"
+                  },
+                  "locationMap": {
+                    "type": "string"
+                  },
+                  "province": {
+                    "type": "string"
+                  },
+                  "district": {
+                    "type": "string"
+                  },
+                  "sub_district": {
+                    "type": "string"
+                  },
+                  "zip_code": {
+                    "type": "string"
+                  },
+                  "requestStatus": {
+                    "anyOf": [
+                      {
+                        "const": "APPROVE",
+                        "type": "string"
+                      },
+                      {
+                        "const": "REJECT",
+                        "type": "string"
+                      },
+                      {
+                        "const": "WAITING",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "handledBy": {
+                    "type": "string"
+                  },
+                  "deleteStatus": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "additionalProperties": false,
+                "type": "object",
+                "properties": {
+                  "locationName": {
+                    "type": "string"
+                  },
+                  "locationMap": {
+                    "type": "string"
+                  },
+                  "province": {
+                    "type": "string"
+                  },
+                  "district": {
+                    "type": "string"
+                  },
+                  "sub_district": {
+                    "type": "string"
+                  },
+                  "zip_code": {
+                    "type": "string"
+                  },
+                  "requestStatus": {
+                    "anyOf": [
+                      {
+                        "const": "APPROVE",
+                        "type": "string"
+                      },
+                      {
+                        "const": "REJECT",
+                        "type": "string"
+                      },
+                      {
+                        "const": "WAITING",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "handledBy": {
+                    "type": "string"
+                  },
+                  "deleteStatus": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            },
+            "text/plain": {
+              "schema": {
+                "additionalProperties": false,
+                "type": "object",
+                "properties": {
+                  "locationName": {
+                    "type": "string"
+                  },
+                  "locationMap": {
+                    "type": "string"
+                  },
+                  "province": {
+                    "type": "string"
+                  },
+                  "district": {
+                    "type": "string"
+                  },
+                  "sub_district": {
+                    "type": "string"
+                  },
+                  "zip_code": {
+                    "type": "string"
+                  },
+                  "requestStatus": {
+                    "anyOf": [
+                      {
+                        "const": "APPROVE",
+                        "type": "string"
+                      },
+                      {
+                        "const": "REJECT",
+                        "type": "string"
+                      },
+                      {
+                        "const": "WAITING",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "handledBy": {
+                    "type": "string"
+                  },
+                  "deleteStatus": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {}
+        }
+      },
+      "delete": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "number"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "operationId": "deleteLocation-create-requestsById",
+        "tags": [
+          "Location Create Requests"
+        ],
+        "responses": {
+          "200": {}
+        }
+      }
+    },
+    "/location-create-requests/user/{userId}": {
+      "get": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "userId",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "number"
+            },
+            "in": "query",
+            "name": "page",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "number"
+            },
+            "in": "query",
+            "name": "limit",
+            "required": false
+          }
+        ],
+        "operationId": "getLocation-create-requestsUserByUserId",
+        "tags": [
+          "Location Create Requests"
+        ],
+        "responses": {
+          "200": {}
+        }
+      }
+    },
+    "/teams/": {
+      "get": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "number"
+            },
+            "in": "query",
+            "name": "page",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "number"
+            },
+            "in": "query",
+            "name": "limit",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "boolean"
+            },
+            "in": "query",
+            "name": "deleted",
+            "required": false
+          }
+        ],
+        "operationId": "getTeams",
+        "tags": [
+          "Team"
+        ],
+        "responses": {
+          "200": {}
+        }
+      },
+      "post": {
+        "parameters": [],
+        "operationId": "postTeams",
+        "tags": [
+          "Team"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name"
+                ]
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "additionalProperties": false,
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name"
+                ]
+              }
+            },
+            "text/plain": {
+              "schema": {
+                "additionalProperties": false,
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {}
+        }
+      }
+    },
+    "/teams/{id}": {
+      "patch": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "number"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "operationId": "patchTeamsById",
+        "tags": [
+          "Team"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "additionalProperties": false,
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "text/plain": {
+              "schema": {
+                "additionalProperties": false,
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {}
+        }
+      },
+      "delete": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "number"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "operationId": "deleteTeamsById",
+        "tags": [
+          "Team"
+        ],
+        "responses": {
+          "200": {}
+        }
+      }
+    },
+    "/users/teams/{teamId}/users": {
+      "get": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "number"
+            },
+            "in": "path",
+            "name": "teamId",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "number"
+            },
+            "in": "query",
+            "name": "page",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "number"
+            },
+            "in": "query",
+            "name": "limit",
+            "required": false
+          }
+        ],
+        "operationId": "getUsersTeamsByTeamIdUsers",
+        "tags": [
+          "User"
+        ],
+        "responses": {
+          "200": {}
+        }
+      }
+    },
+    "/users/getById/{id}": {
+      "get": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "operationId": "getUsersGetByIdById",
+        "tags": [
+          "User"
+        ],
+        "responses": {
+          "200": {}
+        }
+      }
+    },
+    "/users/getByEmail/{email}": {
+      "get": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "email",
+            "required": true
+          }
+        ],
+        "operationId": "getUsersGetByEmailByEmail",
+        "tags": [
+          "User"
+        ],
+        "responses": {
+          "200": {}
+        }
+      }
+    },
+    "/users/": {
+      "post": {
+        "parameters": [],
+        "operationId": "postUsers",
+        "tags": [
+          "User"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string"
+                  },
+                  "firstName": {
+                    "type": "string"
+                  },
+                  "lastName": {
+                    "type": "string"
+                  },
+                  "role": {
+                    "anyOf": [
+                      {
+                        "const": "ADMIN",
+                        "type": "string"
+                      },
+                      {
+                        "const": "USER",
+                        "type": "string"
+                      },
+                      {
+                        "const": "HEAD",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "teamId": {
+                    "type": "number"
+                  },
+                  "image": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "email",
+                  "firstName",
+                  "lastName"
+                ]
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "additionalProperties": false,
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string"
+                  },
+                  "firstName": {
+                    "type": "string"
+                  },
+                  "lastName": {
+                    "type": "string"
+                  },
+                  "role": {
+                    "anyOf": [
+                      {
+                        "const": "ADMIN",
+                        "type": "string"
+                      },
+                      {
+                        "const": "USER",
+                        "type": "string"
+                      },
+                      {
+                        "const": "HEAD",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "teamId": {
+                    "type": "number"
+                  },
+                  "image": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "email",
+                  "firstName",
+                  "lastName"
+                ]
+              }
+            },
+            "text/plain": {
+              "schema": {
+                "additionalProperties": false,
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string"
+                  },
+                  "firstName": {
+                    "type": "string"
+                  },
+                  "lastName": {
+                    "type": "string"
+                  },
+                  "role": {
+                    "anyOf": [
+                      {
+                        "const": "ADMIN",
+                        "type": "string"
+                      },
+                      {
+                        "const": "USER",
+                        "type": "string"
+                      },
+                      {
+                        "const": "HEAD",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "teamId": {
+                    "type": "number"
+                  },
+                  "image": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "email",
+                  "firstName",
+                  "lastName"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {}
+        }
+      }
+    },
+    "/users/{id}": {
+      "patch": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "operationId": "patchUsersById",
+        "tags": [
+          "User"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string"
+                  },
+                  "firstName": {
+                    "type": "string"
+                  },
+                  "lastName": {
+                    "type": "string"
+                  },
+                  "role": {
+                    "anyOf": [
+                      {
+                        "const": "ADMIN",
+                        "type": "string"
+                      },
+                      {
+                        "const": "USER",
+                        "type": "string"
+                      },
+                      {
+                        "const": "HEAD",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "teamId": {
+                    "type": "number"
+                  },
+                  "image": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "additionalProperties": false,
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string"
+                  },
+                  "firstName": {
+                    "type": "string"
+                  },
+                  "lastName": {
+                    "type": "string"
+                  },
+                  "role": {
+                    "anyOf": [
+                      {
+                        "const": "ADMIN",
+                        "type": "string"
+                      },
+                      {
+                        "const": "USER",
+                        "type": "string"
+                      },
+                      {
+                        "const": "HEAD",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "teamId": {
+                    "type": "number"
+                  },
+                  "image": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "text/plain": {
+              "schema": {
+                "additionalProperties": false,
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string"
+                  },
+                  "firstName": {
+                    "type": "string"
+                  },
+                  "lastName": {
+                    "type": "string"
+                  },
+                  "role": {
+                    "anyOf": [
+                      {
+                        "const": "ADMIN",
+                        "type": "string"
+                      },
+                      {
+                        "const": "USER",
+                        "type": "string"
+                      },
+                      {
+                        "const": "HEAD",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "teamId": {
+                    "type": "number"
+                  },
+                  "image": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {}
+        }
+      },
+      "delete": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "operationId": "deleteUsersById",
+        "tags": [
+          "User"
+        ],
+        "responses": {
+          "200": {}
+        }
+      }
+    },
+    "/user-create-status/": {
+      "get": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "number"
+            },
+            "in": "query",
+            "name": "page",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "number"
+            },
+            "in": "query",
+            "name": "limit",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "boolean"
+            },
+            "in": "query",
+            "name": "deleted",
+            "required": false
+          }
+        ],
+        "operationId": "getUser-create-status",
+        "tags": [
+          "UserCreateStatus"
+        ],
+        "responses": {
+          "200": {}
+        }
+      },
+      "post": {
+        "parameters": [],
+        "operationId": "postUser-create-status",
+        "tags": [
+          "UserCreateStatus"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "type": "object",
+                "properties": {
+                  "userId": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "userId"
+                ]
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "additionalProperties": false,
+                "type": "object",
+                "properties": {
+                  "userId": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "userId"
+                ]
+              }
+            },
+            "text/plain": {
+              "schema": {
+                "additionalProperties": false,
+                "type": "object",
+                "properties": {
+                  "userId": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "userId"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {}
+        }
+      }
+    },
+    "/user-create-status/{id}": {
+      "get": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "operationId": "getUser-create-statusById",
+        "tags": [
+          "UserCreateStatus"
+        ],
+        "responses": {
+          "200": {}
+        }
+      },
+      "patch": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "operationId": "patchUser-create-statusById",
+        "tags": [
+          "UserCreateStatus"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "type": "object",
+                "properties": {
+                  "requestStatus": {
+                    "anyOf": [
+                      {
+                        "const": false,
+                        "type": "boolean"
+                      },
+                      {
+                        "const": [
+                          {
+                            "const": "APPROVE",
+                            "type": "string"
+                          },
+                          {
+                            "const": "REJECT",
+                            "type": "string"
+                          },
+                          {
+                            "const": "WAITING",
+                            "type": "string"
+                          }
+                        ],
+                        "type": "object"
+                      }
+                    ]
+                  },
+                  "updatedBy": {
+                    "type": "string"
+                  },
+                  "rejectReason": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "additionalProperties": false,
+                "type": "object",
+                "properties": {
+                  "requestStatus": {
+                    "anyOf": [
+                      {
+                        "const": false,
+                        "type": "boolean"
+                      },
+                      {
+                        "const": [
+                          {
+                            "const": "APPROVE",
+                            "type": "string"
+                          },
+                          {
+                            "const": "REJECT",
+                            "type": "string"
+                          },
+                          {
+                            "const": "WAITING",
+                            "type": "string"
+                          }
+                        ],
+                        "type": "object"
+                      }
+                    ]
+                  },
+                  "updatedBy": {
+                    "type": "string"
+                  },
+                  "rejectReason": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "text/plain": {
+              "schema": {
+                "additionalProperties": false,
+                "type": "object",
+                "properties": {
+                  "requestStatus": {
+                    "anyOf": [
+                      {
+                        "const": false,
+                        "type": "boolean"
+                      },
+                      {
+                        "const": [
+                          {
+                            "const": "APPROVE",
+                            "type": "string"
+                          },
+                          {
+                            "const": "REJECT",
+                            "type": "string"
+                          },
+                          {
+                            "const": "WAITING",
+                            "type": "string"
+                          }
+                        ],
+                        "type": "object"
+                      }
+                    ]
+                  },
+                  "updatedBy": {
+                    "type": "string"
+                  },
+                  "rejectReason": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {}
+        }
+      },
+      "delete": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "operationId": "deleteUser-create-statusById",
+        "tags": [
+          "UserCreateStatus"
+        ],
+        "responses": {
+          "200": {}
+        }
+      }
+    },
+    "/redis-test": {
+      "get": {
+        "operationId": "getRedis-test",
+        "responses": {
+          "200": {}
+        }
+      }
+    },
+    "/": {
+      "get": {
+        "operationId": "getIndex",
+        "responses": {
+          "200": {}
+        }
+      }
+    },
+    "/rabbitmq-test": {
+      "get": {
+        "operationId": "getRabbitmq-test",
+        "responses": {
+          "200": {}
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {}
+  }
+}

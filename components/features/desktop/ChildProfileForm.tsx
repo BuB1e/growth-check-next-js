@@ -50,9 +50,9 @@ export function ChildProfileForm({ child }: ChildProfileFormProps) {
   const form = useForm<z.infer<typeof profileFormSchema>>({
     resolver: zodResolver(profileFormSchema),
     defaultValues: {
-      firstName: child.first_name,
-      lastName: child.last_name,
-      locationId: child.location_id.toString(),
+      firstName: child.firstName,
+      lastName: child.lastName,
+      locationId: child.locationId.toString(),
     },
   });
 

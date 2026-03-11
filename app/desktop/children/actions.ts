@@ -13,7 +13,7 @@ export async function updateChildAction(
   },
 ) {
   try {
-    await ChildAction.updateChild(childId, data);
+    await ChildAction.updateChild(childId.toString(), data);
     // Revalidate the shared children detail page path
     revalidatePath(`/children/${childId}`);
     return { success: true };

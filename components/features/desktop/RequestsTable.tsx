@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/table";
 import { useRouter, useSearchParams } from "next/navigation";
 import { LocationCreateRequestResponse } from "@/dto";
-import { PaginatedRequestResponse } from "@/actions/LocationCreateRequestAction";
+import type { PaginatedResponse } from "@/dto";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -41,7 +41,7 @@ import { th } from "date-fns/locale";
 import { formatBE } from "@/lib/date-utils";
 
 interface RequestsTableProps {
-  rawData: PaginatedRequestResponse;
+  rawData: PaginatedResponse<LocationCreateRequestResponse>;
 }
 
 function StatusBadge({ status }: { status: string }) {
@@ -159,9 +159,9 @@ export function RequestsTable({ rawData }: RequestsTableProps) {
       cell: ({ row }) => formatBE(row.original.updatedAt, "d MMM yyyy"),
     },
     {
-      accessorKey: "status",
-      header: () => <SortHeader label="สถานะ" col="status" />,
-      cell: ({ row }) => <StatusBadge status={row.original.status} />,
+      accessorKey: "requestStatus",
+      header: () => <SortHeader label="สถานะ" col="requestStatus" />,
+      cell: ({ row }) => <StatusBadge status={row.original.requestStatus} />,
     },
   ];
 

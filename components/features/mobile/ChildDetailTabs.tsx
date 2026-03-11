@@ -74,7 +74,7 @@ export function ChildDetailTabs({
             <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100/60 ring-1 ring-black/5">
               <div className="flex items-start gap-4 pb-6 border-b border-gray-50/80">
                 <div className="w-16 h-16 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-2xl shadow-inner">
-                  {child.first_name
+                  {child.firstName
                     .replace("ด.ช.", "")
                     .replace("ด.ญ.", "")
                     .trim()
@@ -82,11 +82,8 @@ export function ChildDetailTabs({
                 </div>
                 <div className="pt-1">
                   <h2 className="text-xl font-bold text-gray-900 tracking-tight">
-                    {child.first_name} {child.last_name}
+                    {child.firstName} {child.lastName}
                   </h2>
-                  <p className="text-gray-500 font-medium text-sm mt-0.5">
-                    {child.gender === "male" ? "ชาย" : "หญิง"}
-                  </p>
                 </div>
               </div>
 
@@ -96,7 +93,7 @@ export function ChildDetailTabs({
                     วัน/เดือน/ปีเกิด
                   </p>
                   <p className="text-[17px] font-medium text-gray-800">
-                    {formatBE(child.birth_date, "d MMMM yyyy")}
+                    {formatBE(child.birthDate, "d MMMM yyyy")}
                   </p>
                 </div>
 
@@ -106,12 +103,12 @@ export function ChildDetailTabs({
                   </p>
                   <span
                     className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${
-                      child.status === "In_Area"
+                      child.status === "IN_AREA"
                         ? "bg-green-100 text-green-800"
                         : "bg-gray-100 text-gray-800"
                     }`}
                   >
-                    {child.status === "In_Area"
+                    {child.status === "IN_AREA"
                       ? "อยู่ในพื้นที่"
                       : child.status}
                   </span>
@@ -127,7 +124,7 @@ export function ChildDetailTabs({
                         ศูนย์พัฒนาเด็กเล็ก
                       </p>
                       <p className="text-[13px] text-gray-500 font-medium mt-0.5">
-                        เขต {child.location_id}
+                        เขต {child.locationId}
                       </p>
                     </div>
                   </div>

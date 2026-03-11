@@ -1,230 +1,53 @@
+"use server";
+
 import axios from "axios";
 import { EnvConfig } from "@/configs/BackendConfig";
-import { ChildDataResponse } from "@/dto";
+import type {
+  ChildDataResponse,
+  CreateChildDataRequest,
+  UpdateChildDataRequest,
+  GetChildDataParams,
+  PaginatedResponse,
+} from "@/dto";
 
 export class ChildDataAction {
   static BACKEND_ENDPOINT = EnvConfig.BACKEND_ENDPOINT;
   static API_ENDPOINT = "/child-data";
   static ACTION_ENDPOINT = this.BACKEND_ENDPOINT + this.API_ENDPOINT;
 
-  static async getChildDataMock(childId: number): Promise<ChildDataResponse[]> {
-    await new Promise((resolve) => setTimeout(resolve, 800));
-
-    // TODO: Simulated data returning multiple records to represent "ครั้งที่ 1", "ครั้งที่ 2", etc.
-    const mockData: ChildDataResponse[] = [
-      {
-        id: 99,
-        childId: childId,
-        locationId: 1,
-        height: 100.0,
-        weight: 15.0,
-        heightDevelopmentId: 1,
-        weightDevelopmentId: 1,
-        index: 1,
-        heightDate: new Date("2024-11-20"),
-        userCreated: "user_01",
-        userUpdated: "user_01",
-        createdAt: new Date("2024-11-20"),
-        updatedAt: new Date("2024-11-20"),
-        deleteStatus: false,
-        status: "IN_AREA",
-        heightDevelopment: {
-          id: 1,
-          status: "ปกติ",
-          metric: "HA",
-          detail: null,
-          minAge: 0,
-          maxAge: 0,
-          suggestion: "",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          deleteStatus: false,
-        },
-        weightDevelopment: {
-          id: 1,
-          status: "ปกติ",
-          metric: "WA",
-          detail: null,
-          minAge: 0,
-          maxAge: 0,
-          suggestion: "",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          deleteStatus: false,
-        },
-      },
-      {
-        id: 100,
-        childId: childId,
-        locationId: 1,
-        height: 103.5,
-        weight: 16.5,
-        heightDevelopmentId: 1,
-        weightDevelopmentId: 1,
-        index: 2,
-        heightDate: new Date("2024-12-28"),
-        userCreated: "user_01",
-        userUpdated: "user_01",
-        createdAt: new Date("2024-12-28"),
-        updatedAt: new Date("2024-12-28"),
-        deleteStatus: false,
-        status: "IN_AREA",
-        heightDevelopment: {
-          id: 1,
-          status: "ปกติ",
-          metric: "HA",
-          detail: null,
-          minAge: 0,
-          maxAge: 0,
-          suggestion: "",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          deleteStatus: false,
-        },
-        weightDevelopment: {
-          id: 1,
-          status: "ปกติ",
-          metric: "WA",
-          detail: null,
-          minAge: 0,
-          maxAge: 0,
-          suggestion: "",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          deleteStatus: false,
-        },
-      },
-      {
-        id: 101,
-        childId: childId,
-        locationId: 1,
-        height: 106.0,
-        weight: 17.8,
-        heightDevelopmentId: 1,
-        weightDevelopmentId: 1,
-        index: 3,
-        heightDate: new Date("2025-02-24"),
-        userCreated: "user_01",
-        userUpdated: "user_01",
-        createdAt: new Date("2025-02-24"),
-        updatedAt: new Date("2025-02-24"),
-        deleteStatus: false,
-        status: "IN_AREA",
-        heightDevelopment: {
-          id: 1,
-          status: "ปกติ",
-          metric: "HA",
-          detail: null,
-          minAge: 0,
-          maxAge: 0,
-          suggestion: "",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          deleteStatus: false,
-        },
-        weightDevelopment: {
-          id: 1,
-          status: "ปกติ",
-          metric: "WA",
-          detail: null,
-          minAge: 0,
-          maxAge: 0,
-          suggestion: "",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          deleteStatus: false,
-        },
-      },
-      {
-        id: 102,
-        childId: childId,
-        locationId: 1,
-        height: 107.0,
-        weight: 20.8,
-        heightDevelopmentId: 2,
-        weightDevelopmentId: 2,
-        index: 4,
-        heightDate: new Date("2025-03-24"),
-        userCreated: "user_01",
-        userUpdated: "user_01",
-        createdAt: new Date("2025-03-24"),
-        updatedAt: new Date("2025-03-24"),
-        deleteStatus: false,
-        status: "IN_AREA",
-        heightDevelopment: {
-          id: 2,
-          status: "มากกว่าเกณฑ์",
-          metric: "HA",
-          detail: null,
-          minAge: 0,
-          maxAge: 0,
-          suggestion: "",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          deleteStatus: false,
-        },
-        weightDevelopment: {
-          id: 2,
-          status: "มากกว่าเกณฑ์",
-          metric: "WA",
-          detail: null,
-          minAge: 0,
-          maxAge: 0,
-          suggestion: "",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          deleteStatus: false,
-        },
-      },
-      {
-        id: 103,
-        childId: childId,
-        locationId: 1,
-        height: 109.5,
-        weight: 18.2,
-        heightDevelopmentId: 1,
-        weightDevelopmentId: 1,
-        index: 5,
-        heightDate: new Date("2025-04-10"),
-        userCreated: "user_01",
-        userUpdated: "user_01",
-        createdAt: new Date("2025-04-10"),
-        updatedAt: new Date("2025-04-10"),
-        deleteStatus: false,
-        status: "IN_AREA",
-        heightDevelopment: {
-          id: 1,
-          status: "ปกติ",
-          metric: "HA",
-          detail: null,
-          minAge: 0,
-          maxAge: 0,
-          suggestion: "",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          deleteStatus: false,
-        },
-        weightDevelopment: {
-          id: 1,
-          status: "ปกติ",
-          metric: "WA",
-          detail: null,
-          minAge: 0,
-          maxAge: 0,
-          suggestion: "",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          deleteStatus: false,
-        },
-      },
-    ];
-    return mockData.sort((a, b) => b.index - a.index); // Usually want newest (highest index) first
+  // TODO: GET /child-data/ — list with query params
+  static async getChildDataList(
+    params?: GetChildDataParams,
+  ): Promise<PaginatedResponse<ChildDataResponse>> {
+    const response = await axios.get(`${this.ACTION_ENDPOINT}/`, { params });
+    return response.data;
   }
 
-  static async getChildData(childId: number): Promise<ChildDataResponse[]> {
-    const response = await axios.get(
-      `${this.ACTION_ENDPOINT}?childId=${childId}`,
-    );
-    return response.data as ChildDataResponse[];
+  // TODO: GET /child-data/{id}
+  static async getChildDataById(id: string): Promise<ChildDataResponse> {
+    const response = await axios.get(`${this.ACTION_ENDPOINT}/${id}`);
+    return response.data;
+  }
+
+  // TODO: POST /child-data/
+  static async createChildData(
+    data: CreateChildDataRequest,
+  ): Promise<ChildDataResponse> {
+    const response = await axios.post(`${this.ACTION_ENDPOINT}/`, data);
+    return response.data;
+  }
+
+  // TODO: PATCH /child-data/{id}
+  static async updateChildData(
+    id: string,
+    data: UpdateChildDataRequest,
+  ): Promise<ChildDataResponse> {
+    const response = await axios.patch(`${this.ACTION_ENDPOINT}/${id}`, data);
+    return response.data;
+  }
+
+  // TODO: DELETE /child-data/{id}
+  static async deleteChildData(id: string): Promise<void> {
+    await axios.delete(`${this.ACTION_ENDPOINT}/${id}`);
   }
 }

@@ -75,7 +75,7 @@ async function ChildDetailContent({
     notFound();
   }
 
-  const child = await ChildAction.getChildById(childId);
+  const child = await ChildAction.getChildById(id);
 
   if (!child) {
     notFound();

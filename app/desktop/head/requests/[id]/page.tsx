@@ -134,9 +134,9 @@ async function RequestDetailContent({
           </CardHeader>
           <CardContent className="space-y-4">
             <div
-              className={`inline-flex items-center px-3 py-1.5 rounded-full border text-sm font-semibold ${STATUS_CLASS[request.status] ?? STATUS_CLASS["WAITING"]}`}
+              className={`inline-flex items-center px-3 py-1.5 rounded-full border text-sm font-semibold ${STATUS_CLASS[request.requestStatus] ?? STATUS_CLASS["WAITING"]}`}
             >
-              {STATUS_LABEL[request.status] ?? request.status}
+              {STATUS_LABEL[request.requestStatus] ?? request.requestStatus}
             </div>
             {request.handledBy && (
               <InfoRow label="ดำเนินการโดย" value={request.handledBy} />

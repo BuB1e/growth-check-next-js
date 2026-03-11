@@ -1,15 +1,42 @@
+// TODO: Aligned with real backend API spec (camelCase fields)
 export interface LocationResponse {
-    id: number;
-    name: string;
-    map: string;
-    province: string;
-    district: string;
-    sub_district: string;
-    zip_code: string;
-    team_id: number;
-    location_create_request: number | null; // NULL = admin/manual
-    created_by_user: string; //admin/user
-    created_at: Date;
-    updated_at: Date;
-    delete_status: boolean;
+  id: number;
+  name: string;
+  map: string;
+  province: string;
+  district: string;
+  subDistrict: string;
+  zipCode: string;
+  teamId: number;
+  requestId: number | null; // NULL = admin/manual
+  createdByUser: string;
+  createdAt: string;
+  updatedAt: string;
+  deleteStatus: boolean;
+  isPrivate: boolean;
+  privateReason: string | null;
+}
+
+// TODO: Request body for POST /locations/
+export interface CreateLocationRequest {
+  name: string;
+  map: string;
+  province: string;
+  district: string;
+  subDistrict: string;
+  zipCode: string;
+  teamId: number;
+  requestId: number;
+  createdByUser: string;
+}
+
+// TODO: Request body for PATCH /locations/{id}
+export interface UpdateLocationRequest {
+  map?: string;
+  province?: string;
+  district?: string;
+  subDistrict?: string;
+  zipCode?: string;
+  isPrivate?: boolean;
+  privateReason?: string;
 }

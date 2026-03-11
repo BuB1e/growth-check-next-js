@@ -84,11 +84,10 @@ async function StaffDataWrapper({
   let users: UserResponse[] = [];
 
   try {
-    users = await UserAction.getUsers({
-      search,
-      orderBy,
-      orderDirection,
-      role,
+    // TODO: Replace teamId with real team ID from session/context
+    users = await UserAction.getUsersByTeam(1, {
+      page: 1,
+      limit: 100,
     });
   } catch (error) {
     console.error("Failed to fetch staff data:", error);

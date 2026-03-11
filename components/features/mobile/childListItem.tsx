@@ -23,28 +23,25 @@ export function MobileChildListItem({ child }: { child: ChildResponse }) {
 
           <div className="flex-1">
             <h3 className="font-semibold text-gray-900 text-xl leading-tight mb-1.5 line-clamp-1 truncate">
-              {child.first_name} {child.last_name}
+              {child.firstName} {child.lastName}
             </h3>
             <div className="flex items-center gap-2">
               <span
                 className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium tracking-wide shadow-sm ${
-                  child.status === "In_Area"
+                  child.status === "IN_AREA"
                     ? "bg-green-50 text-green-700 ring-1 ring-inset ring-green-600/20"
-                    : child.status === "Out_Area"
+                    : child.status === "OUT_AREA"
                       ? "bg-orange-50 text-orange-800 ring-1 ring-inset ring-orange-600/20"
                       : "bg-gray-50 text-gray-600 ring-1 ring-inset ring-gray-500/20"
                 }`}
               >
-                {child.status === "In_Area"
+                {child.status === "IN_AREA"
                   ? "ในเขต"
-                  : child.status === "Out_Area"
+                  : child.status === "OUT_AREA"
                     ? "นอกเขต"
-                    : child.status === "die"
+                    : child.status === "DIED"
                       ? "เสียชีวิต"
                       : "ไม่ทราบ"}
-              </span>
-              <span className="inline-flex items-center rounded-full bg-blue-50/80 px-2.5 py-0.5 text-[11px] font-medium text-blue-700 tracking-wide ring-1 ring-inset ring-blue-700/10 shadow-sm">
-                {child.gender === "male" ? "ชาย" : "หญิง"}
               </span>
             </div>
           </div>
