@@ -1,4 +1,4 @@
-// TODO: Aligned with real backend API spec
+// Aligned with real backend API spec (refactored DB — GET list added)
 export type UserRole = "ADMIN" | "USER" | "HEAD";
 
 export interface UserResponse {
@@ -15,7 +15,7 @@ export interface UserResponse {
   updatedAt: string;
 }
 
-// TODO: Request body for POST /users/
+// Request body for POST /users/
 export interface CreateUserRequest {
   email: string;
   firstName: string;
@@ -25,7 +25,7 @@ export interface CreateUserRequest {
   image?: string;
 }
 
-// TODO: Request body for PATCH /users/{id}
+// Request body for PATCH /users/{id}
 export interface UpdateUserRequest {
   email?: string;
   firstName?: string;
@@ -35,7 +35,16 @@ export interface UpdateUserRequest {
   image?: string;
 }
 
-// TODO: Query params for GET /users/teams/{teamId}/users
+// Query params for GET /users/
+export interface GetUsersParams {
+  page?: number;
+  limit?: number;
+  role?: UserRole;
+  emailVerified?: boolean;
+  deleteStatus?: boolean;
+}
+
+// Query params for GET /users/teams/{teamId}/users
 export interface GetUsersByTeamParams {
   page?: number;
   limit?: number;

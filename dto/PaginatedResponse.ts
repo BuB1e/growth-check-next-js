@@ -1,4 +1,4 @@
-// TODO: Generic paginated response type for all list endpoints
+// Generic paginated response type for all list endpoints
 export interface PaginatedResponse<T> {
   data: T[];
   meta: {

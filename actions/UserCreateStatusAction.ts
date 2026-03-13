@@ -1,4 +1,4 @@
-"use server";
+
 
 import axios from "axios";
 import { EnvConfig } from "@/configs/BackendConfig";
@@ -12,25 +12,26 @@ import type {
 
 export class UserCreateStatusAction {
   static BACKEND_ENDPOINT = EnvConfig.BACKEND_ENDPOINT;
-  // TODO: Fixed endpoint from "/user-create-statuses" to "/user-create-status" (matching real API)
   static API_ENDPOINT = "/user-create-status";
   static ACTION_ENDPOINT = this.BACKEND_ENDPOINT + this.API_ENDPOINT;
 
-  // TODO: GET /user-create-status/ — list with query params
   static async getStatuses(
-    params?: GetUserCreateStatusParams,
+    params: GetUserCreateStatusParams = {},
   ): Promise<PaginatedResponse<UserCreateStatusResponse>> {
-    const response = await axios.get(`${this.ACTION_ENDPOINT}/`, { params });
+    const defaultParams = {
+      page: EnvConfig.NEXT_PUBLIC_PAGINATION_PAGE_DESKTOP_SIZE,
+      limit: EnvConfig.NEXT_PUBLIC_PAGINATION_LIMIT_DESKTOP_SIZE,
+      ...params,
+    };
+    const response = await axios.get(`${this.ACTION_ENDPOINT}/`, { params: defaultParams });
     return response.data;
   }
 
-  // TODO: GET /user-create-status/{id}
   static async getStatusById(id: string): Promise<UserCreateStatusResponse> {
     const response = await axios.get(`${this.ACTION_ENDPOINT}/${id}`);
     return response.data;
   }
 
-  // TODO: POST /user-create-status/
   static async createStatus(
     data: CreateUserCreateStatusRequest,
   ): Promise<UserCreateStatusResponse> {
@@ -38,7 +39,6 @@ export class UserCreateStatusAction {
     return response.data;
   }
 
-  // TODO: PATCH /user-create-status/{id}
   static async updateStatus(
     id: string,
     data: UpdateUserCreateStatusRequest,
@@ -47,7 +47,6 @@ export class UserCreateStatusAction {
     return response.data;
   }
 
-  // TODO: DELETE /user-create-status/{id}
   static async deleteStatus(id: string): Promise<void> {
     await axios.delete(`${this.ACTION_ENDPOINT}/${id}`);
   }

@@ -3,7 +3,7 @@
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { UserCircle } from "lucide-react";
 import { usePathname } from "next/navigation";
-import { ESidebar, ESidebarToThai } from "@/types/desktop/ESidebar";
+import { ESidebar, ESidebarToThai } from "@/types";
 
 // Optional helper to get current page title from pathname
 function getPageTitle(pathname: string) {

@@ -1,4 +1,4 @@
-// TODO: Aligned with real backend API spec (camelCase fields)
+// Aligned with real backend API spec (camelCase fields)
 export interface LocationResponse {
   id: number;
   name: string;
@@ -17,7 +17,7 @@ export interface LocationResponse {
   privateReason: string | null;
 }
 
-// TODO: Request body for POST /locations/
+// Request body for POST /locations/
 export interface CreateLocationRequest {
   name: string;
   map: string;
@@ -30,7 +30,7 @@ export interface CreateLocationRequest {
   createdByUser: string;
 }
 
-// TODO: Request body for PATCH /locations/{id}
+// Request body for PATCH /locations/{id}
 export interface UpdateLocationRequest {
   map?: string;
   province?: string;

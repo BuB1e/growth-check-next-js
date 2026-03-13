@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from "zustand/middleware";
-import { ESidebar } from '../types/desktop';
+import { ESidebar } from '../types';
 
 export type SidebarStore = {
     selectedTab: ESidebar | ESidebar.DASHBOARD;

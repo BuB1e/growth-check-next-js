@@ -1,4 +1,4 @@
-"use server";
+
 
 import axios from "axios";
 import { EnvConfig } from "@/configs/BackendConfig";
@@ -15,21 +15,23 @@ export class TeamAction {
   static API_ENDPOINT = "/teams";
   static ACTION_ENDPOINT = this.BACKEND_ENDPOINT + this.API_ENDPOINT;
 
-  // TODO: GET /teams/ — list with query params
   static async getTeams(
-    params?: GetTeamsParams,
+    params: GetTeamsParams = {},
   ): Promise<PaginatedResponse<TeamResponse>> {
-    const response = await axios.get(`${this.ACTION_ENDPOINT}/`, { params });
+    const defaultParams = {
+      page: EnvConfig.NEXT_PUBLIC_PAGINATION_PAGE_DESKTOP_SIZE,
+      limit: EnvConfig.NEXT_PUBLIC_PAGINATION_LIMIT_DESKTOP_SIZE,
+      ...params,
+    };
+    const response = await axios.get(`${this.ACTION_ENDPOINT}/`, { params: defaultParams });
     return response.data;
   }
 
-  // TODO: POST /teams/
   static async createTeam(data: CreateTeamRequest): Promise<TeamResponse> {
     const response = await axios.post(`${this.ACTION_ENDPOINT}/`, data);
     return response.data;
   }
 
-  // TODO: PATCH /teams/{id}
   static async updateTeam(
     id: number,
     data: UpdateTeamRequest,
@@ -38,7 +40,6 @@ export class TeamAction {
     return response.data;
   }
 
-  // TODO: DELETE /teams/{id}
   static async deleteTeam(id: number): Promise<void> {
     await axios.delete(`${this.ACTION_ENDPOINT}/${id}`);
   }

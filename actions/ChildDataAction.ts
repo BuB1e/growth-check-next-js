@@ -1,4 +1,4 @@
-"use server";
+
 
 import axios from "axios";
 import { EnvConfig } from "@/configs/BackendConfig";
@@ -7,7 +7,6 @@ import type {
   CreateChildDataRequest,
   UpdateChildDataRequest,
   GetChildDataParams,
-  PaginatedResponse,
 } from "@/dto";
 
 export class ChildDataAction {
@@ -15,21 +14,23 @@ export class ChildDataAction {
   static API_ENDPOINT = "/child-data";
   static ACTION_ENDPOINT = this.BACKEND_ENDPOINT + this.API_ENDPOINT;
 
-  // TODO: GET /child-data/ — list with query params
   static async getChildDataList(
-    params?: GetChildDataParams,
-  ): Promise<PaginatedResponse<ChildDataResponse>> {
-    const response = await axios.get(`${this.ACTION_ENDPOINT}/`, { params });
+    params: GetChildDataParams = {},
+  ): Promise<ChildDataResponse[]> {
+    const defaultParams = {
+      page: EnvConfig.NEXT_PUBLIC_PAGINATION_PAGE_DESKTOP_SIZE,
+      limit: EnvConfig.NEXT_PUBLIC_PAGINATION_LIMIT_DESKTOP_SIZE,
+      ...params,
+    };
+    const response = await axios.get(`${this.ACTION_ENDPOINT}/`, { params: defaultParams });
     return response.data;
   }
 
-  // TODO: GET /child-data/{id}
   static async getChildDataById(id: string): Promise<ChildDataResponse> {
     const response = await axios.get(`${this.ACTION_ENDPOINT}/${id}`);
     return response.data;
   }
 
-  // TODO: POST /child-data/
   static async createChildData(
     data: CreateChildDataRequest,
   ): Promise<ChildDataResponse> {
@@ -37,7 +38,6 @@ export class ChildDataAction {
     return response.data;
   }
 
-  // TODO: PATCH /child-data/{id}
   static async updateChildData(
     id: string,
     data: UpdateChildDataRequest,
@@ -46,7 +46,6 @@ export class ChildDataAction {
     return response.data;
   }
 
-  // TODO: DELETE /child-data/{id}
   static async deleteChildData(id: string): Promise<void> {
     await axios.delete(`${this.ACTION_ENDPOINT}/${id}`);
   }

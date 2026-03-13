@@ -519,9 +519,6 @@
                   "weightDevelopmentId": {
                     "type": "number"
                   },
-                  "index": {
-                    "type": "number"
-                  },
                   "heightDate": {
                     "type": "string"
                   },
@@ -559,7 +556,6 @@
                   "weight",
                   "heightDevelopmentId",
                   "weightDevelopmentId",
-                  "index",
                   "heightDate",
                   "userCreated",
                   "userUpdated"
@@ -589,9 +585,6 @@
                   "weightDevelopmentId": {
                     "type": "number"
                   },
-                  "index": {
-                    "type": "number"
-                  },
                   "heightDate": {
                     "type": "string"
                   },
@@ -629,7 +622,6 @@
                   "weight",
                   "heightDevelopmentId",
                   "weightDevelopmentId",
-                  "index",
                   "heightDate",
                   "userCreated",
                   "userUpdated"
@@ -659,9 +651,6 @@
                   "weightDevelopmentId": {
                     "type": "number"
                   },
-                  "index": {
-                    "type": "number"
-                  },
                   "heightDate": {
                     "type": "string"
                   },
@@ -699,7 +688,6 @@
                   "weight",
                   "heightDevelopmentId",
                   "weightDevelopmentId",
-                  "index",
                   "heightDate",
                   "userCreated",
                   "userUpdated"
@@ -774,9 +762,6 @@
                   "weightDevelopmentId": {
                     "type": "number"
                   },
-                  "index": {
-                    "type": "number"
-                  },
                   "heightDate": {
                     "type": "string"
                   },
@@ -829,9 +814,6 @@
                   "weightDevelopmentId": {
                     "type": "number"
                   },
-                  "index": {
-                    "type": "number"
-                  },
                   "heightDate": {
                     "type": "string"
                   },
@@ -882,9 +864,6 @@
                     "type": "number"
                   },
                   "weightDevelopmentId": {
-                    "type": "number"
-                  },
-                  "index": {
                     "type": "number"
                   },
                   "heightDate": {
@@ -1501,6 +1480,18 @@
                   "birthDate": {
                     "type": "string"
                   },
+                  "sex": {
+                    "anyOf": [
+                      {
+                        "const": "MALE",
+                        "type": "string"
+                      },
+                      {
+                        "const": "FEMALE",
+                        "type": "string"
+                      }
+                    ]
+                  },
                   "createdByUser": {
                     "type": "string"
                   },
@@ -1513,6 +1504,7 @@
                   "lastName",
                   "locationId",
                   "birthDate",
+                  "sex",
                   "createdByUser",
                   "updatedByUser"
                 ]
@@ -1535,6 +1527,18 @@
                   "birthDate": {
                     "type": "string"
                   },
+                  "sex": {
+                    "anyOf": [
+                      {
+                        "const": "MALE",
+                        "type": "string"
+                      },
+                      {
+                        "const": "FEMALE",
+                        "type": "string"
+                      }
+                    ]
+                  },
                   "createdByUser": {
                     "type": "string"
                   },
@@ -1547,6 +1551,7 @@
                   "lastName",
                   "locationId",
                   "birthDate",
+                  "sex",
                   "createdByUser",
                   "updatedByUser"
                 ]
@@ -1569,6 +1574,18 @@
                   "birthDate": {
                     "type": "string"
                   },
+                  "sex": {
+                    "anyOf": [
+                      {
+                        "const": "MALE",
+                        "type": "string"
+                      },
+                      {
+                        "const": "FEMALE",
+                        "type": "string"
+                      }
+                    ]
+                  },
                   "createdByUser": {
                     "type": "string"
                   },
@@ -1581,8 +1598,77 @@
                   "lastName",
                   "locationId",
                   "birthDate",
+                  "sex",
                   "createdByUser",
                   "updatedByUser"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {}
+        }
+      }
+    },
+    "/children/predict/{id}": {
+      "put": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "operationId": "putChildrenPredictById",
+        "tags": [
+          "Children"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "type": "object",
+                "properties": {
+                  "model": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "model"
+                ]
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "additionalProperties": false,
+                "type": "object",
+                "properties": {
+                  "model": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "model"
+                ]
+              }
+            },
+            "text/plain": {
+              "schema": {
+                "additionalProperties": false,
+                "type": "object",
+                "properties": {
+                  "model": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "model"
                 ]
               }
             }
@@ -1645,6 +1731,18 @@
                   "locationId": {
                     "type": "number"
                   },
+                  "sex": {
+                    "anyOf": [
+                      {
+                        "const": "MALE",
+                        "type": "string"
+                      },
+                      {
+                        "const": "FEMALE",
+                        "type": "string"
+                      }
+                    ]
+                  },
                   "birthDate": {
                     "type": "string"
                   },
@@ -1668,6 +1766,18 @@
                   "locationId": {
                     "type": "number"
                   },
+                  "sex": {
+                    "anyOf": [
+                      {
+                        "const": "MALE",
+                        "type": "string"
+                      },
+                      {
+                        "const": "FEMALE",
+                        "type": "string"
+                      }
+                    ]
+                  },
                   "birthDate": {
                     "type": "string"
                   },
@@ -1690,6 +1800,18 @@
                   },
                   "locationId": {
                     "type": "number"
+                  },
+                  "sex": {
+                    "anyOf": [
+                      {
+                        "const": "MALE",
+                        "type": "string"
+                      },
+                      {
+                        "const": "FEMALE",
+                        "type": "string"
+                      }
+                    ]
                   },
                   "birthDate": {
                     "type": "string"
@@ -2348,6 +2470,118 @@
       }
     },
     "/location-create-requests/": {
+      "get": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "number"
+            },
+            "in": "query",
+            "name": "page",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "number"
+            },
+            "in": "query",
+            "name": "limit",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "locationName",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "locationMap",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "province",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "district",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "sub_district",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "zip_code",
+            "required": false
+          },
+          {
+            "schema": {
+              "anyOf": [
+                {
+                  "const": "APPROVE",
+                  "type": "string"
+                },
+                {
+                  "const": "REJECT",
+                  "type": "string"
+                },
+                {
+                  "const": "WAITING",
+                  "type": "string"
+                }
+              ]
+            },
+            "in": "query",
+            "name": "requestStatus",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "handledBy",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "boolean"
+            },
+            "in": "query",
+            "name": "deleteStatus",
+            "required": false
+          }
+        ],
+        "operationId": "getLocation-create-requests",
+        "tags": [
+          "Location Create Requests"
+        ],
+        "responses": {
+          "200": {}
+        }
+      },
       "post": {
         "parameters": [],
         "operationId": "postLocation-create-requests",
@@ -2913,17 +3147,9 @@
         }
       }
     },
-    "/users/teams/{teamId}/users": {
+    "/users/": {
       "get": {
         "parameters": [
-          {
-            "schema": {
-              "type": "number"
-            },
-            "in": "path",
-            "name": "teamId",
-            "required": true
-          },
           {
             "schema": {
               "type": "number"
@@ -2939,60 +3165,53 @@
             "in": "query",
             "name": "limit",
             "required": false
-          }
-        ],
-        "operationId": "getUsersTeamsByTeamIdUsers",
-        "tags": [
-          "User"
-        ],
-        "responses": {
-          "200": {}
-        }
-      }
-    },
-    "/users/getById/{id}": {
-      "get": {
-        "parameters": [
+          },
           {
             "schema": {
-              "type": "string"
+              "anyOf": [
+                {
+                  "const": "ADMIN",
+                  "type": "string"
+                },
+                {
+                  "const": "USER",
+                  "type": "string"
+                },
+                {
+                  "const": "HEAD",
+                  "type": "string"
+                }
+              ]
             },
-            "in": "path",
-            "name": "id",
-            "required": true
-          }
-        ],
-        "operationId": "getUsersGetByIdById",
-        "tags": [
-          "User"
-        ],
-        "responses": {
-          "200": {}
-        }
-      }
-    },
-    "/users/getByEmail/{email}": {
-      "get": {
-        "parameters": [
+            "in": "query",
+            "name": "role",
+            "required": false
+          },
           {
             "schema": {
-              "type": "string"
+              "type": "boolean"
             },
-            "in": "path",
-            "name": "email",
-            "required": true
+            "in": "query",
+            "name": "emailVerified",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "boolean"
+            },
+            "in": "query",
+            "name": "deleteStatus",
+            "required": false
           }
         ],
-        "operationId": "getUsersGetByEmailByEmail",
+        "operationId": "getUsers",
         "tags": [
           "User"
         ],
         "responses": {
           "200": {}
         }
-      }
-    },
-    "/users/": {
+      },
       "post": {
         "parameters": [],
         "operationId": "postUsers",
@@ -3136,6 +3355,85 @@
             }
           }
         },
+        "responses": {
+          "200": {}
+        }
+      }
+    },
+    "/users/teams/{teamId}/users": {
+      "get": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "number"
+            },
+            "in": "path",
+            "name": "teamId",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "number"
+            },
+            "in": "query",
+            "name": "page",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "number"
+            },
+            "in": "query",
+            "name": "limit",
+            "required": false
+          }
+        ],
+        "operationId": "getUsersTeamsByTeamIdUsers",
+        "tags": [
+          "User"
+        ],
+        "responses": {
+          "200": {}
+        }
+      }
+    },
+    "/users/getById/{id}": {
+      "get": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "operationId": "getUsersGetByIdById",
+        "tags": [
+          "User"
+        ],
+        "responses": {
+          "200": {}
+        }
+      }
+    },
+    "/users/getByEmail/{email}": {
+      "get": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "email",
+            "required": true
+          }
+        ],
+        "operationId": "getUsersGetByEmailByEmail",
+        "tags": [
+          "User"
+        ],
         "responses": {
           "200": {}
         }
@@ -3578,25 +3876,9 @@
         }
       }
     },
-    "/redis-test": {
-      "get": {
-        "operationId": "getRedis-test",
-        "responses": {
-          "200": {}
-        }
-      }
-    },
     "/": {
       "get": {
         "operationId": "getIndex",
-        "responses": {
-          "200": {}
-        }
-      }
-    },
-    "/rabbitmq-test": {
-      "get": {
-        "operationId": "getRabbitmq-test",
         "responses": {
           "200": {}
         }

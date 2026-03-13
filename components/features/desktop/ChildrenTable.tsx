@@ -17,7 +17,6 @@ import {
 } from "@/components/ui/table";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ChildResponse } from "@/dto";
-import type { PaginatedResponse } from "@/dto";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -41,7 +40,7 @@ import { th } from "date-fns/locale";
 import { formatBE } from "@/lib/date-utils";
 
 interface ChildrenTableProps {
-  rawData: PaginatedResponse<ChildResponse>;
+  rawData: ChildResponse[];
 }
 
 export function ChildrenTable({ rawData }: ChildrenTableProps) {
@@ -136,11 +135,9 @@ export function ChildrenTable({ rawData }: ChildrenTableProps) {
       accessorKey: "locationId",
       header: "สถานที่",
       cell: ({ row }) => {
-        // TODO: Mock Location Resolver
+        // TODO: Resolve location name via LocationAction.getLocationById when caching is in place
         const id = row.original.locationId;
-        if (id === 1) return "ชุมชน A";
-        if (id === 2) return "ชุมชน B";
-        return "ชุมชนอื่น";
+        return `เขต ${id}`;
       },
     },
     {
@@ -189,14 +186,22 @@ export function ChildrenTable({ rawData }: ChildrenTableProps) {
     },
   ];
 
+  // Client-side pagination from plain array
+  const pageParam = Number(searchParams.get("page")) || 1;
+  const limitParam = Number(searchParams.get("limit")) || 10;
+  const total = rawData.length;
+  const totalPages = Math.ceil(total / limitParam);
+  const currentPage = pageParam;
+  const paginatedData = rawData.slice(
+    (currentPage - 1) * limitParam,
+    currentPage * limitParam,
+  );
+
   const table = useReactTable({
-    data: rawData.data,
+    data: paginatedData,
     columns,
     getCoreRowModel: getCoreRowModel(),
   });
-
-  const currentPage = rawData.meta.page;
-  const totalPages = rawData.meta.totalPages;
 
   return (
     <div className="space-y-4">
@@ -293,7 +298,7 @@ export function ChildrenTable({ rawData }: ChildrenTableProps) {
 
       <div className="flex items-center justify-between px-2">
         <div className="text-sm text-muted-foreground">
-          แสดงข้อมูลทั้งหมด {rawData.meta.total} คน
+          แสดงข้อมูลทั้งหมด {total} คน
         </div>
         <div className="flex items-center space-x-2">
           <Button

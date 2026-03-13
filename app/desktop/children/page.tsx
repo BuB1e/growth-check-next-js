@@ -63,8 +63,9 @@ async function ChildrenDataWrapper({
   searchParams: Promise<{ [key: string]: string | undefined }>;
 }) {
   const sp = await searchParams;
-  const page = Number(sp?.page) || 1;
-  const limit = Number(sp?.limit) || 10;
+  const { EnvConfig } = await import("@/configs/BackendConfig");
+  const page = Number(sp?.page) || EnvConfig.NEXT_PUBLIC_PAGINATION_PAGE_DESKTOP_SIZE;
+  const limit = Number(sp?.limit) || EnvConfig.NEXT_PUBLIC_PAGINATION_LIMIT_DESKTOP_SIZE;
   const search = sp?.search;
   const status = sp?.status;
   const orderBy = (sp?.orderBy as keyof ChildResponse) || "updatedAt";

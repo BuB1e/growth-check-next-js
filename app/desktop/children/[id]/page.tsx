@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { ChildAction } from "@/actions/ChildAction";
+import { ChildDataAction } from "@/actions/ChildDataAction";
 import { notFound } from "next/navigation";
 import {
   Card,
@@ -81,6 +82,15 @@ async function ChildDetailContent({
     notFound();
   }
 
+  // Fetch child-data for charts
+  let childData: import("@/dto").ChildDataResponse[] = [];
+  try {
+    const res = await ChildDataAction.getChildDataList({ childId: childId, limit: 100 });
+    childData = res;
+  } catch (error) {
+    console.error("Failed to load child data for charts:", error);
+  }
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
       {/* Left Column: Personal Info Form */}
@@ -108,7 +118,7 @@ async function ChildDetailContent({
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <GrowthChart childId={childId} />
+            <GrowthChart childId={childId} data={childData} />
           </CardContent>
         </Card>
 

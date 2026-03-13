@@ -1,4 +1,4 @@
-// TODO: Aligned with real backend API spec
+// Aligned with real backend API spec (refactored DB — GET list added)
 export type LocationRequestStatus = "APPROVE" | "REJECT" | "WAITING";
 
 export interface LocationCreateRequestResponse {
@@ -11,13 +11,13 @@ export interface LocationCreateRequestResponse {
   sub_district: string;
   zip_code: string;
   requestStatus: LocationRequestStatus;
-  handledBy: string;
+  handledBy: string | null;
   createdAt: string;
   updatedAt: string;
   deleteStatus: boolean;
 }
 
-// TODO: Request body for POST /location-create-requests/
+// Request body for POST /location-create-requests/
 export interface CreateLocationCreateRequest {
   userId: string;
   locationName: string;
@@ -28,8 +28,23 @@ export interface CreateLocationCreateRequest {
   zip_code: string;
 }
 
-// TODO: Request body for PATCH /location-create-requests/{id}
+// Request body for PATCH /location-create-requests/{id}
 export interface UpdateLocationCreateRequest {
+  locationName?: string;
+  locationMap?: string;
+  province?: string;
+  district?: string;
+  sub_district?: string;
+  zip_code?: string;
+  requestStatus?: LocationRequestStatus;
+  handledBy?: string;
+  deleteStatus?: boolean;
+}
+
+// Query params for GET /location-create-requests/
+export interface GetLocationCreateRequestsParams {
+  page?: number;
+  limit?: number;
   locationName?: string;
   locationMap?: string;
   province?: string;

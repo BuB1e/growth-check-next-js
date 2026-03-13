@@ -1,0 +1,8 @@
+app/desktop/children/[id]/page.tsx(89,21): error TS2339: Property 'data' does not exist on type 'ChildDataResponse[]'.
+app/mobile/staff/[child_id]/page.tsx(26,38): error TS2339: Property 'data' does not exist on type 'ChildDataResponse[]'.
+app/mobile/staff/create_child/actions.ts(75,35): error TS2345: Argument of type '{ firstName: string; lastName: string; birthDate: string; locationId: number; createdByUser: string; updatedByUser: string; }' is not assignable to parameter of type 'CreateChildRequest'.
+  Property 'sex' is missing in type '{ firstName: string; lastName: string; birthDate: string; locationId: number; createdByUser: string; updatedByUser: string; }' but required in type 'CreateChildRequest'.
+components/features/desktop/MeasurementHistory.tsx(23,19): error TS2339: Property 'data' does not exist on type 'ChildDataResponse[]'.
+components/features/mobile/DevelopmentCard.tsx(50,26): error TS2339: Property 'index' does not exist on type 'ChildDataResponse'.
+components/features/mobile/DevelopmentChart.tsx(33,34): error TS2339: Property 'index' does not exist on type 'ChildDataResponse'.
+components/features/mobile/MeasurementDrawer.tsx(99,9): error TS2353: Object literal may only specify known properties, and 'index' does not exist in type 'CreateChildDataRequest'.

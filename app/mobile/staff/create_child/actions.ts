@@ -75,6 +75,7 @@ export async function createChildServerAction(
     await ChildAction.createChild({
       firstName,
       lastName,
+      sex: "MALE", // TODO: Add sex field to UI form
       birthDate: birthDate.toISOString(),
       locationId: parseInt(locationId),
       // TODO: Replace with actual user ID from session

@@ -30,7 +30,7 @@ export function DevelopmentChart({ history }: DevelopmentChartProps) {
       const shortDate = formatBE(record.heightDate, "d MMM");
 
       return {
-        name: `ครั้งที่ ${record.index}`,
+        name: `ครั้งที่ ${record.id}`,
         shortDate,
         height: Number(record.height.toFixed(1)),
         weight: Number(record.weight.toFixed(1)),

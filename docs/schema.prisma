@@ -14,7 +14,6 @@ generator prismabox {
   output                      = "../generated/prismabox"
 }
 
-
 model aiPrediction	{
 	id									Int			@id @default(autoincrement()) @db.Integer
 	childId								Int			@db.Integer
@@ -25,8 +24,8 @@ model aiPrediction	{
 	modelVersion						String		@db.VarChar(3) //1.0
 	dateTime							DateTime	@db.Date
 	month								Int			@db.SmallInt
-	height								Float		@db.Real
-	weight								Float		@db.Real
+	height								Float[]		@db.Real
+	weight								Float[]		@db.Real
 	createdAt							DateTime	@default(now()) @db.Date
 
 	child								Child		@relation(fields: [childId], references: [id])
@@ -121,6 +120,7 @@ model Child {
 	createdAt		DateTime	@default(now()) @db.Date
 	updatedAt		DateTime	@default(now()) @updatedAt @db.Date
 	deleteStatus	Boolean		@default(false) @db.Boolean
+	sex				Sex
 
 	childData		ChildData[]
 	location		Location	@relation(fields: [locationId], references: [id])
@@ -128,16 +128,19 @@ model Child {
 	aiPrediction	aiPrediction[]
 }
 
+enum Sex {
+	MALE
+	FEMALE
+}
+
 model ChildData {
 	id						Int							@id	@default(autoincrement()) @db.Integer
-	childId				Int							@db.Integer
+	childId					Int							@db.Integer
 	locationId				Int							@db.Integer
 	height					Float						@db.Real
 	weight					Float						@db.Real
-	heightDevelopmentId	Int							@db.Integer
-	weightDevelopmentId	Int							@db.Integer
-	// index is the measurement number
-	index					Int							@db.Integer
+	heightDevelopmentId		Int							@db.Integer
+	weightDevelopmentId		Int							@db.Integer
 	heightDate				DateTime					@db.Date
 
 	userCreated				String						@db.Uuid
@@ -233,7 +236,7 @@ model LocationCreateRequest {
 	sub_district	String		@db.VarChar(30)
 	zip_code		String		@db.VarChar(5)
 	status			Request_status	@default(WAITING)
-	handledBy		String @db.Uuid
+	handledBy		String? 	@db.Uuid
 	createdAt		DateTime	@default(now()) @db.Date
 	updatedAt		DateTime	@default(now()) @updatedAt @db.Date
 	deleteStatus	Boolean		@default(false) @db.Boolean
@@ -248,26 +251,6 @@ enum Request_status {
 	WAITING
 }
 
-model Parent {
-	id					Int			@id @default(autoincrement()) @db.Integer
-	identificationId	String		@db.VarChar(13)	@unique
-	firstName			String		@db.VarChar(50)
-	lastName			String		@db.VarChar(50)
-	phoneNo				String		@db.VarChar(10) @unique
-	gender				Gender
-	detail				String?		@db.VarChar(30)
-	createdAt			DateTime	@default(now()) @db.Date
-	updatedAt			DateTime	@default(now()) @updatedAt @db.Date
-	deleteStatus		Boolean		@default(false) @db.Boolean
-
-	child_parent		ChildParent[]
-}
-
-enum Gender {
-	MALE
-	FEMALE
-}
-
 model Team {
 	id				Int			@id @default(autoincrement()) @db.Integer
 	name			String		@db.VarChar(20)
@@ -279,13 +262,14 @@ model Team {
 }
 
 model UserCreateStatus {
-    id            String         @id @default(uuid()) @db.Uuid
+    id            Int         @id @default(autoincrement()) @db.Integer
     userId        String         @unique @db.Uuid
     requestStatus Request_status @default(WAITING)
     rejectReason  String?        @db.VarChar(255)
     updatedBy     String?        @db.Uuid
-    updatedAt     DateTime?      @db.Date
-    createdAt     DateTime       @default(now()) @db.Date
+    updatedAt     DateTime       @db.Date   @updatedAt
+    createdAt      DateTime       @default(now()) @db.Date
+	deleteStatus   Boolean		@default(false) @db.Boolean
 
     user User @relation(fields: [userId], references: [id])
 }

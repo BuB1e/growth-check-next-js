@@ -1,4 +1,4 @@
-// TODO: Aligned with real backend API spec
+// Aligned with real backend API spec
 export interface TeamResponse {
   id: number;
   name: string;
@@ -8,19 +8,19 @@ export interface TeamResponse {
   deleteStatus: boolean;
 }
 
-// TODO: Request body for POST /teams/
+// Request body for POST /teams/
 export interface CreateTeamRequest {
   name: string;
   description?: string;
 }
 
-// TODO: Request body for PATCH /teams/{id}
+// Request body for PATCH /teams/{id}
 export interface UpdateTeamRequest {
   name?: string;
   description?: string;
 }
 
-// TODO: Query params for GET /teams/
+// Query params for GET /teams/
 export interface GetTeamsParams {
   page?: number;
   limit?: number;

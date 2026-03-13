@@ -1,6 +1,6 @@
 import type { DevelopmentResponse } from "./DevelopmentDTO";
 
-// TODO: Aligned with real backend API spec
+// Aligned with real backend API spec (refactored DB — index field removed)
 export type ChildDataStatus = "IN_AREA" | "OUT_AREA" | "UNKNOWN" | "DIED";
 
 export interface ChildDataResponse {
@@ -11,7 +11,6 @@ export interface ChildDataResponse {
   weight: number;
   heightDevelopmentId: number;
   weightDevelopmentId: number;
-  index: number;
   heightDate: string;
   userCreated: string;
   userUpdated: string;
@@ -23,7 +22,7 @@ export interface ChildDataResponse {
   weightDevelopment?: DevelopmentResponse;
 }
 
-// TODO: Request body for POST /child-data/
+// Request body for POST /child-data/
 export interface CreateChildDataRequest {
   childId: number;
   locationId: number;
@@ -31,14 +30,13 @@ export interface CreateChildDataRequest {
   weight: number;
   heightDevelopmentId: number;
   weightDevelopmentId: number;
-  index: number;
   heightDate: string;
   userCreated: string;
   userUpdated: string;
   status?: ChildDataStatus;
 }
 
-// TODO: Request body for PATCH /child-data/{id}
+// Request body for PATCH /child-data/{id}
 export interface UpdateChildDataRequest {
   childId?: number;
   locationId?: number;
@@ -46,13 +44,12 @@ export interface UpdateChildDataRequest {
   weight?: number;
   heightDevelopmentId?: number;
   weightDevelopmentId?: number;
-  index?: number;
   heightDate?: string;
   userUpdated?: string;
   status?: ChildDataStatus;
 }
 
-// TODO: Query params for GET /child-data/
+// Query params for GET /child-data/
 export interface GetChildDataParams {
   page?: number;
   limit?: number;

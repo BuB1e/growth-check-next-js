@@ -1,4 +1,4 @@
-"use server";
+
 
 import axios from "axios";
 import { EnvConfig } from "@/configs/BackendConfig";
@@ -15,15 +15,18 @@ export class ChildTransferRequestAction {
   static API_ENDPOINT = "/child-transfer-requests";
   static ACTION_ENDPOINT = this.BACKEND_ENDPOINT + this.API_ENDPOINT;
 
-  // TODO: GET /child-transfer-requests/ — list with query params
   static async getRequests(
-    params?: GetChildTransferRequestsParams,
+    params: GetChildTransferRequestsParams = {},
   ): Promise<PaginatedResponse<ChildTransferRequestResponse>> {
-    const response = await axios.get(`${this.ACTION_ENDPOINT}/`, { params });
+    const defaultParams = {
+      page: EnvConfig.NEXT_PUBLIC_PAGINATION_PAGE_DESKTOP_SIZE,
+      limit: EnvConfig.NEXT_PUBLIC_PAGINATION_LIMIT_DESKTOP_SIZE,
+      ...params,
+    };
+    const response = await axios.get(`${this.ACTION_ENDPOINT}/`, { params: defaultParams });
     return response.data;
   }
 
-  // TODO: GET /child-transfer-requests/{id}
   static async getRequestById(
     id: string,
   ): Promise<ChildTransferRequestResponse> {
@@ -31,7 +34,6 @@ export class ChildTransferRequestAction {
     return response.data;
   }
 
-  // TODO: POST /child-transfer-requests/
   static async createRequest(
     data: CreateChildTransferRequest,
   ): Promise<ChildTransferRequestResponse> {
@@ -39,7 +41,6 @@ export class ChildTransferRequestAction {
     return response.data;
   }
 
-  // TODO: PATCH /child-transfer-requests/{id}
   static async updateRequest(
     id: string,
     data: UpdateChildTransferRequest,
@@ -48,7 +49,6 @@ export class ChildTransferRequestAction {
     return response.data;
   }
 
-  // TODO: DELETE /child-transfer-requests/{id}
   static async deleteRequest(id: string): Promise<void> {
     await axios.delete(`${this.ACTION_ENDPOINT}/${id}`);
   }

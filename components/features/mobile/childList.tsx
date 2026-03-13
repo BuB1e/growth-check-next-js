@@ -1,5 +1,6 @@
 import { ChildAction } from "@/actions/ChildAction";
-import type { ChildResponse, PaginatedResponse } from "@/dto";
+import { EnvConfig } from "@/configs/BackendConfig";
+import type { ChildResponse } from "@/dto";
 import { MobileChildListItem } from "./childListItem";
 import { FileQuestion, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
@@ -17,8 +18,8 @@ interface MobileChildListProps {
 }
 
 export async function MobileChildList({
-  page = 1,
-  limit = 10,
+  page = EnvConfig.NEXT_PUBLIC_PAGINATION_PAGE_MOBILE_SIZE,
+  limit = EnvConfig.NEXT_PUBLIC_PAGINATION_LIMIT_MOBILE_SIZE,
   search = "",
   status = "",
   minAge = "",
@@ -27,16 +28,19 @@ export async function MobileChildList({
   weightDev = "",
   locationId = "",
 }: MobileChildListProps) {
-  let paginatedData: PaginatedResponse<ChildResponse> | null = null;
+  let allChildren: ChildResponse[] = [];
   try {
-    // TODO: Map search/status params to API query params
-    paginatedData = await ChildAction.getChildren({ page, limit, firstName: search || undefined });
+    // API returns a plain array — pagination is handled client-side
+    allChildren = await ChildAction.getChildren({ firstName: search || undefined });
   } catch (error) {
     console.error("Failed to load children", error);
   }
 
-  const children = paginatedData?.data || [];
-  const meta = paginatedData?.meta;
+  // Client-side pagination
+  const total = allChildren.length;
+  const totalPages = Math.ceil(total / limit);
+  const start = (page - 1) * limit;
+  const children = allChildren.slice(start, start + limit);
 
   if (!children || children.length === 0) {
     return (
@@ -54,8 +58,8 @@ export async function MobileChildList({
     );
   }
 
-  const hasNextPage = meta && meta.page < meta.totalPages;
-  const hasPrevPage = meta && meta.page > 1;
+  const hasNextPage = page < totalPages;
+  const hasPrevPage = page > 1;
 
   return (
     <div className="space-y-4 pb-24">
@@ -65,19 +69,19 @@ export async function MobileChildList({
         ))}
       </div>
 
-      {meta && meta.totalPages > 1 && (
+      {totalPages > 1 && (
         <div className="flex items-center justify-between pt-4 pb-2 border-t border-gray-100">
           <Link
-            href={`?page=${meta.page - 1}${search ? `&q=${search}` : ""}${status ? `&status=${status}` : ""}${minAge ? `&minAge=${minAge}` : ""}${maxAge ? `&maxAge=${maxAge}` : ""}${heightDev ? `&heightDev=${heightDev}` : ""}${weightDev ? `&weightDev=${weightDev}` : ""}${locationId ? `&locationId=${locationId}` : ""}`}
+            href={`?page=${page - 1}${search ? `&q=${search}` : ""}${status ? `&status=${status}` : ""}${minAge ? `&minAge=${minAge}` : ""}${maxAge ? `&maxAge=${maxAge}` : ""}${heightDev ? `&heightDev=${heightDev}` : ""}${weightDev ? `&weightDev=${weightDev}` : ""}${locationId ? `&locationId=${locationId}` : ""}`}
             className={`flex items-center justify-center w-10 h-10 rounded-full border border-gray-200 bg-white text-gray-700 shadow-sm active:scale-95 transition-all ${!hasPrevPage && "opacity-50 pointer-events-none"}`}
           >
             <ChevronLeft className="h-5 w-5" />
           </Link>
           <span className="text-sm font-medium text-gray-600">
-            หน้า {meta.page} จาก {meta.totalPages}
+            หน้า {page} จาก {totalPages}
           </span>
           <Link
-            href={`?page=${meta.page + 1}${search ? `&q=${search}` : ""}${status ? `&status=${status}` : ""}${minAge ? `&minAge=${minAge}` : ""}${maxAge ? `&maxAge=${maxAge}` : ""}${heightDev ? `&heightDev=${heightDev}` : ""}${weightDev ? `&weightDev=${weightDev}` : ""}${locationId ? `&locationId=${locationId}` : ""}`}
+            href={`?page=${page + 1}${search ? `&q=${search}` : ""}${status ? `&status=${status}` : ""}${minAge ? `&minAge=${minAge}` : ""}${maxAge ? `&maxAge=${maxAge}` : ""}${heightDev ? `&heightDev=${heightDev}` : ""}${weightDev ? `&weightDev=${weightDev}` : ""}${locationId ? `&locationId=${locationId}` : ""}`}
             className={`flex items-center justify-center w-10 h-10 rounded-full border border-gray-200 bg-white text-gray-700 shadow-sm active:scale-95 transition-all ${!hasNextPage && "opacity-50 pointer-events-none"}`}
           >
             <ChevronRight className="h-5 w-5" />
@@ -87,3 +91,4 @@ export async function MobileChildList({
     </div>
   );
 }
+

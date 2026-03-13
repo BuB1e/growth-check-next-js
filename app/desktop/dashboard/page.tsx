@@ -10,6 +10,9 @@ import {
   ChildHealthStatusChart,
   ChildHealthTrendChart,
 } from "@/components/features/desktop/dashboard-charts";
+import { ChildAction } from "@/actions/ChildAction";
+import { UserAction } from "@/actions/UserAction";
+import { LocationCreateRequestAction } from "@/actions/LocationCreateRequestAction";
 import { Baby, Users, MapPin, Activity } from "lucide-react";
 import { Suspense } from "react";
 
@@ -47,14 +50,6 @@ export default function DashboardPage({
 }: {
   searchParams: SearchParams;
 }) {
-  // TODO: Replace mock metrics with real API data when backend is ready
-  const mockMetrics = {
-    totalChildren: 600,
-    totalArea: 10,
-    totalStaff: 45,
-    activeRequests: 12,
-  };
-
   return (
     <div className="flex flex-col gap-6 p-4 md:p-8 w-full max-w-7xl mx-auto">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -83,6 +78,86 @@ export default function DashboardPage({
         </Suspense>
       </div>
 
+      <Suspense fallback={<DashboardLoadingSkeleton />}>
+        <DashboardDataWrapper searchParams={searchParams} />
+      </Suspense>
+    </div>
+  );
+}
+
+function DashboardLoadingSkeleton() {
+  return (
+    <div className="flex flex-col gap-6 animate-pulse">
+      {/* Top Stats Cards */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        {[1, 2, 3, 4].map((i) => (
+          <Card key={i} className="shadow-sm border-slate-200/60">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <div className="w-24 h-5 bg-muted rounded" />
+              <div className="w-4 h-4 bg-muted rounded-full" />
+            </CardHeader>
+            <CardContent>
+              <div className="w-16 h-8 bg-muted rounded mb-2" />
+              <div className="w-32 h-4 bg-muted rounded" />
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      <div className="grid gap-4 grid-cols-1 lg:grid-cols-7 mt-2">
+        <Card className="col-span-1 lg:col-span-4 shadow-sm border-slate-200/60">
+          <CardHeader>
+            <div className="w-48 h-6 bg-muted rounded mb-2" />
+            <div className="w-64 h-4 bg-muted rounded" />
+          </CardHeader>
+          <CardContent className="h-[300px] bg-slate-50 rounded-md mx-6 mb-6" />
+        </Card>
+
+        <Card className="col-span-1 lg:col-span-3 shadow-sm border-slate-200/60">
+          <CardHeader>
+            <div className="w-48 h-6 bg-muted rounded mb-2" />
+            <div className="w-64 h-4 bg-muted rounded" />
+          </CardHeader>
+          <CardContent className="h-[300px] bg-slate-50 rounded-md mx-6 mb-6" />
+        </Card>
+      </div>
+    </div>
+  );
+}
+
+async function DashboardDataWrapper({
+  searchParams,
+}: {
+  searchParams: SearchParams;
+}) {
+  // Await searchParams before destructuring just in case it's used
+  await searchParams;
+
+  // Fetch real metrics from API — gracefully handle failures
+  // Relying on EnvConfig for default pagination sizes (page: 1, limit: 100)
+  const [childrenRes, usersRes, requestsRes] =
+    await Promise.allSettled([
+      ChildAction.getChildren(),
+      UserAction.getUsersByTeam(1),
+      LocationCreateRequestAction.getRequests(),
+    ]);
+
+  const totalChildren =
+    childrenRes.status === "fulfilled" ? childrenRes.value.length : 0;
+  const totalStaff =
+    usersRes.status === "fulfilled" ? usersRes.value.length : 0;
+  // No GET /locations/ list endpoint — use approved location requests as proxy for area count
+  const totalArea =
+    requestsRes.status === "fulfilled"
+      ? requestsRes.value.filter((r) => r.requestStatus === "APPROVE").length
+      : 0;
+  const activeRequests =
+    requestsRes.status === "fulfilled"
+      ? requestsRes.value.filter((r) => r.requestStatus === "WAITING").length
+      : 0;
+
+  return (
+    <>
       {/* KPI Cards Layer */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card className="shadow-sm border-slate-200/60">
@@ -94,7 +169,7 @@ export default function DashboardPage({
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {mockMetrics.totalChildren}{" "}
+              {totalChildren}{" "}
               <span className="text-sm font-normal text-muted-foreground mr-1">
                 คน
               </span>
@@ -114,7 +189,7 @@ export default function DashboardPage({
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {mockMetrics.totalStaff}{" "}
+              {totalStaff}{" "}
               <span className="text-sm font-normal text-muted-foreground mr-1">
                 คน
               </span>
@@ -134,7 +209,7 @@ export default function DashboardPage({
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {mockMetrics.totalArea}{" "}
+              {totalArea}{" "}
               <span className="text-sm font-normal text-muted-foreground mr-1">
                 แห่ง
               </span>
@@ -154,7 +229,7 @@ export default function DashboardPage({
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {mockMetrics.activeRequests}{" "}
+              {activeRequests}{" "}
               <span className="text-sm font-normal text-muted-foreground mr-1">
                 รายการ
               </span>
@@ -192,6 +267,6 @@ export default function DashboardPage({
           </CardContent>
         </Card>
       </div>
-    </div>
+    </>
   );
 }

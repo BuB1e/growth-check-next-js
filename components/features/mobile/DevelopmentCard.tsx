@@ -47,7 +47,7 @@ export function DevelopmentCard({ data }: { data: ChildDataResponse }) {
         className={`px-4 py-3 flex items-center justify-between ${headerBg}`}
       >
         <h3 className="text-gray-900 font-bold text-lg tracking-tight">
-          ครั้งที่ {data.index} ({dateFormatted})
+          ครั้งที่ {data.id} ({dateFormatted})
         </h3>
         <StatusIcon
           className="h-6 w-6 text-gray-900 drop-shadow-sm"

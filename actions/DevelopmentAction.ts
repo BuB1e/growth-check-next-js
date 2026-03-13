@@ -1,4 +1,4 @@
-"use server";
+
 
 import axios from "axios";
 import { EnvConfig } from "@/configs/BackendConfig";
@@ -15,21 +15,23 @@ export class DevelopmentAction {
   static API_ENDPOINT = "/developments";
   static ACTION_ENDPOINT = this.BACKEND_ENDPOINT + this.API_ENDPOINT;
 
-  // TODO: GET /developments/ — list with query params
   static async getDevelopments(
-    params?: GetDevelopmentsParams,
+    params: GetDevelopmentsParams = {},
   ): Promise<PaginatedResponse<DevelopmentResponse>> {
-    const response = await axios.get(`${this.ACTION_ENDPOINT}/`, { params });
+    const defaultParams = {
+      page: EnvConfig.NEXT_PUBLIC_PAGINATION_PAGE_DESKTOP_SIZE,
+      limit: EnvConfig.NEXT_PUBLIC_PAGINATION_LIMIT_DESKTOP_SIZE,
+      ...params,
+    };
+    const response = await axios.get(`${this.ACTION_ENDPOINT}/`, { params: defaultParams });
     return response.data;
   }
 
-  // TODO: GET /developments/{id}
   static async getDevelopmentById(id: string): Promise<DevelopmentResponse> {
     const response = await axios.get(`${this.ACTION_ENDPOINT}/${id}`);
     return response.data;
   }
 
-  // TODO: POST /developments/
   static async createDevelopment(
     data: CreateDevelopmentRequest,
   ): Promise<DevelopmentResponse> {
@@ -37,7 +39,6 @@ export class DevelopmentAction {
     return response.data;
   }
 
-  // TODO: PATCH /developments/{id}
   static async updateDevelopment(
     id: string,
     data: UpdateDevelopmentRequest,
@@ -46,7 +47,6 @@ export class DevelopmentAction {
     return response.data;
   }
 
-  // TODO: DELETE /developments/{id}
   static async deleteDevelopment(id: string): Promise<void> {
     await axios.delete(`${this.ACTION_ENDPOINT}/${id}`);
   }

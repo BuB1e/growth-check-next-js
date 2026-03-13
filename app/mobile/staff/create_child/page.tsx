@@ -4,7 +4,7 @@ import { useActionState, useEffect } from "react";
 import { createChildServerAction, ActionState } from "./actions";
 import { Loader2, Save, UserPlus } from "lucide-react";
 import { useMobilePageStore } from "@/stores/MobilePageStore";
-import { EMobilePage } from "@/types/mobile";
+import { EMobilePage } from "@/types";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";

@@ -1,7 +1,7 @@
 "use client";
 
 import { useMobilePageStore } from "@/stores/MobilePageStore";
-import { EMobilePage, EMobilePageToThai } from "@/types/mobile";
+import { EMobilePage, EMobilePageToThai } from "@/types";
 import { Home, MapPin, User } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -16,19 +16,19 @@ export default function BottomNavbar() {
       id: EMobilePage.HOME,
       label: EMobilePageToThai[EMobilePage.HOME],
       icon: Home,
-      href: "/staff/home",
+      href: "/mobile/staff/home",
     },
     {
       id: EMobilePage.LOCATION,
       label: EMobilePageToThai[EMobilePage.LOCATION],
       icon: MapPin,
-      href: "/staff/location", // Example future route
+      href: "/mobile/staff/location", // Example future route
     },
     {
       id: EMobilePage.PROFILE,
       label: EMobilePageToThai[EMobilePage.PROFILE],
       icon: User,
-      href: "/staff/profile", // Example future route
+      href: "/mobile/staff/profile", // Example future route
     },
   ];
 

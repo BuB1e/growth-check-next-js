@@ -1,4 +1,4 @@
-// TODO: Aligned with real backend API spec
+// Aligned with real backend API spec
 export type DevelopmentMetric = "WA" | "HA" | "BMI" | "WH" | "WL";
 
 export interface DevelopmentResponse {
@@ -14,7 +14,7 @@ export interface DevelopmentResponse {
   deleteStatus: boolean;
 }
 
-// TODO: Request body for POST /developments/
+// Request body for POST /developments/
 export interface CreateDevelopmentRequest {
   status: string;
   metric: DevelopmentMetric;
@@ -24,7 +24,7 @@ export interface CreateDevelopmentRequest {
   suggestion: string;
 }
 
-// TODO: Request body for PATCH /developments/{id}
+// Request body for PATCH /developments/{id}
 export interface UpdateDevelopmentRequest {
   status?: string;
   metric?: DevelopmentMetric;
@@ -35,7 +35,7 @@ export interface UpdateDevelopmentRequest {
   deleteStatus?: boolean;
 }
 
-// TODO: Query params for GET /developments/
+// Query params for GET /developments/
 export interface GetDevelopmentsParams {
   page?: number;
   limit?: number;

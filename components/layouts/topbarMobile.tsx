@@ -1,7 +1,7 @@
 "use client";
 
 import { useMobilePageStore } from "@/stores/MobilePageStore";
-import { EMobilePageToThai } from "@/types/mobile";
+import { EMobilePageToThai } from "@/types";
 import { ChevronLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 

@@ -5,6 +5,7 @@ trigger: always_on
 - This project designed using RBAC which role is 1 role in Mobile is Staff. And 2 Roles in Desktop 1.Admin 2.Head.
 - Target user age around 30-55 years old, so make text size large and good readability.
 - Using NextJS modern best practice.
+- Use Axios on ALL fetch.
 - Use Pnpm.
 - And I want to use RemixJS style on action in server-side.
 - Always use server-side and RSC (react server component) for right tasks.

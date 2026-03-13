@@ -4,7 +4,8 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { HistoryAction, HistoryType } from "@/actions/HistoryAction";
+import { HistoryAction } from "@/actions/HistoryAction";
+import type { HistoryType } from "@/types";
 
 export const metadata = {
   title: "รายละเอียดประวัติ",

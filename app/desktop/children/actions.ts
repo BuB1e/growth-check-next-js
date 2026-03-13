@@ -3,7 +3,7 @@
 import { ChildAction } from "@/actions/ChildAction";
 import { revalidatePath } from "next/cache";
 
-// TODO: Replace mock with real API call when backend is ready
+
 export async function updateChildAction(
   childId: number,
   data: {

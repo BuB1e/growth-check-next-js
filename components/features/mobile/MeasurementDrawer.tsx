@@ -31,6 +31,7 @@ interface MeasurementDrawerProps {
 }
 
 export function MeasurementDrawer({
+  childId,
   open,
   onOpenChange,
 }: MeasurementDrawerProps) {
@@ -85,8 +86,20 @@ export function MeasurementDrawer({
 
     setIsPending(true);
     try {
-      // TODO: replace with real api action mapping measurement parsed.data
-      await new Promise((resolve) => setTimeout(resolve, 800));
+      const { createChildDataAction } = await import(
+        "@/app/mobile/staff/[child_id]/actions"
+      );
+      await createChildDataAction({
+        childId: childId ?? 0,
+        locationId: 0, // TODO: Get from child's current location
+        height: parsed.data.height,
+        weight: parsed.data.weight,
+        heightDevelopmentId: 0, // TODO: Calculate from growth standards
+        weightDevelopmentId: 0, // TODO: Calculate from growth standards
+        heightDate: parsed.data.date,
+        userCreated: "current-user", // TODO: Get from session
+        userUpdated: "current-user", // TODO: Get from session
+      });
       resetForm();
       onOpenChange(false);
       router.refresh();

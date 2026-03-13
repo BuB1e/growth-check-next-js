@@ -10,7 +10,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { ESidebar, ESidebarToThai } from "@/types/desktop/ESidebar";
+import { ESidebar, ESidebarToThai } from "@/types";
 import {
   LayoutDashboard,
   MapPin,

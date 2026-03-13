@@ -63,8 +63,9 @@ async function RequestsDataWrapper({
   searchParams: Promise<{ [key: string]: string | undefined }>;
 }) {
   const sp = await searchParams;
-  const page = Number(sp?.page) || 1;
-  const limit = Number(sp?.limit) || 10;
+  const { EnvConfig } = await import("@/configs/BackendConfig");
+  const page = Number(sp?.page) || EnvConfig.NEXT_PUBLIC_PAGINATION_PAGE_DESKTOP_SIZE;
+  const limit = Number(sp?.limit) || EnvConfig.NEXT_PUBLIC_PAGINATION_LIMIT_DESKTOP_SIZE;
   const search = sp?.search;
   const status = sp?.status;
   const orderBy =
@@ -75,10 +76,7 @@ async function RequestsDataWrapper({
 
   try {
     // TODO: Pass query params to API when backend supports list endpoint
-    const result = await LocationCreateRequestAction.getRequestsByUserId(
-      "all",
-      { page, limit },
-    );
+    const result = await LocationCreateRequestAction.getRequests({ page, limit });
     data = { data: result, meta: { total: result.length, page, limit, totalPages: Math.ceil(result.length / limit) } };
   } catch (error) {
     console.error("Failed to load requests:", error);

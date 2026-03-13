@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from "zustand/middleware";
-import { EMobilePage } from '../types/mobile';
+import { EMobilePage } from '../types';
 
 export type MobilePageStore = {
     selectedTab: EMobilePage | EMobilePage.HOME;

@@ -1,5 +1,6 @@
-// TODO: Aligned with real backend API spec (camelCase fields)
+// Aligned with real backend API spec (refactored DB)
 export type ChildStatus = "IN_AREA" | "OUT_AREA" | "UNKNOWN" | "DIED";
+export type ChildSex = "MALE" | "FEMALE";
 
 export interface ChildResponse {
   id: number;
@@ -7,35 +8,38 @@ export interface ChildResponse {
   lastName: string;
   locationId: number;
   birthDate: string;
+  sex: ChildSex;
   createdByUser: string;
   updatedByUser: string;
   createdAt: string;
   updatedAt: string;
   deleteStatus: boolean;
-  // TODO: status may come from child-data — verify with backend
+  // status may come from child-data — verify with backend
   status?: ChildStatus;
 }
 
-// TODO: Request body for POST /children/
+// Request body for POST /children/
 export interface CreateChildRequest {
   firstName: string;
   lastName: string;
   locationId: number;
   birthDate: string;
+  sex: ChildSex;
   createdByUser: string;
   updatedByUser: string;
 }
 
-// TODO: Request body for PATCH /children/{id}
+// Request body for PATCH /children/{id}
 export interface UpdateChildRequest {
   firstName?: string;
   lastName?: string;
   locationId?: number;
+  sex?: ChildSex;
   birthDate?: string;
   updatedByUser?: string;
 }
 
-// TODO: Query params for GET /children/
+// Query params for GET /children/
 export interface GetChildrenParams {
   page?: number;
   limit?: number;
@@ -44,4 +48,9 @@ export interface GetChildrenParams {
   locationId?: number;
   createdByUser?: string;
   deleteStatus?: boolean;
+}
+
+// Request body for PUT /children/predict/{id}
+export interface PredictChildRequest {
+  model: string;
 }

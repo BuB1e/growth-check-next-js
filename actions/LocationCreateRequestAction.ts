@@ -1,4 +1,4 @@
-"use server";
+
 
 import axios from "axios";
 import { EnvConfig } from "@/configs/BackendConfig";
@@ -6,6 +6,7 @@ import type {
   LocationCreateRequestResponse,
   CreateLocationCreateRequest,
   UpdateLocationCreateRequest,
+  GetLocationCreateRequestsParams,
 } from "@/dto";
 
 export class LocationCreateRequestAction {
@@ -13,7 +14,18 @@ export class LocationCreateRequestAction {
   static API_ENDPOINT = "/location-create-requests";
   static ACTION_ENDPOINT = this.BACKEND_ENDPOINT + this.API_ENDPOINT;
 
-  // TODO: GET /location-create-requests/{id}
+  static async getRequests(
+    params: GetLocationCreateRequestsParams = {},
+  ): Promise<LocationCreateRequestResponse[]> {
+    const defaultParams = {
+      page: EnvConfig.NEXT_PUBLIC_PAGINATION_PAGE_DESKTOP_SIZE,
+      limit: EnvConfig.NEXT_PUBLIC_PAGINATION_LIMIT_DESKTOP_SIZE,
+      ...params,
+    };
+    const response = await axios.get(`${this.ACTION_ENDPOINT}/`, { params: defaultParams });
+    return response.data;
+  }
+
   static async getRequestById(
     id: number,
   ): Promise<LocationCreateRequestResponse> {
@@ -21,19 +33,22 @@ export class LocationCreateRequestAction {
     return response.data;
   }
 
-  // TODO: GET /location-create-requests/user/{userId} — list by user with pagination
   static async getRequestsByUserId(
     userId: string,
-    params?: { page?: number; limit?: number },
+    params: { page?: number; limit?: number } = {},
   ): Promise<LocationCreateRequestResponse[]> {
+    const defaultParams = {
+      page: EnvConfig.NEXT_PUBLIC_PAGINATION_PAGE_DESKTOP_SIZE,
+      limit: EnvConfig.NEXT_PUBLIC_PAGINATION_LIMIT_DESKTOP_SIZE,
+      ...params,
+    };
     const response = await axios.get(
       `${this.ACTION_ENDPOINT}/user/${userId}`,
-      { params },
+      { params: defaultParams },
     );
     return response.data;
   }
 
-  // TODO: POST /location-create-requests/
   static async createRequest(
     data: CreateLocationCreateRequest,
   ): Promise<LocationCreateRequestResponse> {
@@ -41,7 +56,6 @@ export class LocationCreateRequestAction {
     return response.data;
   }
 
-  // TODO: PATCH /location-create-requests/{id}
   static async updateRequest(
     id: number,
     data: UpdateLocationCreateRequest,
@@ -50,7 +64,6 @@ export class LocationCreateRequestAction {
     return response.data;
   }
 
-  // TODO: DELETE /location-create-requests/{id}
   static async deleteRequest(id: number): Promise<void> {
     await axios.delete(`${this.ACTION_ENDPOINT}/${id}`);
   }

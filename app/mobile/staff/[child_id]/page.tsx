@@ -19,11 +19,11 @@ async function ChildProfileContent({
 
   const [child, childDataResponse] = await Promise.all([
     ChildAction.getChildById(p.child_id.replace("child_", "")),
-    // TODO: Replace with real API call filtered by childId
+    // Replace with real API call filtered by childId
     ChildDataAction.getChildDataList({ childId: childId }),
   ]);
 
-  const history = childDataResponse?.data || [];
+  const history = childDataResponse || [];
 
   if (!child) {
     notFound();

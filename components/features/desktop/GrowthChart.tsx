@@ -8,8 +8,6 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { format } from "date-fns";
-import { th } from "date-fns/locale";
 import { formatBE } from "@/lib/date-utils";
 
 import {
@@ -22,20 +20,12 @@ import {
 } from "@/components/ui/chart";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import type { ChildDataResponse } from "@/dto";
 
 interface GrowthChartProps {
   childId: number;
+  data?: ChildDataResponse[];
 }
-
-// TODO: Temporary individual mock history data matching real measurement data points format
-const mockGrowthHistory = [
-  { date: "2023-01-10", weight: 22.5, height: 110 },
-  { date: "2023-04-12", weight: 23.2, height: 112 },
-  { date: "2023-08-05", weight: 25.1, height: 114 },
-  { date: "2023-12-15", weight: 26.8, height: 118 },
-  { date: "2024-03-20", weight: 28.1, height: 121 },
-  { date: "2024-06-15", weight: 29.5, height: 123 },
-];
 
 const chartConfig = {
   weight: {
@@ -48,23 +38,37 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export function GrowthChart({ childId: _childId }: GrowthChartProps) {
+export function GrowthChart({ childId: _childId, data = [] }: GrowthChartProps) {
   const [metric, setMetric] = useState<"weight" | "height">("weight");
 
-  // Format data points for correct rendering and sorting
-  const chartData = mockGrowthHistory.map((d) => ({
-    ...d,
-    formattedDate: formatBE(d.date, "MMM yyyy"),
+  // Format data points from real API data
+  const chartData = data.map((d) => ({
+    date: d.heightDate,
+    weight: d.weight,
+    height: d.height,
+    formattedDate: formatBE(d.heightDate, "MMM yyyy"),
   }));
 
-  // Render a reference line denoting normal growth channels.
-  // Normally this would be dynamic calculated based on age array logic from the Department of Health.
-  // TODO: Hardcoding mock Safe Zone for illustration
-  const yAxisDomain = metric === "weight" ? [15, 35] : [100, 140];
+  // Dynamic Y-axis domain based on actual data
+  const values = chartData.map((d) => d[metric]);
+  const minVal = values.length > 0 ? Math.min(...values) : 0;
+  const maxVal = values.length > 0 ? Math.max(...values) : 100;
+  const padding = (maxVal - minVal) * 0.2 || 10;
+  const yAxisDomain = [Math.floor(minVal - padding), Math.ceil(maxVal + padding)];
+
+  // Reference zone: approximate normal growth range
   const referenceZone =
     metric === "weight"
-      ? { y1: 20, y2: 30, color: "hsl(var(--muted)/0.3)" }
-      : { y1: 105, y2: 130, color: "hsl(var(--muted)/0.3)" };
+      ? { y1: Math.floor(minVal - padding * 0.5), y2: Math.ceil(maxVal + padding * 0.5), color: "hsl(var(--muted)/0.3)" }
+      : { y1: Math.floor(minVal - padding * 0.5), y2: Math.ceil(maxVal + padding * 0.5), color: "hsl(var(--muted)/0.3)" };
+
+  if (chartData.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-[250px] text-muted-foreground text-sm">
+        ยังไม่มีข้อมูลการวัดสำหรับแสดงกราฟ
+      </div>
+    );
+  }
 
   return (
     <div className="w-full flex flex-col gap-4">
@@ -99,7 +103,6 @@ export function GrowthChart({ childId: _childId }: GrowthChartProps) {
             axisLine={false}
           />
           <YAxis domain={yAxisDomain} hide />
-          {/* Reference Safe Area (Normal thresholds wrapper mockup) */}
           <ReferenceArea
             y1={referenceZone.y1}
             y2={referenceZone.y2}

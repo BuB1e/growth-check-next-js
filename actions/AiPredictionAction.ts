@@ -1,4 +1,4 @@
-"use server";
+
 
 import axios from "axios";
 import { EnvConfig } from "@/configs/BackendConfig";
@@ -15,21 +15,23 @@ export class AiPredictionAction {
   static API_ENDPOINT = "/ai-predictions";
   static ACTION_ENDPOINT = this.BACKEND_ENDPOINT + this.API_ENDPOINT;
 
-  // TODO: GET /ai-predictions/ — list with query params
   static async getPredictions(
-    params?: GetAiPredictionsParams,
+    params: GetAiPredictionsParams = {},
   ): Promise<PaginatedResponse<AiPredictionResponse>> {
-    const response = await axios.get(`${this.ACTION_ENDPOINT}/`, { params });
+    const defaultParams = {
+      page: EnvConfig.NEXT_PUBLIC_PAGINATION_PAGE_DESKTOP_SIZE,
+      limit: EnvConfig.NEXT_PUBLIC_PAGINATION_LIMIT_DESKTOP_SIZE,
+      ...params,
+    };
+    const response = await axios.get(`${this.ACTION_ENDPOINT}/`, { params: defaultParams });
     return response.data;
   }
 
-  // TODO: GET /ai-predictions/{id}
   static async getPredictionById(id: string): Promise<AiPredictionResponse> {
     const response = await axios.get(`${this.ACTION_ENDPOINT}/${id}`);
     return response.data;
   }
 
-  // TODO: POST /ai-predictions/
   static async createPrediction(
     data: CreateAiPredictionRequest,
   ): Promise<AiPredictionResponse> {
@@ -37,7 +39,6 @@ export class AiPredictionAction {
     return response.data;
   }
 
-  // TODO: PATCH /ai-predictions/{id}
   static async updatePrediction(
     id: string,
     data: UpdateAiPredictionRequest,
@@ -46,7 +47,6 @@ export class AiPredictionAction {
     return response.data;
   }
 
-  // TODO: DELETE /ai-predictions/{id}
   static async deletePrediction(id: string): Promise<void> {
     await axios.delete(`${this.ACTION_ENDPOINT}/${id}`);
   }
