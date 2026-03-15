@@ -1,32 +1,22 @@
-// Aligned with real backend API spec
-export type UserCreateRequestStatus = "APPROVE" | "REJECT" | "WAITING";
+import { Request_status } from "@/types";
 
 export interface UserCreateStatusResponse {
   id: number;
   userId: string;
-  requestStatus: UserCreateRequestStatus;
-  rejectReason: string | null;
-  updatedBy: string | null;
-  updatedAt: string;
-  createdAt: string;
-  deleteStatus: boolean;
+  requestStatus: Request_status;
+  rejectReason?: string | null;
+  updatedBy?: string| null;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-// Request body for POST /user-create-status/
-export interface CreateUserCreateStatusRequest {
+export interface CreateUserCreateStatusDto {
   userId: string;
 }
 
-// Request body for PATCH /user-create-status/{id}
-export interface UpdateUserCreateStatusRequest {
-  requestStatus?: UserCreateRequestStatus;
-  updatedBy?: string;
+export interface UpdateUserCreateStatusDto {
+  requestStatus?: Request_status;
   rejectReason?: string;
+  updatedBy?: string;
 }
 
-// Query params for GET /user-create-status/
-export interface GetUserCreateStatusParams {
-  page?: number;
-  limit?: number;
-  deleted?: boolean;
-}

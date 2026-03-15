@@ -1,51 +1,47 @@
-// Aligned with real backend API spec (refactored DB — GET list added)
-export type UserRole = "ADMIN" | "USER" | "HEAD";
+import { Role } from "@/types";
 
 export interface UserResponse {
   id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  teamId: number | null;
-  role: UserRole;
-  emailVerified: boolean;
-  image: string | null;
-  deleteStatus: boolean;
-  createdAt: string;
-  updatedAt: string;
+	email: string;
+	teamId?: number | null;
+	firstName: string;
+	lastName: string;
+	role: Role;
+	image?: string | null;
+	emailVerified: boolean;
+	deleteStatus: boolean;
+	createdAt: Date;
+	updatedAt: Date;
 }
 
-// Request body for POST /users/
-export interface CreateUserRequest {
-  email: string;
-  firstName: string;
-  lastName: string;
-  role?: UserRole;
-  teamId?: number;
-  image?: string;
+export interface CreateUserDto {
+	email: string;
+	firstName: string;
+	lastName: string;
+	role?: Role;
+	teamId?: number | null;
+	image?: string | null;
 }
 
-// Request body for PATCH /users/{id}
-export interface UpdateUserRequest {
-  email?: string;
-  firstName?: string;
-  lastName?: string;
-  role?: UserRole;
-  teamId?: number;
-  image?: string;
+export interface UpdateUserDto {
+	email?: string;
+	firstName?: string;
+	lastName?: string;
+	image?: string;
 }
 
-// Query params for GET /users/
-export interface GetUsersParams {
-  page?: number;
-  limit?: number;
-  role?: UserRole;
-  emailVerified?: boolean;
-  deleteStatus?: boolean;
+export interface UpdatePrivateUserDto {
+	email?: string;
+	firstName?: string;
+	lastName?: string;
+	image?: string;
+	role?: Role;
+	teamId?: number;
+	emailVerified?: boolean;
 }
 
-// Query params for GET /users/teams/{teamId}/users
-export interface GetUsersByTeamParams {
-  page?: number;
-  limit?: number;
+export interface OptionsGetAllUserDTO {
+	role?: Role;
+	emailVerified?: boolean;
+	deleteStatus?: boolean;
 }

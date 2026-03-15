@@ -1,53 +1,48 @@
 // Aligned with real backend API spec
 export interface AiPredictionResponse {
   id: number;
-  childId: number;
-  heightDevelopmentId: number;
-  weightDevelopmentId: number;
-  dataMonthsUsed: number;
-  modelUsed: string;
-  modelVersion: string;
-  dateTime: string;
-  month: number;
-  height: number[];
-  weight: number[];
-  createdAt: string;
+	childId: number;
+	heightDevelopmentId: number;
+	weightDevelopmentId: number;
+	dataMonthsUsed: number;
+	modelUsed: string;
+	modelVersion: string;
+	dateTime: Date;
+	month: number;
+	height: number;
+	weight: number;
+	createdAt: Date;
 }
 
-// Request body for POST /ai-predictions/
-export interface CreateAiPredictionRequest {
-  childId: number;
-  heightDevelopmentId: number;
-  weightDevelopmentId: number;
-  dataMonthsUsed: number;
-  modelUsed: string;
-  modelVersion: string;
-  dateTime: string;
-  month: number;
-  height: number[];
-  weight: number[];
+export interface CreateAiPredictionDTO {
+	childId: number;
+	heightDevelopmentId: number;
+	weightDevelopmentId: number;
+	dataMonthsUsed: number;
+	modelUsed: string;
+	modelVersion: string;
+	dateTime: Date;
+	month: number;
+	height: number;
+	weight: number;
 }
 
-// Request body for PATCH /ai-predictions/{id}
-export interface UpdateAiPredictionRequest {
-  childId?: number;
-  heightDevelopmentId?: number;
-  weightDevelopmentId?: number;
-  dataMonthsUsed?: number;
-  modelUsed?: string;
-  modelVersion?: string;
-  dateTime?: string;
-  month?: number;
-  height?: number[];
-  weight?: number[];
+export interface UpdateAiPredictionDTO {
+	childId?: number;
+	heightDevelopmentId?: number;
+	weightDevelopmentId?: number;
+	dataMonthsUsed?: number;
+	modelUsed?: string;
+	modelVersion?: string;
+	dateTime?: Date;
+	month?: number;
+	height?: number;
+	weight?: number;
 }
 
-// Query params for GET /ai-predictions/
-export interface GetAiPredictionsParams {
-  page?: number;
-  limit?: number;
-  childId?: number;
-  month?: number;
-  modelUsed?: string;
-  modelVersion?: string;
+export interface OptionsGetAiPredictionsDTO {
+	childId?: number;
+	month?: number;
+	modelUsed?: string;
+	modelVersion?: string;
 }

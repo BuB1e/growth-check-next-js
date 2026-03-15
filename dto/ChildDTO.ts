@@ -1,56 +1,43 @@
-// Aligned with real backend API spec (refactored DB)
-export type ChildStatus = "IN_AREA" | "OUT_AREA" | "UNKNOWN" | "DIED";
-export type ChildSex = "MALE" | "FEMALE";
+import { Child_status, Sex } from "@/types";
 
 export interface ChildResponse {
   id: number;
-  firstName: string;
-  lastName: string;
-  locationId: number;
-  birthDate: string;
-  sex: ChildSex;
-  createdByUser: string;
-  updatedByUser: string;
-  createdAt: string;
-  updatedAt: string;
+	firstName: string;
+	lastName: string;
+	locationId: number;
+	birthDate: Date;
+	sex: Sex;
+	createdByUser: string;
+	updatedByUser: string;
+	createdAt: Date;
+  updatedAt: Date;
   deleteStatus: boolean;
-  // status may come from child-data — verify with backend
-  status?: ChildStatus;
+  status: Child_status;
 }
 
-// Request body for POST /children/
-export interface CreateChildRequest {
-  firstName: string;
-  lastName: string;
-  locationId: number;
-  birthDate: string;
-  sex: ChildSex;
-  createdByUser: string;
-  updatedByUser: string;
+export interface CreateChildDTO {
+	firstName: string;
+	lastName: string;
+	locationId: number;
+	sex: Sex;
+	birthDate: Date;
+	createdByUser: string;
+	updatedByUser: string;
 }
 
-// Request body for PATCH /children/{id}
-export interface UpdateChildRequest {
-  firstName?: string;
-  lastName?: string;
-  locationId?: number;
-  sex?: ChildSex;
-  birthDate?: string;
-  updatedByUser?: string;
+export interface UpdateChildDTO {
+	firstName?: string;
+	lastName?: string;
+	locationId?: number;
+	birthDate?: Date;
+	updatedByUser?: string;
+	sex?: Sex;
 }
 
-// Query params for GET /children/
-export interface GetChildrenParams {
-  page?: number;
-  limit?: number;
-  firstName?: string;
-  lastName?: string;
-  locationId?: number;
-  createdByUser?: string;
-  deleteStatus?: boolean;
-}
-
-// Request body for PUT /children/predict/{id}
-export interface PredictChildRequest {
-  model: string;
+export interface OptionsGetChildrenDTO {
+	firstName?: string;
+	lastName?: string;
+	locationId?: number;
+	createdByUser?: string;
+	deleteStatus?: boolean;
 }

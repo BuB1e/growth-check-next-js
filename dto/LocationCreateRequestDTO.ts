@@ -1,57 +1,52 @@
-// Aligned with real backend API spec (refactored DB — GET list added)
-export type LocationRequestStatus = "APPROVE" | "REJECT" | "WAITING";
+import { Request_status } from "@/types";
 
 export interface LocationCreateRequestResponse {
   id: number;
   userId: string;
-  locationName: string;
-  locationMap: string;
-  province: string;
-  district: string;
-  sub_district: string;
-  zip_code: string;
-  requestStatus: LocationRequestStatus;
-  handledBy: string | null;
-  createdAt: string;
-  updatedAt: string;
-  deleteStatus: boolean;
+	locationName: string;
+	locationMap: string;
+	province: string;
+	district: string;
+	sub_district: string;
+	zip_code: string;
+	requestStatus: Request_status;
+	handledBy: string;
+	createdAt: Date;
+	updatedAt: Date;
+	deleteStatus: boolean;
 }
 
-// Request body for POST /location-create-requests/
-export interface CreateLocationCreateRequest {
-  userId: string;
-  locationName: string;
-  locationMap: string;
-  province: string;
-  district: string;
-  sub_district: string;
-  zip_code: string;
+export interface CreateLocationRequestDTO {
+	userId: string;
+	locationName: string;
+	locationMap: string;
+	province: string;
+	district: string;
+	sub_district: string;
+	zip_code: string;
 }
 
-// Request body for PATCH /location-create-requests/{id}
-export interface UpdateLocationCreateRequest {
-  locationName?: string;
-  locationMap?: string;
-  province?: string;
-  district?: string;
-  sub_district?: string;
-  zip_code?: string;
-  requestStatus?: LocationRequestStatus;
-  handledBy?: string;
-  deleteStatus?: boolean;
+export interface UpdateLocationRequestDTO {
+	userId?: string;
+	locationName?: string;
+	locationMap?: string;
+	province?: string;
+	district?: string;
+	sub_district?: string;
+	zip_code?: string;
+	requestStatus?: Request_status;
+	handledBy?: string;
 }
 
-// Query params for GET /location-create-requests/
-export interface GetLocationCreateRequestsParams {
-  page?: number;
-  limit?: number;
-  locationName?: string;
-  locationMap?: string;
-  province?: string;
-  district?: string;
-  sub_district?: string;
-  zip_code?: string;
-  requestStatus?: LocationRequestStatus;
-  handledBy?: string;
-  deleteStatus?: boolean;
+
+export interface OptionsLocationCreateRequestDTO {
+	locationName?: string;
+	locationMap?: string;
+	province?: string;
+	district?: string;
+	sub_district?: string;
+	zip_code?: string;
+	requestStatus?: Request_status;
+	handledBy?: string;
+	deleteStatus?: boolean;
 }

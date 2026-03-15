@@ -1,45 +1,39 @@
-// Aligned with real backend API spec
-export type DevelopmentMetric = "WA" | "HA" | "BMI" | "WH" | "WL";
+import { Metric_type } from "@/types";
 
 export interface DevelopmentResponse {
   id: number;
-  status: string;
-  metric: DevelopmentMetric;
-  detail: string | null;
-  minAge: number;
-  maxAge: number;
-  suggestion: string;
-  createdAt: string;
-  updatedAt: string;
-  deleteStatus: boolean;
+	status: string;
+	metric: Metric_type;
+	detail?: string | null;
+	minAge: number;
+	maxAge: number;
+	suggestion: string;
+	createdAt: Date;
+	updatedAt: Date;
+	deleteStatus: boolean;
 }
 
-// Request body for POST /developments/
-export interface CreateDevelopmentRequest {
-  status: string;
-  metric: DevelopmentMetric;
-  detail?: string;
-  minAge: number;
-  maxAge: number;
-  suggestion: string;
+export interface CreateDevelopmentDTO {
+	status: string;
+	metric: Metric_type;
+	detail?: string;
+	minAge: number;
+	maxAge: number;
+	suggestion: string;
 }
 
-// Request body for PATCH /developments/{id}
-export interface UpdateDevelopmentRequest {
-  status?: string;
-  metric?: DevelopmentMetric;
-  detail?: string;
-  minAge?: number;
-  maxAge?: number;
-  suggestion?: string;
-  deleteStatus?: boolean;
+export interface UpdateDevelopmentDTO {
+	status?: string;
+	metric?: Metric_type;
+	detail?: string;
+	minAge?: number;
+	maxAge?: number;
+	suggestion?: string;
+	deleteStatus?: boolean;
 }
 
-// Query params for GET /developments/
-export interface GetDevelopmentsParams {
-  page?: number;
-  limit?: number;
-  status?: string;
-  metric?: DevelopmentMetric;
-  deleteStatus?: boolean;
+export interface OptionsGetDevelopmentsDTO {
+	status?: string;
+	metric?: Metric_type;
+	deleteStatus?: boolean;
 }
