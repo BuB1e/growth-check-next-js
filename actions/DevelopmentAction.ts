@@ -4,11 +4,16 @@ import axios from "axios";
 import { EnvConfig } from "@/configs/BackendConfig";
 import type {
   DevelopmentResponse,
-  CreateDevelopmentRequest,
-  UpdateDevelopmentRequest,
-  GetDevelopmentsParams,
-  PaginatedResponse,
+  CreateDevelopmentDTO,
+  UpdateDevelopmentDTO,
+  OptionsGetDevelopmentsDTO,
+  PaginatedResponseDTO,
 } from "@/dto";
+
+type GetDevelopmentsParams = OptionsGetDevelopmentsDTO & {
+  page?: number;
+  limit?: number;
+};
 
 export class DevelopmentAction {
   static BACKEND_ENDPOINT = EnvConfig.BACKEND_ENDPOINT;
@@ -17,9 +22,9 @@ export class DevelopmentAction {
 
   static async getDevelopments(
     params: GetDevelopmentsParams = {},
-  ): Promise<PaginatedResponse<DevelopmentResponse>> {
+  ): Promise<PaginatedResponseDTO<DevelopmentResponse>> {
     const defaultParams = {
-      page: EnvConfig.NEXT_PUBLIC_PAGINATION_PAGE_DESKTOP_SIZE,
+      page: 1,
       limit: EnvConfig.NEXT_PUBLIC_PAGINATION_LIMIT_DESKTOP_SIZE,
       ...params,
     };
@@ -33,7 +38,7 @@ export class DevelopmentAction {
   }
 
   static async createDevelopment(
-    data: CreateDevelopmentRequest,
+    data: CreateDevelopmentDTO,
   ): Promise<DevelopmentResponse> {
     const response = await axios.post(`${this.ACTION_ENDPOINT}/`, data);
     return response.data;
@@ -41,7 +46,7 @@ export class DevelopmentAction {
 
   static async updateDevelopment(
     id: string,
-    data: UpdateDevelopmentRequest,
+    data: UpdateDevelopmentDTO,
   ): Promise<DevelopmentResponse> {
     const response = await axios.patch(`${this.ACTION_ENDPOINT}/${id}`, data);
     return response.data;

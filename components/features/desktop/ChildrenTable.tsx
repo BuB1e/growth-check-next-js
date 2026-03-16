@@ -15,8 +15,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useRouter, useSearchParams } from "next/navigation";
-import { ChildResponse } from "@/dto";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { ChildResponse, PaginatedResponseDTO } from "@/dto";
+import { Child_status, Child_statusToThai } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -40,11 +41,12 @@ import { th } from "date-fns/locale";
 import { formatBE } from "@/lib/date-utils";
 
 interface ChildrenTableProps {
-  rawData: ChildResponse[];
+  rawData: PaginatedResponseDTO<ChildResponse>;
 }
 
 export function ChildrenTable({ rawData }: ChildrenTableProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
 
   const [searchQuery, setSearchQuery] = useState(
@@ -63,7 +65,7 @@ export function ChildrenTable({ rawData }: ChildrenTableProps) {
         params.set(key, value);
       }
     });
-    router.push(`/children?${params.toString()}`);
+    router.push(`${pathname}?${params.toString()}`);
   };
 
   const handleSearch = (e: React.FormEvent) => {
@@ -145,24 +147,26 @@ export function ChildrenTable({ rawData }: ChildrenTableProps) {
       header: "พัฒนาการ",
       cell: ({ row }) => {
         const status = row.original.status;
+        const thaiStatus = Child_statusToThai[status] ?? status;
         switch (status) {
-          case "IN_AREA":
+          case Child_status.IN_AREA:
             return (
               <div className="flex items-center text-green-600 font-medium">
-                <CheckCircle2 className="mr-1.5 h-4 w-4" /> สมส่วน
+                <CheckCircle2 className="mr-1.5 h-4 w-4" /> {thaiStatus}
               </div>
             );
-          case "OUT_AREA":
+          case Child_status.OUT_AREA:
             return (
               <div className="flex items-center text-yellow-500 font-medium">
-                <AlertCircle className="mr-1.5 h-4 w-4" /> สูงกว่าเกณฑ์
+                <AlertCircle className="mr-1.5 h-4 w-4" /> {thaiStatus}
               </div>
             );
-          case "UNKNOWN":
+          case Child_status.UNKNOWN:
+          case Child_status.DIED:
           default:
             return (
               <div className="flex items-center text-red-500 font-medium">
-                <XCircle className="mr-1.5 h-4 w-4" /> ต่ำกว่าเกณฑ์
+                <XCircle className="mr-1.5 h-4 w-4" /> {thaiStatus}
               </div>
             );
         }
@@ -186,16 +190,10 @@ export function ChildrenTable({ rawData }: ChildrenTableProps) {
     },
   ];
 
-  // Client-side pagination from plain array
-  const pageParam = Number(searchParams.get("page")) || 1;
-  const limitParam = Number(searchParams.get("limit")) || 10;
-  const total = rawData.length;
-  const totalPages = Math.ceil(total / limitParam);
-  const currentPage = pageParam;
-  const paginatedData = rawData.slice(
-    (currentPage - 1) * limitParam,
-    currentPage * limitParam,
-  );
+  const total = rawData.meta.total;
+  const totalPages = rawData.meta.totalPages;
+  const currentPage = rawData.meta.page;
+  const paginatedData = rawData.data;
 
   const table = useReactTable({
     data: paginatedData,
@@ -233,9 +231,18 @@ export function ChildrenTable({ rawData }: ChildrenTableProps) {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">ทุกเกณฑ์</SelectItem>
-              <SelectItem value="In_Area">สมส่วน</SelectItem>
-              <SelectItem value="Out_Area">สูงกว่าเกณฑ์</SelectItem>
-              <SelectItem value="Unknown">ต่ำกว่าเกณฑ์</SelectItem>
+              <SelectItem value={Child_status.IN_AREA}>
+                {Child_statusToThai[Child_status.IN_AREA]}
+              </SelectItem>
+              <SelectItem value={Child_status.OUT_AREA}>
+                {Child_statusToThai[Child_status.OUT_AREA]}
+              </SelectItem>
+              <SelectItem value={Child_status.UNKNOWN}>
+                {Child_statusToThai[Child_status.UNKNOWN]}
+              </SelectItem>
+              <SelectItem value={Child_status.DIED}>
+                {Child_statusToThai[Child_status.DIED]}
+              </SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -269,7 +276,7 @@ export function ChildrenTable({ rawData }: ChildrenTableProps) {
                     key={row.id}
                     data-state={row.getIsSelected() && "selected"}
                     className="cursor-pointer hover:bg-muted/50 transition-colors"
-                    onClick={() => router.push(`/children/${row.original.id}`)}
+                    onClick={() => router.push(`${pathname}/${row.original.id}`)}
                   >
                     {row.getVisibleCells().map((cell) => (
                       <TableCell key={cell.id} className="py-3">

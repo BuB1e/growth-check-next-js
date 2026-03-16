@@ -3,10 +3,8 @@
 import axios from "axios";
 import { EnvConfig } from "@/configs/BackendConfig";
 import type {
-  ChildDataResponse,
   ChildTransferRequestResponse,
   LocationCreateRequestResponse,
-  PaginatedResponse,
 } from "@/dto";
 import { ChildDataAction } from "./ChildDataAction";
 import { ChildTransferRequestAction } from "./ChildTransferRequestAction";
@@ -19,10 +17,12 @@ import type {
   HistoryActor,
   HistoryEntry,
   PaginatedHistoryResponse,
-} from "@/types";
+} from "@/dto";
 
 export class HistoryAction {
   static BACKEND_ENDPOINT = EnvConfig.BACKEND_ENDPOINT;
+  static PAGE_LIMIT = EnvConfig.NEXT_PUBLIC_PAGINATION_LIMIT_DESKTOP_SIZE;
+  static SOURCE_FETCH_LIMIT = EnvConfig.NEXT_PUBLIC_PAGINATION_LIMIT_DESKTOP_SIZE;
 
   /**
    * Composes history from child-transfer-requests and location-create-requests.
@@ -30,18 +30,21 @@ export class HistoryAction {
    */
   static async getHistory(
     page: number = 1,
-    limit: number = 10,
+    limit: number = this.PAGE_LIMIT,
     search?: string,
     type?: string,
     orderBy: keyof HistoryEntry = "createdAt",
     orderDirection: "asc" | "desc" = "desc",
   ): Promise<PaginatedHistoryResponse> {
     const [transfersRes, locationRequestsRes] = await Promise.allSettled([
-      ChildTransferRequestAction.getRequests({ page: 1, limit: 100 }),
+      ChildTransferRequestAction.getRequests({
+        page: 1,
+        limit: this.SOURCE_FETCH_LIMIT,
+      }),
       // Fetch all location requests instead of user "all" to prevent backend 500
       LocationCreateRequestAction.getRequests({
         page: 1,
-        limit: 100,
+        limit: this.SOURCE_FETCH_LIMIT,
       }),
     ]);
 
@@ -70,7 +73,7 @@ export class HistoryAction {
 
     // Map location create requests to history entries
     if (locationRequestsRes.status === "fulfilled") {
-      const requests = locationRequestsRes.value;
+      const requests = locationRequestsRes.value.data;
       requests.forEach((r: LocationCreateRequestResponse) => {
         const historyType: HistoryType =
           r.requestStatus === "REJECT"
@@ -135,7 +138,7 @@ export class HistoryAction {
 
   static async getHistoryById(id: number): Promise<HistoryEntry | null> {
     // Try to find from composed history
-    const result = await this.getHistory(1, 200);
+    const result = await this.getHistory(1, this.SOURCE_FETCH_LIMIT);
     return result.data.find((h) => h.id === id) || null;
   }
 }

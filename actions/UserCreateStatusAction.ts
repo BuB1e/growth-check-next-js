@@ -4,11 +4,15 @@ import axios from "axios";
 import { EnvConfig } from "@/configs/BackendConfig";
 import type {
   UserCreateStatusResponse,
-  CreateUserCreateStatusRequest,
-  UpdateUserCreateStatusRequest,
-  GetUserCreateStatusParams,
-  PaginatedResponse,
+  CreateUserCreateStatusDto,
+  UpdateUserCreateStatusDto,
+  PaginatedResponseDTO,
 } from "@/dto";
+
+type GetUserCreateStatusParams = {
+  page?: number;
+  limit?: number;
+};
 
 export class UserCreateStatusAction {
   static BACKEND_ENDPOINT = EnvConfig.BACKEND_ENDPOINT;
@@ -17,9 +21,9 @@ export class UserCreateStatusAction {
 
   static async getStatuses(
     params: GetUserCreateStatusParams = {},
-  ): Promise<PaginatedResponse<UserCreateStatusResponse>> {
+  ): Promise<PaginatedResponseDTO<UserCreateStatusResponse>> {
     const defaultParams = {
-      page: EnvConfig.NEXT_PUBLIC_PAGINATION_PAGE_DESKTOP_SIZE,
+      page: 1,
       limit: EnvConfig.NEXT_PUBLIC_PAGINATION_LIMIT_DESKTOP_SIZE,
       ...params,
     };
@@ -33,7 +37,7 @@ export class UserCreateStatusAction {
   }
 
   static async createStatus(
-    data: CreateUserCreateStatusRequest,
+    data: CreateUserCreateStatusDto,
   ): Promise<UserCreateStatusResponse> {
     const response = await axios.post(`${this.ACTION_ENDPOINT}/`, data);
     return response.data;
@@ -41,7 +45,7 @@ export class UserCreateStatusAction {
 
   static async updateStatus(
     id: string,
-    data: UpdateUserCreateStatusRequest,
+    data: UpdateUserCreateStatusDto,
   ): Promise<UserCreateStatusResponse> {
     const response = await axios.patch(`${this.ACTION_ENDPOINT}/${id}`, data);
     return response.data;

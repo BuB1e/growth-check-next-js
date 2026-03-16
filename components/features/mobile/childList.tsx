@@ -1,6 +1,6 @@
 import { ChildAction } from "@/actions/ChildAction";
 import { EnvConfig } from "@/configs/BackendConfig";
-import type { ChildResponse } from "@/dto";
+import type { ChildResponse, PaginatedResponseDTO } from "@/dto";
 import { MobileChildListItem } from "./childListItem";
 import { FileQuestion, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
@@ -18,7 +18,7 @@ interface MobileChildListProps {
 }
 
 export async function MobileChildList({
-  page = EnvConfig.NEXT_PUBLIC_PAGINATION_PAGE_MOBILE_SIZE,
+  page = 1,
   limit = EnvConfig.NEXT_PUBLIC_PAGINATION_LIMIT_MOBILE_SIZE,
   search = "",
   status = "",
@@ -28,19 +28,24 @@ export async function MobileChildList({
   weightDev = "",
   locationId = "",
 }: MobileChildListProps) {
-  let allChildren: ChildResponse[] = [];
+  let listData: PaginatedResponseDTO<ChildResponse> = {
+    data: [],
+    meta: { total: 0, page, limit, totalPages: 0 },
+  };
   try {
-    // API returns a plain array — pagination is handled client-side
-    allChildren = await ChildAction.getChildren({ firstName: search || undefined });
+    listData = await ChildAction.getChildren({
+      page,
+      limit,
+      firstName: search || undefined,
+    });
   } catch (error) {
     console.error("Failed to load children", error);
   }
 
-  // Client-side pagination
-  const total = allChildren.length;
-  const totalPages = Math.ceil(total / limit);
-  const start = (page - 1) * limit;
-  const children = allChildren.slice(start, start + limit);
+  const children = listData.data;
+  const total = listData.meta.total;
+  const totalPages = listData.meta.totalPages;
+  const currentPage = listData.meta.page;
 
   if (!children || children.length === 0) {
     return (
@@ -58,13 +63,13 @@ export async function MobileChildList({
     );
   }
 
-  const hasNextPage = page < totalPages;
-  const hasPrevPage = page > 1;
+  const hasNextPage = currentPage < totalPages;
+  const hasPrevPage = currentPage > 1;
 
   return (
     <div className="space-y-4 pb-24">
       <div className="space-y-3">
-        {children.map((child) => (
+        {children.map((child: ChildResponse) => (
           <MobileChildListItem key={child.id} child={child} />
         ))}
       </div>
@@ -72,16 +77,16 @@ export async function MobileChildList({
       {totalPages > 1 && (
         <div className="flex items-center justify-between pt-4 pb-2 border-t border-gray-100">
           <Link
-            href={`?page=${page - 1}${search ? `&q=${search}` : ""}${status ? `&status=${status}` : ""}${minAge ? `&minAge=${minAge}` : ""}${maxAge ? `&maxAge=${maxAge}` : ""}${heightDev ? `&heightDev=${heightDev}` : ""}${weightDev ? `&weightDev=${weightDev}` : ""}${locationId ? `&locationId=${locationId}` : ""}`}
+            href={`?page=${currentPage - 1}${search ? `&q=${search}` : ""}${status ? `&status=${status}` : ""}${minAge ? `&minAge=${minAge}` : ""}${maxAge ? `&maxAge=${maxAge}` : ""}${heightDev ? `&heightDev=${heightDev}` : ""}${weightDev ? `&weightDev=${weightDev}` : ""}${locationId ? `&locationId=${locationId}` : ""}`}
             className={`flex items-center justify-center w-10 h-10 rounded-full border border-gray-200 bg-white text-gray-700 shadow-sm active:scale-95 transition-all ${!hasPrevPage && "opacity-50 pointer-events-none"}`}
           >
             <ChevronLeft className="h-5 w-5" />
           </Link>
           <span className="text-sm font-medium text-gray-600">
-            หน้า {page} จาก {totalPages}
+            หน้า {currentPage} จาก {totalPages}
           </span>
           <Link
-            href={`?page=${page + 1}${search ? `&q=${search}` : ""}${status ? `&status=${status}` : ""}${minAge ? `&minAge=${minAge}` : ""}${maxAge ? `&maxAge=${maxAge}` : ""}${heightDev ? `&heightDev=${heightDev}` : ""}${weightDev ? `&weightDev=${weightDev}` : ""}${locationId ? `&locationId=${locationId}` : ""}`}
+            href={`?page=${currentPage + 1}${search ? `&q=${search}` : ""}${status ? `&status=${status}` : ""}${minAge ? `&minAge=${minAge}` : ""}${maxAge ? `&maxAge=${maxAge}` : ""}${heightDev ? `&heightDev=${heightDev}` : ""}${weightDev ? `&weightDev=${weightDev}` : ""}${locationId ? `&locationId=${locationId}` : ""}`}
             className={`flex items-center justify-center w-10 h-10 rounded-full border border-gray-200 bg-white text-gray-700 shadow-sm active:scale-95 transition-all ${!hasNextPage && "opacity-50 pointer-events-none"}`}
           >
             <ChevronRight className="h-5 w-5" />

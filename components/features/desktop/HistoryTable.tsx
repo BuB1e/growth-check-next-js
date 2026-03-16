@@ -1,12 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   HistoryEntry,
   HistoryActor,
   PaginatedHistoryResponse,
-} from "@/types";
+} from "@/dto";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -75,6 +75,7 @@ function SortBtn({
 
 export function HistoryTable({ rawData }: HistoryTableProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
 
   const [searchQuery, setSearchQuery] = useState(
@@ -90,7 +91,7 @@ export function HistoryTable({ rawData }: HistoryTableProps) {
       if (value === null) params.delete(key);
       else params.set(key, value);
     });
-    router.push(`/head/history?${params.toString()}`);
+    router.push(`${pathname}?${params.toString()}`);
   };
 
   const handleSearch = (e: React.FormEvent) => {
@@ -165,11 +166,21 @@ export function HistoryTable({ rawData }: HistoryTableProps) {
             </thead>
             <tbody>
               {rawData.data.length ? (
-                rawData.data.map((entry) => (
+                rawData.data.map((entry, index) => {
+                  const numericId = Number(entry.id);
+                  const hasValidId = Number.isFinite(numericId);
+                  const rowKey = hasValidId
+                    ? `history-${numericId}`
+                    : `history-fallback-${entry.createdAt}-${entry.title}-${index}`;
+
+                  return (
                   <tr
-                    key={entry.id}
+                    key={rowKey}
                     className="border-b last:border-0 cursor-pointer hover:bg-muted/40 transition-colors"
-                    onClick={() => router.push(`/head/history/${entry.id}`)}
+                    onClick={() => {
+                      if (!hasValidId) return;
+                      router.push(`${pathname}/${numericId}`);
+                    }}
                   >
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
@@ -192,7 +203,8 @@ export function HistoryTable({ rawData }: HistoryTableProps) {
                       </Button>
                     </td>
                   </tr>
-                ))
+                  );
+                })
               ) : (
                 <tr>
                   <td
@@ -225,7 +237,7 @@ export function HistoryTable({ rawData }: HistoryTableProps) {
             <ChevronLeft className="h-4 w-4" />
           </Button>
           <span className="text-sm font-medium">
-            {currentPage} / {totalPages}
+            หน้าที่ {currentPage} จาก {totalPages}
           </span>
           <Button
             variant="outline"

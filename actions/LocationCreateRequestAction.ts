@@ -4,10 +4,16 @@ import axios from "axios";
 import { EnvConfig } from "@/configs/BackendConfig";
 import type {
   LocationCreateRequestResponse,
-  CreateLocationCreateRequest,
-  UpdateLocationCreateRequest,
-  GetLocationCreateRequestsParams,
+  CreateLocationRequestDTO,
+  UpdateLocationRequestDTO,
+  OptionsLocationCreateRequestDTO,
+  PaginatedResponseDTO,
 } from "@/dto";
+
+type GetLocationCreateRequestsParams = OptionsLocationCreateRequestDTO & {
+  page?: number;
+  limit?: number;
+};
 
 export class LocationCreateRequestAction {
   static BACKEND_ENDPOINT = EnvConfig.BACKEND_ENDPOINT;
@@ -16,9 +22,9 @@ export class LocationCreateRequestAction {
 
   static async getRequests(
     params: GetLocationCreateRequestsParams = {},
-  ): Promise<LocationCreateRequestResponse[]> {
+  ): Promise<PaginatedResponseDTO<LocationCreateRequestResponse>> {
     const defaultParams = {
-      page: EnvConfig.NEXT_PUBLIC_PAGINATION_PAGE_DESKTOP_SIZE,
+      page: 1,
       limit: EnvConfig.NEXT_PUBLIC_PAGINATION_LIMIT_DESKTOP_SIZE,
       ...params,
     };
@@ -36,9 +42,9 @@ export class LocationCreateRequestAction {
   static async getRequestsByUserId(
     userId: string,
     params: { page?: number; limit?: number } = {},
-  ): Promise<LocationCreateRequestResponse[]> {
+  ): Promise<PaginatedResponseDTO<LocationCreateRequestResponse>> {
     const defaultParams = {
-      page: EnvConfig.NEXT_PUBLIC_PAGINATION_PAGE_DESKTOP_SIZE,
+      page: 1,
       limit: EnvConfig.NEXT_PUBLIC_PAGINATION_LIMIT_DESKTOP_SIZE,
       ...params,
     };
@@ -50,7 +56,7 @@ export class LocationCreateRequestAction {
   }
 
   static async createRequest(
-    data: CreateLocationCreateRequest,
+    data: CreateLocationRequestDTO,
   ): Promise<LocationCreateRequestResponse> {
     const response = await axios.post(`${this.ACTION_ENDPOINT}/`, data);
     return response.data;
@@ -58,7 +64,7 @@ export class LocationCreateRequestAction {
 
   static async updateRequest(
     id: number,
-    data: UpdateLocationCreateRequest,
+    data: UpdateLocationRequestDTO,
   ): Promise<LocationCreateRequestResponse> {
     const response = await axios.patch(`${this.ACTION_ENDPOINT}/${id}`, data);
     return response.data;

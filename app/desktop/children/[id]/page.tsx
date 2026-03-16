@@ -15,6 +15,8 @@ import { Button } from "@/components/ui/button";
 import { ChildProfileForm } from "@/components/features/desktop/ChildProfileForm";
 import { MeasurementHistory } from "@/components/features/desktop/MeasurementHistory";
 import { GrowthChart } from "@/components/features/desktop/GrowthChart";
+import { EnvConfig } from "@/configs/BackendConfig";
+import { formatAgeThai, formatBE } from "@/lib/date-utils";
 
 export const metadata = {
   title: "รายละเอียดข้อมูลเด็ก",
@@ -82,10 +84,16 @@ async function ChildDetailContent({
     notFound();
   }
 
+  const ageText = formatAgeThai(child.birthDate);
+  const birthDateText = formatBE(child.birthDate, "d MMMM yyyy");
+
   // Fetch child-data for charts
   let childData: import("@/dto").ChildDataResponse[] = [];
   try {
-    const res = await ChildDataAction.getChildDataList({ childId: childId, limit: 100 });
+    const res = await ChildDataAction.getChildDataList({
+      childId,
+      limit: EnvConfig.NEXT_PUBLIC_PAGINATION_LIMIT_DESKTOP_SIZE,
+    });
     childData = res;
   } catch (error) {
     console.error("Failed to load child data for charts:", error);
@@ -99,7 +107,7 @@ async function ChildDetailContent({
           <CardHeader>
             <CardTitle>ข้อมูลส่วนตัว</CardTitle>
             <CardDescription>
-              อัปเดตชื่อ นามสกุล และสถานที่เพื่อความถูกต้อง
+              {child.firstName} {child.lastName} • อายุ {ageText} • เกิดวันที่ {birthDateText}
             </CardDescription>
           </CardHeader>
           <CardContent>

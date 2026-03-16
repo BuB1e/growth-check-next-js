@@ -4,11 +4,16 @@ import axios from "axios";
 import { EnvConfig } from "@/configs/BackendConfig";
 import type {
   AiPredictionResponse,
-  CreateAiPredictionRequest,
-  UpdateAiPredictionRequest,
-  GetAiPredictionsParams,
-  PaginatedResponse,
+  CreateAiPredictionDTO,
+  UpdateAiPredictionDTO,
+  OptionsGetAiPredictionsDTO,
+  PaginatedResponseDTO,
 } from "@/dto";
+
+type GetAiPredictionsParams = OptionsGetAiPredictionsDTO & {
+  page?: number;
+  limit?: number;
+};
 
 export class AiPredictionAction {
   static BACKEND_ENDPOINT = EnvConfig.BACKEND_ENDPOINT;
@@ -17,9 +22,9 @@ export class AiPredictionAction {
 
   static async getPredictions(
     params: GetAiPredictionsParams = {},
-  ): Promise<PaginatedResponse<AiPredictionResponse>> {
+  ): Promise<PaginatedResponseDTO<AiPredictionResponse>> {
     const defaultParams = {
-      page: EnvConfig.NEXT_PUBLIC_PAGINATION_PAGE_DESKTOP_SIZE,
+      page: 1,
       limit: EnvConfig.NEXT_PUBLIC_PAGINATION_LIMIT_DESKTOP_SIZE,
       ...params,
     };
@@ -33,7 +38,7 @@ export class AiPredictionAction {
   }
 
   static async createPrediction(
-    data: CreateAiPredictionRequest,
+    data: CreateAiPredictionDTO,
   ): Promise<AiPredictionResponse> {
     const response = await axios.post(`${this.ACTION_ENDPOINT}/`, data);
     return response.data;
@@ -41,7 +46,7 @@ export class AiPredictionAction {
 
   static async updatePrediction(
     id: string,
-    data: UpdateAiPredictionRequest,
+    data: UpdateAiPredictionDTO,
   ): Promise<AiPredictionResponse> {
     const response = await axios.patch(`${this.ACTION_ENDPOINT}/${id}`, data);
     return response.data;

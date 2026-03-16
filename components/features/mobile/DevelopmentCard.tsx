@@ -4,37 +4,86 @@ import { ChildDataResponse } from "@/dto";
 import { CheckCircle2, AlertTriangle, AlertCircle } from "lucide-react";
 import { formatBE } from "@/lib/date-utils";
 
-export function DevelopmentCard({ data }: { data: ChildDataResponse }) {
-  // Determine the overall status for conditional styling
-  // We prioritize the most severe status between weight and height
-  const wStatus = data.weightDevelopment?.status || "ปกติ";
-  const hStatus = data.heightDevelopment?.status || "ปกติ";
+const DEFAULT_STATUS_THEME = {
+  themeColor: "bg-gray-50 text-gray-700 border-gray-200",
+  headerBg: "bg-gray-200",
+  icon: AlertCircle,
+};
 
-  const isWarning =
-    wStatus.includes("มากกว่าเกณฑ์") || hStatus.includes("มากกว่าเกณฑ์");
-  const isDanger =
-    wStatus.includes("น้อยกว่าเกณฑ์") ||
-    hStatus.includes("น้อยกว่าเกณฑ์") ||
-    wStatus.includes("เตี้ย") ||
-    wStatus.includes("ผอม");
-
-  // Conditionally assign colors and icons
-  let themeColor = "bg-green-100/50 text-emerald-700 border-green-200";
-  let statusText = "ปกติ";
-  let headerBg = "bg-green-300";
-  let StatusIcon = CheckCircle2;
-
-  if (isDanger) {
-    themeColor = "bg-red-50 text-red-700 border-red-200";
-    statusText = "ต่ำกว่าเกณฑ์";
-    headerBg = "bg-red-400";
-    StatusIcon = AlertCircle;
-  } else if (isWarning) {
-    themeColor = "bg-amber-50 text-amber-700 border-amber-200";
-    statusText = "มากกว่าเกณฑ์";
-    headerBg = "bg-amber-400";
-    StatusIcon = AlertTriangle;
+function normalizeRawStatus(status: unknown): string {
+  if (typeof status !== "string") {
+    return "";
   }
+  return status.trim();
+}
+
+function getThemeByRawStatus(status: string) {
+  const normalized = status.toLowerCase();
+
+  if (normalized.includes("normal") || normalized.includes("สมส่วน")) {
+    return {
+      themeColor: "bg-green-100/50 text-emerald-700 border-green-200",
+      headerBg: "bg-green-300",
+      icon: CheckCircle2,
+    };
+  }
+
+  if (
+    normalized.includes("under") ||
+    normalized.includes("stunted") ||
+    normalized.includes("ต่ำกว่า") ||
+    normalized.includes("เตี้ย") ||
+    normalized.includes("risk")
+  ) {
+    return {
+      themeColor: "bg-amber-50 text-amber-700 border-amber-200",
+      headerBg: "bg-amber-400",
+      icon: AlertTriangle,
+    };
+  }
+
+  if (normalized.includes("over") || normalized.includes("มากกว่า")) {
+    return {
+      themeColor: "bg-amber-50 text-amber-700 border-amber-200",
+      headerBg: "bg-amber-400",
+      icon: AlertTriangle,
+    };
+  }
+
+  if (
+    normalized === "in_area" ||
+    normalized === "out_area" ||
+    normalized === "unknown" ||
+    normalized === "died"
+  ) {
+    return {
+      themeColor: "bg-red-50 text-red-700 border-red-200",
+      headerBg: "bg-red-400",
+      icon: AlertCircle,
+    };
+  }
+
+  return DEFAULT_STATUS_THEME;
+}
+
+export function DevelopmentCard({ data }: { data: ChildDataResponse }) {
+  const weightStatusText = normalizeRawStatus(data.weightDevelopment?.status) || "-";
+  const heightStatusText = normalizeRawStatus(data.heightDevelopment?.status) || "-";
+  const fallbackStatusText = normalizeRawStatus(data.status) || "-";
+
+  const mainStatusText =
+    weightStatusText !== "-"
+      ? weightStatusText
+      : heightStatusText !== "-"
+        ? heightStatusText
+        : fallbackStatusText;
+
+  const statusTheme = getThemeByRawStatus(mainStatusText);
+
+  const themeColor = statusTheme.themeColor;
+  const headerBg = statusTheme.headerBg;
+  const StatusIcon = statusTheme.icon;
+  const statusText = mainStatusText;
 
   // Format Date (Thai BE format)
   const dateFormatted = formatBE(data.heightDate, "d MMMM yyyy");
@@ -47,7 +96,7 @@ export function DevelopmentCard({ data }: { data: ChildDataResponse }) {
         className={`px-4 py-3 flex items-center justify-between ${headerBg}`}
       >
         <h3 className="text-gray-900 font-bold text-lg tracking-tight">
-          ครั้งที่ {data.id} ({dateFormatted})
+          {dateFormatted}
         </h3>
         <StatusIcon
           className="h-6 w-6 text-gray-900 drop-shadow-sm"
@@ -99,6 +148,15 @@ export function DevelopmentCard({ data }: { data: ChildDataResponse }) {
           >
             {statusText}
           </span>
+        </div>
+
+        <div className="col-span-2 space-y-2">
+          <div className="rounded-xl border border-gray-100 bg-gray-50 px-3 py-2 text-sm text-gray-700">
+            สถานะน้ำหนัก: <span className="font-semibold">{weightStatusText}</span>
+          </div>
+          <div className="rounded-xl border border-gray-100 bg-gray-50 px-3 py-2 text-sm text-gray-700">
+            สถานะส่วนสูง: <span className="font-semibold">{heightStatusText}</span>
+          </div>
         </div>
       </div>
     </div>

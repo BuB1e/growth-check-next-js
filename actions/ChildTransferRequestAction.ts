@@ -4,11 +4,16 @@ import axios from "axios";
 import { EnvConfig } from "@/configs/BackendConfig";
 import type {
   ChildTransferRequestResponse,
-  CreateChildTransferRequest,
-  UpdateChildTransferRequest,
-  GetChildTransferRequestsParams,
-  PaginatedResponse,
+  CreateChildTransferRequestDTO,
+  UpdateChildTransferRequestDTO,
+  OptionsGetChildTransferRequestsDTO,
+  PaginatedResponseDTO,
 } from "@/dto";
+
+type GetChildTransferRequestsParams = OptionsGetChildTransferRequestsDTO & {
+  page?: number;
+  limit?: number;
+};
 
 export class ChildTransferRequestAction {
   static BACKEND_ENDPOINT = EnvConfig.BACKEND_ENDPOINT;
@@ -17,9 +22,9 @@ export class ChildTransferRequestAction {
 
   static async getRequests(
     params: GetChildTransferRequestsParams = {},
-  ): Promise<PaginatedResponse<ChildTransferRequestResponse>> {
+  ): Promise<PaginatedResponseDTO<ChildTransferRequestResponse>> {
     const defaultParams = {
-      page: EnvConfig.NEXT_PUBLIC_PAGINATION_PAGE_DESKTOP_SIZE,
+      page: 1,
       limit: EnvConfig.NEXT_PUBLIC_PAGINATION_LIMIT_DESKTOP_SIZE,
       ...params,
     };
@@ -35,7 +40,7 @@ export class ChildTransferRequestAction {
   }
 
   static async createRequest(
-    data: CreateChildTransferRequest,
+    data: CreateChildTransferRequestDTO,
   ): Promise<ChildTransferRequestResponse> {
     const response = await axios.post(`${this.ACTION_ENDPOINT}/`, data);
     return response.data;
@@ -43,7 +48,7 @@ export class ChildTransferRequestAction {
 
   static async updateRequest(
     id: string,
-    data: UpdateChildTransferRequest,
+    data: UpdateChildTransferRequestDTO,
   ): Promise<ChildTransferRequestResponse> {
     const response = await axios.patch(`${this.ACTION_ENDPOINT}/${id}`, data);
     return response.data;

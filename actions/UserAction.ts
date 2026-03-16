@@ -4,11 +4,20 @@ import axios from "axios";
 import { EnvConfig } from "@/configs/BackendConfig";
 import type {
   UserResponse,
-  CreateUserRequest,
-  UpdateUserRequest,
-  GetUsersByTeamParams,
-  GetUsersParams,
+  CreateUserDto,
+  UpdateUserDto,
+  OptionsGetAllUserDTO,
 } from "@/dto";
+
+type GetUsersParams = OptionsGetAllUserDTO & {
+  page?: number;
+  limit?: number;
+};
+
+type GetUsersByTeamParams = OptionsGetAllUserDTO & {
+  page?: number;
+  limit?: number;
+};
 
 export class UserAction {
   static BACKEND_ENDPOINT = EnvConfig.BACKEND_ENDPOINT;
@@ -19,7 +28,7 @@ export class UserAction {
     params: GetUsersParams = {},
   ): Promise<UserResponse[]> {
     const defaultParams = {
-      page: EnvConfig.NEXT_PUBLIC_PAGINATION_PAGE_DESKTOP_SIZE,
+      page: 1,
       limit: EnvConfig.NEXT_PUBLIC_PAGINATION_LIMIT_DESKTOP_SIZE,
       ...params,
     };
@@ -32,7 +41,7 @@ export class UserAction {
     params: GetUsersByTeamParams = {},
   ): Promise<UserResponse[]> {
     const defaultParams = {
-      page: EnvConfig.NEXT_PUBLIC_PAGINATION_PAGE_DESKTOP_SIZE,
+      page: 1,
       limit: EnvConfig.NEXT_PUBLIC_PAGINATION_LIMIT_DESKTOP_SIZE,
       ...params,
     };
@@ -57,14 +66,14 @@ export class UserAction {
     return response.data;
   }
 
-  static async createUser(data: CreateUserRequest): Promise<UserResponse> {
+  static async createUser(data: CreateUserDto): Promise<UserResponse> {
     const response = await axios.post(`${this.ACTION_ENDPOINT}/`, data);
     return response.data;
   }
 
   static async updateUser(
     id: string,
-    data: UpdateUserRequest,
+    data: UpdateUserDto,
   ): Promise<UserResponse> {
     const response = await axios.patch(`${this.ACTION_ENDPOINT}/${id}`, data);
     return response.data;

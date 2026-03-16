@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/card";
 import { ChildrenTable } from "@/components/features/desktop/ChildrenTable";
 import { Loader2 } from "lucide-react";
-import { ChildResponse } from "@/dto";
+import { EnvConfig } from "@/configs/BackendConfig";
 
 export const metadata = {
   title: "ข้อมูลเด็กทั้งหมด",
@@ -63,22 +63,21 @@ async function ChildrenDataWrapper({
   searchParams: Promise<{ [key: string]: string | undefined }>;
 }) {
   const sp = await searchParams;
-  const { EnvConfig } = await import("@/configs/BackendConfig");
-  const page = Number(sp?.page) || EnvConfig.NEXT_PUBLIC_PAGINATION_PAGE_DESKTOP_SIZE;
-  const limit = Number(sp?.limit) || EnvConfig.NEXT_PUBLIC_PAGINATION_LIMIT_DESKTOP_SIZE;
+  const parsedPage = Number(sp?.page);
+  const parsedLimit = Number(sp?.limit);
+  const page = Number.isFinite(parsedPage) && parsedPage > 0 ? parsedPage : 1;
+  const limit =
+    Number.isFinite(parsedLimit) && parsedLimit > 0
+      ? parsedLimit
+      : EnvConfig.NEXT_PUBLIC_PAGINATION_LIMIT_DESKTOP_SIZE;
   const search = sp?.search;
-  const status = sp?.status;
-  const orderBy = (sp?.orderBy as keyof ChildResponse) || "updatedAt";
-  const orderDirection = (sp?.orderDirection as "asc" | "desc") || "desc";
-
   let data = null;
 
   try {
     data = await ChildAction.getChildren({
-      page,
-      limit,
+      ...(page ? { page } : {}),
+      ...(limit ? { limit } : {}),
       firstName: search,
-      deleteStatus: false,
     });
   } catch (error) {
     console.error("Failed to load children", error);

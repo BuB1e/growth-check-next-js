@@ -3,6 +3,7 @@ import { MobileChildList } from "@/components/features/mobile/childList";
 import { ChildListFilters } from "@/components/features/mobile/ChildListFilters";
 import Link from "next/link";
 import { UserPlus } from "lucide-react";
+import { EnvConfig } from "@/configs/BackendConfig";
 
 // A wrapper component that handles the asynchronous searchParams
 async function ChildListWrapper({
@@ -30,6 +31,14 @@ async function ChildListWrapper({
     typeof searchParams?.page === "string"
       ? parseInt(searchParams.page, 10)
       : 1;
+  const parsedLimit =
+    typeof searchParams?.limit === "string"
+      ? parseInt(searchParams.limit, 10)
+      : NaN;
+  const limit =
+    Number.isFinite(parsedLimit) && parsedLimit > 0
+      ? parsedLimit
+      : EnvConfig.NEXT_PUBLIC_PAGINATION_LIMIT_MOBILE_SIZE;
 
   return (
     <MobileChildList
@@ -41,7 +50,7 @@ async function ChildListWrapper({
       heightDev={heightDev}
       weightDev={weightDev}
       locationId={locationId}
-      limit={10}
+      limit={limit}
     />
   );
 }

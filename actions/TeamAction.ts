@@ -4,11 +4,15 @@ import axios from "axios";
 import { EnvConfig } from "@/configs/BackendConfig";
 import type {
   TeamResponse,
-  CreateTeamRequest,
-  UpdateTeamRequest,
-  GetTeamsParams,
-  PaginatedResponse,
+  CreateTeamDto,
+  UpdateTeamDto,
+  PaginatedResponseDTO,
 } from "@/dto";
+
+type GetTeamsParams = {
+  page?: number;
+  limit?: number;
+};
 
 export class TeamAction {
   static BACKEND_ENDPOINT = EnvConfig.BACKEND_ENDPOINT;
@@ -17,9 +21,9 @@ export class TeamAction {
 
   static async getTeams(
     params: GetTeamsParams = {},
-  ): Promise<PaginatedResponse<TeamResponse>> {
+  ): Promise<PaginatedResponseDTO<TeamResponse>> {
     const defaultParams = {
-      page: EnvConfig.NEXT_PUBLIC_PAGINATION_PAGE_DESKTOP_SIZE,
+      page: 1,
       limit: EnvConfig.NEXT_PUBLIC_PAGINATION_LIMIT_DESKTOP_SIZE,
       ...params,
     };
@@ -27,14 +31,14 @@ export class TeamAction {
     return response.data;
   }
 
-  static async createTeam(data: CreateTeamRequest): Promise<TeamResponse> {
+  static async createTeam(data: CreateTeamDto): Promise<TeamResponse> {
     const response = await axios.post(`${this.ACTION_ENDPOINT}/`, data);
     return response.data;
   }
 
   static async updateTeam(
     id: number,
-    data: UpdateTeamRequest,
+    data: UpdateTeamDto,
   ): Promise<TeamResponse> {
     const response = await axios.patch(`${this.ACTION_ENDPOINT}/${id}`, data);
     return response.data;

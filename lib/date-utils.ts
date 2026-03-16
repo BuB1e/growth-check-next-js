@@ -29,3 +29,43 @@ export function formatBE(
   const result = dateFnsFormat(d, formatStr, { locale: th });
   return result.replace(d.getFullYear().toString(), beYear.toString());
 }
+
+export function formatAgeThai(
+  birthDate: Date | number | string,
+  nowDate: Date | number | string = new Date(),
+): string {
+  if (!birthDate) return "-";
+
+  const birth = new Date(birthDate);
+  const now = new Date(nowDate);
+
+  if (Number.isNaN(birth.getTime()) || Number.isNaN(now.getTime())) {
+    return "-";
+  }
+
+  if (birth > now) {
+    return "-";
+  }
+
+  let years = now.getFullYear() - birth.getFullYear();
+  let months = now.getMonth() - birth.getMonth();
+
+  if (now.getDate() < birth.getDate()) {
+    months -= 1;
+  }
+
+  if (months < 0) {
+    years -= 1;
+    months += 12;
+  }
+
+  if (years <= 0) {
+    return `${Math.max(months, 0)} เดือน`;
+  }
+
+  if (months <= 0) {
+    return `${years} ปี`;
+  }
+
+  return `${years} ปี ${months} เดือน`;
+}

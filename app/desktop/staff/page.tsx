@@ -12,6 +12,7 @@ import { UserResponse } from "@/dto";
 import { DataTable } from "@/components/features/desktop/data-table";
 import { columns } from "@/components/features/desktop/columns";
 import StaffFilters from "@/components/features/desktop/StaffFilters";
+import { EnvConfig } from "@/configs/BackendConfig";
 
 export const metadata = {
   title: "ข้อมูลเจ้าหน้าที่",
@@ -87,7 +88,7 @@ async function StaffDataWrapper({
     // TODO: Replace teamId with real team ID from session/context
     users = await UserAction.getUsersByTeam(1, {
       page: 1,
-      limit: 100,
+      limit: EnvConfig.NEXT_PUBLIC_PAGINATION_LIMIT_DESKTOP_SIZE,
     });
   } catch (error) {
     console.error("Failed to fetch staff data:", error);

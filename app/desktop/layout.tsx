@@ -10,11 +10,11 @@ export default function DesktopLayout({
 }) {
   return (
     <SidebarProvider>
-      <Suspense fallback={null}>
+      <Suspense fallback={<DesktopSidebarFallback />}>
         <DesktopSidebar />
       </Suspense>
       <div className="flex flex-col w-full h-screen overflow-y-auto">
-        <Suspense fallback={null}>
+        <Suspense fallback={<TopbarFallback />}>
           <TopbarDesktop />
         </Suspense>
         <main
@@ -26,4 +26,12 @@ export default function DesktopLayout({
       </div>
     </SidebarProvider>
   );
+}
+
+function DesktopSidebarFallback() {
+  return <aside className="w-64 border-r bg-white" aria-hidden="true" />;
+}
+
+function TopbarFallback() {
+  return <div className="h-16 border-b bg-white" aria-hidden="true" />;
 }

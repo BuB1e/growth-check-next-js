@@ -1,10 +1,10 @@
 "use server";
 
 import { ChildDataAction } from "@/actions/ChildDataAction";
-import type { CreateChildDataRequest } from "@/dto";
+import type { CreateChildDataDTO } from "@/dto";
 
 export async function createChildDataAction(
-  data: CreateChildDataRequest,
+  data: CreateChildDataDTO,
 ) {
   return await ChildDataAction.createChildData(data);
 }

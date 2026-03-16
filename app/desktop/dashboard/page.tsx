@@ -134,7 +134,6 @@ async function DashboardDataWrapper({
   await searchParams;
 
   // Fetch real metrics from API — gracefully handle failures
-  // Relying on EnvConfig for default pagination sizes (page: 1, limit: 100)
   const [childrenRes, usersRes, requestsRes] =
     await Promise.allSettled([
       ChildAction.getChildren(),
@@ -143,17 +142,19 @@ async function DashboardDataWrapper({
     ]);
 
   const totalChildren =
-    childrenRes.status === "fulfilled" ? childrenRes.value.length : 0;
+    childrenRes.status === "fulfilled" ? childrenRes.value.meta.total : 0;
   const totalStaff =
     usersRes.status === "fulfilled" ? usersRes.value.length : 0;
   // No GET /locations/ list endpoint — use approved location requests as proxy for area count
   const totalArea =
     requestsRes.status === "fulfilled"
-      ? requestsRes.value.filter((r) => r.requestStatus === "APPROVE").length
+      ? requestsRes.value.data.filter((r) => r.requestStatus === "APPROVE")
+          .length
       : 0;
   const activeRequests =
     requestsRes.status === "fulfilled"
-      ? requestsRes.value.filter((r) => r.requestStatus === "WAITING").length
+      ? requestsRes.value.data.filter((r) => r.requestStatus === "WAITING")
+          .length
       : 0;
 
   return (

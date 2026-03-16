@@ -2,6 +2,11 @@
 
 import { useState } from "react";
 import { ChildResponse, ChildDataResponse } from "@/dto";
+import {
+  Child_status,
+  Child_statusToThai,
+  SexToThai,
+} from "@/types";
 import { DevelopmentCard } from "./DevelopmentCard";
 import { DevelopmentChart } from "./DevelopmentChart"; // <-- Added Chart Import
 import {
@@ -10,8 +15,34 @@ import {
   MapPin,
   List,
   LineChart as LineChartIcon,
+  Weight,
+  Ruler,
 } from "lucide-react";
-import { formatBE } from "@/lib/date-utils";
+import { formatAgeThai, formatBE } from "@/lib/date-utils";
+
+function getChildStatusKey(status: unknown): Child_status | null {
+  if (typeof status !== "string") return null;
+  const normalized = status.toUpperCase();
+  return (Object.values(Child_status) as string[]).includes(normalized)
+    ? (normalized as Child_status)
+    : null;
+}
+
+function toThaiDevelopmentStatus(status?: string | null): string {
+  if (!status) return "-";
+
+  const normalized = status.toLowerCase();
+  const map: Record<string, string> = {
+    normal: "ปกติ",
+    stunted: "เตี้ย",
+    underweight: "น้ำหนักน้อยกว่าเกณฑ์",
+    overweight: "น้ำหนักมากกว่าเกณฑ์",
+    risk_overweight: "เสี่ยงน้ำหนักมากเกินเกณฑ์",
+    risk_wasting: "เสี่ยงน้ำหนักน้อยกว่าเกณฑ์",
+  };
+
+  return map[normalized] ?? status;
+}
 
 export function ChildDetailTabs({
   child,
@@ -26,6 +57,27 @@ export function ChildDetailTabs({
   const [developmentView, setDevelopmentView] = useState<"list" | "chart">(
     "list",
   ); // <-- Added View State
+
+  const childStatusKey = getChildStatusKey(child.status);
+  const childStatusText = childStatusKey
+    ? Child_statusToThai[childStatusKey]
+    : "ไม่ทราบสถานะ";
+  const sexText = SexToThai[child.sex] ?? "ไม่ระบุ";
+  const ageText = formatAgeThai(child.birthDate);
+  const latestRecord = history[0];
+  const latestWeightStatus = toThaiDevelopmentStatus(
+    latestRecord?.weightDevelopment?.status,
+  );
+  const latestHeightStatus = toThaiDevelopmentStatus(
+    latestRecord?.heightDevelopment?.status,
+  );
+  const latestWeightValue =
+    typeof latestRecord?.weight === "number" ? `${latestRecord.weight.toFixed(1)} กก.` : "-";
+  const latestHeightValue =
+    typeof latestRecord?.height === "number" ? `${latestRecord.height.toFixed(1)} ซม.` : "-";
+  const latestRecordedDate = latestRecord
+    ? formatBE(latestRecord.heightDate, "d MMM yyyy")
+    : "-";
 
   return (
     <div className="w-full">
@@ -84,6 +136,12 @@ export function ChildDetailTabs({
                   <h2 className="text-xl font-bold text-gray-900 tracking-tight">
                     {child.firstName} {child.lastName}
                   </h2>
+                  <p className="mt-1 text-sm font-medium text-gray-500">
+                    สถานะเด็ก: {childStatusText}
+                  </p>
+                  <p className="mt-1 text-sm font-medium text-gray-500">
+                    อายุ: {ageText}
+                  </p>
                 </div>
               </div>
 
@@ -99,19 +157,16 @@ export function ChildDetailTabs({
 
                 <div>
                   <p className="text-xs font-semibold tracking-wider text-gray-400 uppercase mb-1">
-                    สถานะ
+                    เพศ
                   </p>
-                  <span
-                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${
-                      child.status === "IN_AREA"
-                        ? "bg-green-100 text-green-800"
-                        : "bg-gray-100 text-gray-800"
-                    }`}
-                  >
-                    {child.status === "IN_AREA"
-                      ? "อยู่ในพื้นที่"
-                      : child.status}
-                  </span>
+                  <p className="text-[17px] font-medium text-gray-800">{sexText}</p>
+                </div>
+
+                <div>
+                  <p className="text-xs font-semibold tracking-wider text-gray-400 uppercase mb-1">
+                    อายุ
+                  </p>
+                  <p className="text-[17px] font-medium text-gray-800">{ageText}</p>
                 </div>
 
                 <div className="pt-2">
@@ -138,33 +193,77 @@ export function ChildDetailTabs({
           <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
             {/* View Toggle Header */}
             {history.length > 0 && (
-              <div className="flex items-center justify-between px-1 mb-2">
-                <h3 className="text-[15px] font-bold text-gray-800 tracking-tight">
-                  {developmentView === "list"
-                    ? "ประวัติการวัด"
-                    : "ภาพรวมพัฒนาการ"}
-                </h3>
-                <div className="flex bg-gray-100/80 p-1 rounded-xl">
+              <div className="mb-2 space-y-3">
+                <div className="rounded-3xl border border-sky-100 bg-linear-to-br from-sky-50 via-cyan-50 to-white p-4 shadow-sm ring-1 ring-sky-100/60">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <h3 className="text-[16px] font-bold text-slate-800 tracking-tight">
+                        ข้อมูลล่าสุด
+                      </h3>
+                      <p className="mt-0.5 text-xs font-medium text-slate-500">
+                        บันทึกล่าสุดวันที่ {latestRecordedDate}
+                      </p>
+                    </div>
+                    <span className="inline-flex rounded-full border border-sky-200 bg-white/80 px-2.5 py-1 text-xs font-semibold text-sky-700">
+                      ล่าสุด
+                    </span>
+                  </div>
+
+                  <div className="mt-4 grid grid-cols-2 gap-3">
+                    <div className="rounded-2xl bg-white p-3 shadow-sm border border-slate-100">
+                      <p className="text-xs font-semibold text-slate-400">น้ำหนัก</p>
+                      <p className="mt-1 flex items-center gap-1 text-[20px] font-extrabold text-slate-900">
+                        <Weight className="h-4 w-4 text-emerald-600" />
+                        {latestWeightValue}
+                      </p>
+                      <p className="mt-1 text-xs font-medium text-slate-500">
+                        สถานะ: {latestWeightStatus}
+                      </p>
+                    </div>
+
+                    <div className="rounded-2xl bg-white p-3 shadow-sm border border-slate-100">
+                      <p className="text-xs font-semibold text-slate-400">ส่วนสูง</p>
+                      <p className="mt-1 flex items-center gap-1 text-[20px] font-extrabold text-slate-900">
+                        <Ruler className="h-4 w-4 text-blue-600" />
+                        {latestHeightValue}
+                      </p>
+                      <p className="mt-1 text-xs font-medium text-slate-500">
+                        สถานะ: {latestHeightStatus}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between px-1">
+                  <p className="text-sm font-bold text-gray-800 tracking-tight">
+                    {developmentView === "list"
+                      ? "ประวัติการวัด"
+                      : "ภาพรวมพัฒนาการ"}
+                  </p>
+                  <div className="flex bg-gray-100/80 p-1 rounded-xl">
                   <button
                     onClick={() => setDevelopmentView("list")}
-                    className={`p-1.5 rounded-lg transition-all ${
+                    className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                       developmentView === "list"
                         ? "bg-white text-orange-600 shadow-sm"
                         : "text-gray-400 hover:text-gray-600"
                     }`}
                   >
                     <List className="w-4 h-4" strokeWidth={2.5} />
+                    รายการ
                   </button>
                   <button
                     onClick={() => setDevelopmentView("chart")}
-                    className={`p-1.5 rounded-lg transition-all ${
+                    className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                       developmentView === "chart"
                         ? "bg-white text-blue-600 shadow-sm"
                         : "text-gray-400 hover:text-gray-600"
                     }`}
                   >
                     <LineChartIcon className="w-4 h-4" strokeWidth={2.5} />
+                    กราฟ
                   </button>
+                </div>
                 </div>
               </div>
             )}

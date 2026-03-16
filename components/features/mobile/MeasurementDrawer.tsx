@@ -96,7 +96,7 @@ export function MeasurementDrawer({
         weight: parsed.data.weight,
         heightDevelopmentId: 0, // TODO: Calculate from growth standards
         weightDevelopmentId: 0, // TODO: Calculate from growth standards
-        heightDate: parsed.data.date,
+        heightDate: new Date(parsed.data.date),
         userCreated: "current-user", // TODO: Get from session
         userUpdated: "current-user", // TODO: Get from session
       });

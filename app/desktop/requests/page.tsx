@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 import { LocationCreateRequestAction } from "@/actions/LocationCreateRequestAction";
-import type { LocationCreateRequestResponse, PaginatedResponse } from "@/dto";
+import type { LocationCreateRequestResponse, PaginatedResponseDTO } from "@/dto";
 import { RequestsTable } from "@/components/features/desktop/RequestsTable";
 
 export const metadata = {
@@ -64,7 +64,7 @@ async function RequestsDataWrapper({
 }) {
   const sp = await searchParams;
   const { EnvConfig } = await import("@/configs/BackendConfig");
-  const page = Number(sp?.page) || EnvConfig.NEXT_PUBLIC_PAGINATION_PAGE_DESKTOP_SIZE;
+  const page = Number(sp?.page) || 1;
   const limit = Number(sp?.limit) || EnvConfig.NEXT_PUBLIC_PAGINATION_LIMIT_DESKTOP_SIZE;
   const search = sp?.search;
   const status = sp?.status;
@@ -72,12 +72,10 @@ async function RequestsDataWrapper({
     (sp?.orderBy as keyof LocationCreateRequestResponse) || "updatedAt";
   const orderDirection = (sp?.orderDirection as "asc" | "desc") || "desc";
 
-  let data: PaginatedResponse<LocationCreateRequestResponse> | null = null;
+  let data: PaginatedResponseDTO<LocationCreateRequestResponse> | null = null;
 
   try {
-    // TODO: Pass query params to API when backend supports list endpoint
-    const result = await LocationCreateRequestAction.getRequests({ page, limit });
-    data = { data: result, meta: { total: result.length, page, limit, totalPages: Math.ceil(result.length / limit) } };
+    data = await LocationCreateRequestAction.getRequests({ page, limit });
   } catch (error) {
     console.error("Failed to load requests:", error);
   }

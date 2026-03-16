@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/table";
 import { useRouter, useSearchParams } from "next/navigation";
 import { LocationCreateRequestResponse } from "@/dto";
-import type { PaginatedResponse } from "@/dto";
+import type { PaginatedResponseDTO } from "@/dto";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -41,7 +41,7 @@ import { th } from "date-fns/locale";
 import { formatBE } from "@/lib/date-utils";
 
 interface RequestsTableProps {
-  rawData: PaginatedResponse<LocationCreateRequestResponse>;
+  rawData: PaginatedResponseDTO<LocationCreateRequestResponse>;
 }
 
 function StatusBadge({ status }: { status: string }) {

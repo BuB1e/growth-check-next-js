@@ -3,6 +3,7 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useState } from "react";
 import { Search, SlidersHorizontal } from "lucide-react";
+import { Child_status, Child_statusToThai } from "@/types";
 
 export function ChildListFilters() {
   const router = useRouter();
@@ -107,10 +108,18 @@ export function ChildListFilters() {
               className="block w-full rounded-xl border-0 py-3 px-3.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-200 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6 bg-white outline-none"
             >
               <option value="">ทั้งหมด</option>
-              <option value="IN_AREA">ในเขต (In Area)</option>
-              <option value="OUT_AREA">นอกเขต (Out Area)</option>
-              <option value="UNKNOWN">ไม่ทราบ (Unknown)</option>
-              <option value="DIED">เสียชีวิต (Died)</option>
+              <option value={Child_status.IN_AREA}>
+                {Child_statusToThai[Child_status.IN_AREA]}
+              </option>
+              <option value={Child_status.OUT_AREA}>
+                {Child_statusToThai[Child_status.OUT_AREA]}
+              </option>
+              <option value={Child_status.UNKNOWN}>
+                {Child_statusToThai[Child_status.UNKNOWN]}
+              </option>
+              <option value={Child_status.DIED}>
+                {Child_statusToThai[Child_status.DIED]}
+              </option>
             </select>
           </div>
 

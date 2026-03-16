@@ -10,6 +10,8 @@ import {
 } from "@/components/ui/table";
 import { CheckCircle2, AlertCircle, XCircle } from "lucide-react";
 import { formatBE } from "@/lib/date-utils";
+import { EnvConfig } from "@/configs/BackendConfig";
+import { Child_status, Child_statusToThai } from "@/types";
 
 interface MeasurementHistoryProps {
   childId: number;
@@ -19,7 +21,10 @@ export async function MeasurementHistory({ childId }: MeasurementHistoryProps) {
   let records: ChildDataResponse[] = [];
 
   try {
-    const res = await ChildDataAction.getChildDataList({ childId, limit: 50 });
+    const res = await ChildDataAction.getChildDataList({
+      childId,
+      limit: EnvConfig.NEXT_PUBLIC_PAGINATION_LIMIT_DESKTOP_SIZE,
+    });
     records = res;
   } catch (error) {
     console.error("Failed to load measurement history:", error);
@@ -57,19 +62,19 @@ export async function MeasurementHistory({ childId }: MeasurementHistoryProps) {
                   {record.userCreated}
                 </TableCell>
                 <TableCell className="py-3">
-                  {record.status === "IN_AREA" && (
+                  {record.status === Child_status.IN_AREA && (
                     <div className="flex items-center text-green-600 font-medium">
-                      <CheckCircle2 className="mr-1.5 h-4 w-4" /> สมส่วน
+                      <CheckCircle2 className="mr-1.5 h-4 w-4" /> {Child_statusToThai[record.status]}
                     </div>
                   )}
-                  {record.status === "OUT_AREA" && (
+                  {record.status === Child_status.OUT_AREA && (
                     <div className="flex items-center text-yellow-500 font-medium">
-                      <AlertCircle className="mr-1.5 h-4 w-4" /> สูงกว่าเกณฑ์
+                      <AlertCircle className="mr-1.5 h-4 w-4" /> {Child_statusToThai[record.status]}
                     </div>
                   )}
-                  {(record.status === "UNKNOWN" || record.status === "DIED") && (
+                  {(record.status === Child_status.UNKNOWN || record.status === Child_status.DIED) && (
                     <div className="flex items-center text-red-500 font-medium">
-                      <XCircle className="mr-1.5 h-4 w-4" /> ต่ำกว่าเกณฑ์
+                      <XCircle className="mr-1.5 h-4 w-4" /> {Child_statusToThai[record.status]}
                     </div>
                   )}
                 </TableCell>

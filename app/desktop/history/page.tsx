@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 import { HistoryAction } from "@/actions/HistoryAction";
-import type { HistoryEntry, PaginatedHistoryResponse } from "@/types";
+import type { HistoryEntry, PaginatedHistoryResponse } from "@/dto";
 import { HistoryTable } from "@/components/features/desktop/HistoryTable";
 
 export const metadata = {
@@ -61,7 +61,7 @@ async function HistoryDataWrapper({
 }) {
   const sp = await searchParams;
   const { EnvConfig } = await import("@/configs/BackendConfig");
-  const page = Number(sp?.page) || EnvConfig.NEXT_PUBLIC_PAGINATION_PAGE_DESKTOP_SIZE;
+  const page = Number(sp?.page) || 1;
   const limit = Number(sp?.limit) || EnvConfig.NEXT_PUBLIC_PAGINATION_LIMIT_DESKTOP_SIZE;
   const search = sp?.search;
   const type = sp?.type;

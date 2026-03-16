@@ -4,10 +4,15 @@ import axios from "axios";
 import { EnvConfig } from "@/configs/BackendConfig";
 import type {
   ChildDataResponse,
-  CreateChildDataRequest,
-  UpdateChildDataRequest,
-  GetChildDataParams,
+  CreateChildDataDTO,
+  UpdateChildDataDTO,
+  OptionsGetChildDataDTO,
 } from "@/dto";
+
+type GetChildDataParams = OptionsGetChildDataDTO & {
+  page?: number;
+  limit?: number;
+};
 
 export class ChildDataAction {
   static BACKEND_ENDPOINT = EnvConfig.BACKEND_ENDPOINT;
@@ -18,12 +23,21 @@ export class ChildDataAction {
     params: GetChildDataParams = {},
   ): Promise<ChildDataResponse[]> {
     const defaultParams = {
-      page: EnvConfig.NEXT_PUBLIC_PAGINATION_PAGE_DESKTOP_SIZE,
+      page: 1,
       limit: EnvConfig.NEXT_PUBLIC_PAGINATION_LIMIT_DESKTOP_SIZE,
       ...params,
     };
     const response = await axios.get(`${this.ACTION_ENDPOINT}/`, { params: defaultParams });
-    return response.data;
+
+    if (Array.isArray(response.data)) {
+      return response.data;
+    }
+
+    if (response.data && Array.isArray(response.data.data)) {
+      return response.data.data;
+    }
+
+    return [];
   }
 
   static async getChildDataById(id: string): Promise<ChildDataResponse> {
@@ -32,7 +46,7 @@ export class ChildDataAction {
   }
 
   static async createChildData(
-    data: CreateChildDataRequest,
+    data: CreateChildDataDTO,
   ): Promise<ChildDataResponse> {
     const response = await axios.post(`${this.ACTION_ENDPOINT}/`, data);
     return response.data;
@@ -40,7 +54,7 @@ export class ChildDataAction {
 
   static async updateChildData(
     id: string,
-    data: UpdateChildDataRequest,
+    data: UpdateChildDataDTO,
   ): Promise<ChildDataResponse> {
     const response = await axios.patch(`${this.ACTION_ENDPOINT}/${id}`, data);
     return response.data;
