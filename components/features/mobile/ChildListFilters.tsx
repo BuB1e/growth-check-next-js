@@ -54,8 +54,35 @@ export function ChildListFilters() {
     if (key === "heightDev") setHeightDev(value);
     if (key === "weightDev") setWeightDev(value);
     if (key === "locationId") setLocationId(value);
+  };
 
-    applyFilters({ [key]: value });
+  const applyAdvancedFilters = () => {
+    applyFilters({
+      status,
+      minAge,
+      maxAge,
+      heightDev,
+      weightDev,
+      locationId,
+    });
+    setShowAdvanced(false);
+  };
+
+  const clearFilters = () => {
+    setStatus("");
+    setMinAge("");
+    setMaxAge("");
+    setHeightDev("");
+    setWeightDev("");
+    setLocationId("");
+    applyFilters({
+      status: "",
+      minAge: "",
+      maxAge: "",
+      heightDev: "",
+      weightDev: "",
+      locationId: "",
+    });
   };
 
   const activeFiltersCount = [
@@ -99,7 +126,7 @@ export function ChildListFilters() {
       {showAdvanced && (
         <div className="flex flex-col gap-3 rounded-2xl bg-gray-50/50 p-4 border border-gray-100">
           
-          {/* Child Status filter, which is not necessary */}
+          {/* Child Status filter, which is not necessary. AND NOT BEING USE NOW IN BUSINESS LOGIC*/}
           {/*<div className="space-y-1">
             <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
               สถานะเด็ก
@@ -125,7 +152,7 @@ export function ChildListFilters() {
             </select>
           </div>*/}
 
-          {/* Location filter, which is not necessary */}
+          {/* Location filter, which is not necessary. AND NOT BEING USE NOW IN BUSINESS LOGIC*/}
           {/*<div className="space-y-1">
             <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
               เขต
@@ -143,7 +170,7 @@ export function ChildListFilters() {
 
           <div className="space-y-1">
             <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-              ช่วงอายุ (ปี)
+              ช่วงอายุ (เดือน)
             </label>
             <div className="flex items-center gap-2">
               <input
@@ -200,6 +227,21 @@ export function ChildListFilters() {
               <option value="ค่อนข้างน้อย">ค่อนข้างน้อย</option>
               <option value="น้ำหนักน้อยกว่าเกณฑ์">น้ำหนักน้อยกว่าเกณฑ์</option>
             </select>
+          </div>
+
+          <div className="flex gap-2 pt-2">
+            <button
+              onClick={clearFilters}
+              className="flex-1 py-2.5 px-4 rounded-xl text-sm font-semibold text-gray-700 bg-white border border-gray-200 shadow-sm hover:bg-gray-50 active:scale-95 transition-all"
+            >
+              ล้างตัวกรอง
+            </button>
+            <button
+              onClick={applyAdvancedFilters}
+              className="flex-1 py-2.5 px-4 rounded-xl text-sm font-semibold text-white bg-blue-600 shadow-sm hover:bg-blue-700 active:scale-95 transition-all"
+            >
+              ใช้ตัวกรอง
+            </button>
           </div>
         </div>
       )}

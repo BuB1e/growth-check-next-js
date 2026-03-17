@@ -19,6 +19,24 @@ type GetUsersByTeamParams = OptionsGetAllUserDTO & {
   limit?: number;
 };
 
+type UsersPayload =
+  | UserResponse[]
+  | {
+      data?: UserResponse[];
+    };
+
+const normalizeUsersList = (payload: UsersPayload): UserResponse[] => {
+  if (Array.isArray(payload)) {
+    return payload;
+  }
+
+  if (payload && Array.isArray(payload.data)) {
+    return payload.data;
+  }
+
+  return [];
+};
+
 export class UserAction {
   static BACKEND_ENDPOINT = EnvConfig.BACKEND_ENDPOINT;
   static API_ENDPOINT = "/users";
@@ -32,8 +50,10 @@ export class UserAction {
       limit: EnvConfig.NEXT_PUBLIC_PAGINATION_LIMIT_DESKTOP_SIZE,
       ...params,
     };
-    const response = await axios.get(`${this.ACTION_ENDPOINT}/`, { params: defaultParams });
-    return response.data;
+    const response = await axios.get<UsersPayload>(`${this.ACTION_ENDPOINT}/`, {
+      params: defaultParams,
+    });
+    return normalizeUsersList(response.data);
   }
 
   static async getUsersByTeam(
@@ -45,11 +65,11 @@ export class UserAction {
       limit: EnvConfig.NEXT_PUBLIC_PAGINATION_LIMIT_DESKTOP_SIZE,
       ...params,
     };
-    const response = await axios.get(
+    const response = await axios.get<UsersPayload>(
       `${this.ACTION_ENDPOINT}/teams/${teamId}/users`,
       { params: defaultParams },
     );
-    return response.data;
+    return normalizeUsersList(response.data);
   }
 
   static async getUserById(id: string): Promise<UserResponse> {

@@ -1,5 +1,3 @@
-
-
 import axios from "axios";
 import { EnvConfig } from "@/configs/BackendConfig";
 import type {
@@ -13,6 +11,150 @@ import type {
 type GetChildrenParams = OptionsGetChildrenDTO & {
   page?: number;
   limit?: number;
+  minAge?: number | string;
+  maxAge?: number | string;
+  status?: string;
+  heightDev?: string;
+  weightDev?: string;
+};
+
+type ChildrenPayload =
+  | ChildResponse[]
+  | PaginatedResponseDTO<ChildResponse>
+  | {
+      data?: ChildResponse[];
+      meta?: Partial<PaginatedResponseDTO<ChildResponse>["meta"]>;
+    };
+
+const isDefined = <T>(value: T | undefined | null): value is T =>
+  value !== undefined && value !== null;
+
+const isNonEmptyString = (value: unknown): value is string =>
+  typeof value === "string" && value.trim() !== "";
+
+const toOptionalNumber = (
+  value: number | string | undefined,
+): number | undefined => {
+  if (value === undefined || value === null || value === "") return undefined;
+  const n = Number(value);
+  return Number.isFinite(n) ? n : undefined;
+};
+
+const getAgeInMonths = (birthDate?: string | Date): number | null => {
+  if (!birthDate) return null;
+  const birth = new Date(birthDate);
+  if (Number.isNaN(birth.getTime())) return null;
+
+  const now = new Date();
+  let ageInMonths =
+    (now.getFullYear() - birth.getFullYear()) * 12 +
+    (now.getMonth() - birth.getMonth());
+
+  if (now.getDate() < birth.getDate()) {
+    ageInMonths -= 1;
+  }
+
+  return ageInMonths;
+};
+
+const applyClientFilters = (
+  children: ChildResponse[],
+  params: GetChildrenParams,
+): ChildResponse[] => {
+  const search = (params.q ?? params.firstName)?.toLowerCase().trim();
+  const minAge = toOptionalNumber(params.minAge);
+  const maxAge = toOptionalNumber(params.maxAge);
+
+  return children.filter((child) => {
+    if (isNonEmptyString(search)) {
+      const firstName = child.firstName?.toLowerCase() ?? "";
+      const lastName = child.lastName?.toLowerCase() ?? "";
+      if (!firstName.includes(search) && !lastName.includes(search)) {
+        return false;
+      }
+    }
+
+    if (
+      isDefined(params.locationId) &&
+      child.locationId !== params.locationId
+    ) {
+      return false;
+    }
+
+    if (isNonEmptyString(params.status) && child.status !== params.status) {
+      return false;
+    }
+
+    // TODO: Remove client-side filters when backend filtering is fully stable in all environments.
+    if (isDefined(minAge) || isDefined(maxAge)) {
+      const ageInMonths = getAgeInMonths(child.birthDate);
+      if (ageInMonths !== null) {
+        if (isDefined(minAge) && ageInMonths < minAge) return false;
+        if (isDefined(maxAge) && ageInMonths > maxAge) return false;
+      }
+    }
+
+    return true;
+  });
+};
+
+const paginate = (
+  data: ChildResponse[],
+  page: number,
+  limit: number,
+): PaginatedResponseDTO<ChildResponse> => {
+  const total = data.length;
+  const safePage = page > 0 ? page : 1;
+  const safeLimit = limit > 0 ? limit : ChildAction.PAGE_LIMIT;
+  const totalPages = Math.ceil(total / safeLimit);
+
+  return {
+    data: data.slice((safePage - 1) * safeLimit, safePage * safeLimit),
+    meta: {
+      total,
+      page: safePage,
+      limit: safeLimit,
+      totalPages,
+    },
+  };
+};
+
+const normalizePaginatedResponse = (
+  payload: ChildrenPayload,
+  params: Required<Pick<GetChildrenParams, "page" | "limit">> &
+    GetChildrenParams,
+): PaginatedResponseDTO<ChildResponse> => {
+  if (Array.isArray(payload)) {
+    const filtered = applyClientFilters(payload, params);
+    return paginate(filtered, params.page, params.limit);
+  }
+
+  const rawData = Array.isArray(payload?.data) ? payload.data : [];
+  const maybeMeta = payload?.meta;
+
+  const normalized: PaginatedResponseDTO<ChildResponse> = {
+    data: rawData,
+    meta: {
+      total:
+        typeof maybeMeta?.total === "number" ? maybeMeta.total : rawData.length,
+      page: typeof maybeMeta?.page === "number" ? maybeMeta.page : params.page,
+      limit:
+        typeof maybeMeta?.limit === "number" ? maybeMeta.limit : params.limit,
+      totalPages:
+        typeof maybeMeta?.totalPages === "number"
+          ? maybeMeta.totalPages
+          : Math.ceil(
+              (typeof maybeMeta?.total === "number"
+                ? maybeMeta.total
+                : rawData.length) /
+                (typeof maybeMeta?.limit === "number"
+                  ? maybeMeta.limit
+                  : params.limit),
+            ),
+    },
+  };
+
+  return normalized;
 };
 
 export class ChildAction {
@@ -24,33 +166,118 @@ export class ChildAction {
   static async getChildren(
     params: GetChildrenParams = {},
   ): Promise<PaginatedResponseDTO<ChildResponse>> {
-    const defaultParams = {
-      page: 1,
-      limit: ChildAction.PAGE_LIMIT,
-      deleteStatus: false,
-      ...params,
-    };
-    const response = await axios.get(`${this.ACTION_ENDPOINT}/`, {
-      params: defaultParams,
-    });
+    const page =
+      typeof params.page === "number" && params.page > 0 ? params.page : 1;
+    const limit =
+      typeof params.limit === "number" && params.limit > 0
+        ? params.limit
+        : ChildAction.PAGE_LIMIT;
 
-    // Normalize legacy array payloads to a paginated DTO shape.
-    if (Array.isArray(response.data)) {
-      const page = Number(defaultParams.page) || 1;
-      const limit = Number(defaultParams.limit) || ChildAction.PAGE_LIMIT;
-      const total = response.data.length;
-      return {
-        data: response.data,
-        meta: {
-          total,
-          page,
-          limit,
-          totalPages: Math.ceil(total / limit),
-        },
+    const keyword = isNonEmptyString(params.q) ? params.q.trim() : undefined;
+    const hasGlobalNameSearch =
+      isNonEmptyString(keyword) &&
+      !isNonEmptyString(params.firstName) &&
+      !isNonEmptyString(params.lastName);
+
+    const commonParams: OptionsGetChildrenDTO = {
+      deleteStatus: false,
+      locationId:
+        typeof params.locationId === "number" && Number.isFinite(params.locationId)
+          ? params.locationId
+          : undefined,
+      createdByUser: isNonEmptyString(params.createdByUser)
+        ? params.createdByUser.trim()
+        : undefined,
+    };
+
+    if (hasGlobalNameSearch && keyword) {
+      const fetchLimit = Math.max(limit, 50);
+      const maxPages = 20;
+
+      const fetchByNameField = async (
+        field: "firstName" | "lastName",
+      ): Promise<ChildResponse[]> => {
+        const aggregated: ChildResponse[] = [];
+        let currentPage = 1;
+        let totalPages = 1;
+
+        while (currentPage <= totalPages && currentPage <= maxPages) {
+          const response = await axios.get<ChildrenPayload>(
+            `${this.ACTION_ENDPOINT}/`,
+            {
+              params: {
+                ...commonParams,
+                page: currentPage,
+                limit: fetchLimit,
+                [field]: keyword,
+              },
+            },
+          );
+
+          const normalized = normalizePaginatedResponse(response.data, {
+            ...params,
+            page: currentPage,
+            limit: fetchLimit,
+          });
+
+          aggregated.push(...normalized.data);
+          totalPages =
+            normalized.meta.totalPages > 0 ? normalized.meta.totalPages : 1;
+          currentPage += 1;
+        }
+
+        return aggregated;
       };
+
+      const [firstNameMatches, lastNameMatches] = await Promise.all([
+        fetchByNameField("firstName"),
+        fetchByNameField("lastName"),
+      ]);
+
+      const uniqueChildren = new Map<number, ChildResponse>();
+      [...firstNameMatches, ...lastNameMatches].forEach((child) => {
+        uniqueChildren.set(child.id, child);
+      });
+
+      const filtered = applyClientFilters(Array.from(uniqueChildren.values()), {
+        ...params,
+        q: keyword,
+      });
+
+      return paginate(filtered, page, limit);
     }
 
-    return response.data;
+    const requestParams: OptionsGetChildrenDTO & {
+      page: number;
+      limit: number;
+    } = {
+      ...commonParams,
+      page,
+      limit,
+      // TODO: Re-enable `q` once backend Prisma string filter for /children is fixed.
+      // Backend currently throws 500 for `q` path (`contains` + `mode` in where clause).
+      firstName: isNonEmptyString(params.firstName)
+        ? params.firstName.trim()
+        : isNonEmptyString(params.q)
+          ? params.q.trim()
+        : undefined,
+      lastName: isNonEmptyString(params.lastName)
+        ? params.lastName.trim()
+        : undefined,
+    };
+
+    const response = await axios.get<ChildrenPayload>(
+      `${this.ACTION_ENDPOINT}/`,
+      {
+        params: requestParams,
+      },
+    );
+
+    return normalizePaginatedResponse(response.data, {
+      ...params,
+      page,
+      limit,
+    });
   }
 
   static async getChildById(id: string): Promise<ChildResponse> {
@@ -82,4 +309,3 @@ export class ChildAction {
     await axios.delete(`${this.ACTION_ENDPOINT}/${id}`);
   }
 }
-

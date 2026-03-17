@@ -64,18 +64,28 @@ async function RequestsDataWrapper({
 }) {
   const sp = await searchParams;
   const { EnvConfig } = await import("@/configs/BackendConfig");
-  const page = Number(sp?.page) || 1;
-  const limit = Number(sp?.limit) || EnvConfig.NEXT_PUBLIC_PAGINATION_LIMIT_DESKTOP_SIZE;
-  const search = sp?.search;
-  const status = sp?.status;
-  const orderBy =
-    (sp?.orderBy as keyof LocationCreateRequestResponse) || "updatedAt";
-  const orderDirection = (sp?.orderDirection as "asc" | "desc") || "desc";
+  const parsedPage = Number(sp?.page);
+  const parsedLimit = Number(sp?.limit);
+  const page = Number.isFinite(parsedPage) && parsedPage > 0 ? parsedPage : 1;
+  const limit =
+    Number.isFinite(parsedLimit) && parsedLimit > 0
+      ? parsedLimit
+      : EnvConfig.NEXT_PUBLIC_PAGINATION_LIMIT_DESKTOP_SIZE;
+  const q = typeof sp?.q === "string" ? sp.q : undefined;
+  const requestStatus =
+    sp?.status === "WAITING" || sp?.status === "APPROVE" || sp?.status === "REJECT"
+      ? sp.status
+      : undefined;
 
   let data: PaginatedResponseDTO<LocationCreateRequestResponse> | null = null;
 
   try {
-    data = await LocationCreateRequestAction.getRequests({ page, limit });
+    data = await LocationCreateRequestAction.getRequests({
+      page,
+      limit,
+      q,
+      requestStatus,
+    });
   } catch (error) {
     console.error("Failed to load requests:", error);
   }

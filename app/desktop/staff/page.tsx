@@ -68,8 +68,15 @@ async function StaffDataWrapper({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   const params = await searchParams;
+  const parsedPage = Number(params.page);
+  const parsedLimit = Number(params.limit);
+  const page = Number.isFinite(parsedPage) && parsedPage > 0 ? parsedPage : 1;
+  const limit =
+    Number.isFinite(parsedLimit) && parsedLimit > 0
+      ? parsedLimit
+      : EnvConfig.NEXT_PUBLIC_PAGINATION_LIMIT_DESKTOP_SIZE;
 
-  const search = typeof params.search === "string" ? params.search : undefined;
+  const q = typeof params.q === "string" ? params.q : undefined;
   const orderBy =
     typeof params.orderBy === "string" ? params.orderBy : undefined;
   const orderDirection =
@@ -87,8 +94,10 @@ async function StaffDataWrapper({
   try {
     // TODO: Replace teamId with real team ID from session/context
     users = await UserAction.getUsersByTeam(1, {
-      page: 1,
-      limit: EnvConfig.NEXT_PUBLIC_PAGINATION_LIMIT_DESKTOP_SIZE,
+      page,
+      limit,
+      q,
+      role,
     });
   } catch (error) {
     console.error("Failed to fetch staff data:", error);

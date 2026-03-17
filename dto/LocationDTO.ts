@@ -51,6 +51,7 @@ export interface UpdatePrivateLocationDTO{
 
 
 export interface OptionsGetAllLocationDTO{
+	q?: string;
 	map?: string;
 	province?: string;
 	district?: string;

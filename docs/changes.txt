@@ -1,0 +1,139 @@
+Frontend Handoff: Search and Filter Backend Changes
+Date: 2026-03-17
+Project: SeniorProject-Backend
+
+Overview
+- List endpoints now support consistent pagination response shape:
+  - data: array
+  - meta: { total, page, limit, totalPages }
+- Search/filter query support has been expanded across all major list APIs.
+- New generic keyword query param is: q
+- Text matching behavior in repositories is now mostly case-insensitive contains.
+
+Important Notes For Frontend
+- Continue sending page and limit from the UI.
+- Send q for global keyword search in list pages.
+- Keep sending specific filter fields as needed (role, status, locationId, etc.).
+- Responses are server-paginated; do not slice list data again on the client.
+
+Endpoint Query Contracts
+
+1) GET /children
+- page?: number
+- limit?: number
+- q?: string
+- firstName?: string
+- lastName?: string
+- locationId?: number
+- createdByUser?: string
+- deleteStatus?: boolean
+
+2) GET /users
+- page?: number
+- limit?: number
+- q?: string
+- role?: ADMIN | USER | HEAD
+- emailVerified?: boolean
+- deleteStatus?: boolean
+
+3) GET /ai-predictions
+- page?: number
+- limit?: number
+- q?: string
+- childId?: number
+- month?: number (accepted by controller/options)
+- modelUsed?: string
+- modelVersion?: string (accepted by controller/options)
+
+4) GET /child-data
+- page?: number
+- limit?: number
+- q?: string
+- childId?: number
+- locationId?: number
+- status?: IN_AREA | OUT_AREA | UNKNOWN | DIED
+- deleteStatus?: boolean
+
+5) GET /developments
+- page?: number
+- limit?: number
+- q?: string
+- status?: string
+- metric?: WA | HA | BMI | WH | WL
+- deleteStatus?: boolean
+
+6) GET /child-transfer-requests
+- page?: number
+- limit?: number
+- q?: string
+- userId?: string
+- childId?: number
+- fromLocation?: number
+- toLocation?: number
+- handledBy?: string
+- deleteStatus?: boolean
+
+7) GET /locations
+- page?: number
+- limit?: number
+- q?: string
+- map?: string
+- province?: string
+- district?: string
+- subDistrict?: string
+- zipCode?: string
+- deleted?: boolean
+- createdByUser?: string
+
+8) GET /location-create-requests
+- page?: number
+- limit?: number
+- q?: string
+- locationName?: string
+- locationMap?: string
+- province?: string
+- district?: string
+- sub_district?: string
+- zip_code?: string
+- requestStatus?: APPROVE | REJECT | WAITING
+- handledBy?: string
+- deleteStatus?: boolean
+
+9) GET /location-create-requests/user/:userId
+- page?: number
+- limit?: number
+- q?: string
+- locationName?: string
+- locationMap?: string
+- province?: string
+- district?: string
+- sub_district?: string
+- zip_code?: string
+- requestStatus?: APPROVE | REJECT | WAITING
+- handledBy?: string
+- deleteStatus?: boolean
+
+10) GET /teams
+- page?: number
+- limit?: number
+- q?: string
+- deleted?: boolean
+
+11) GET /user-create-status
+- page?: number
+- limit?: number
+- q?: string
+- deleted?: boolean
+
+Behavior Updates Worth Calling Out
+- /locations deleted filter now correctly maps to deleteStatus in repository logic.
+- Team and UserCreateStatus list APIs now support full options object (including q) instead of deleted-only filtering.
+- Several list endpoints changed exact string equality filters to contains + case-insensitive matching.
+- Some endpoints also attempt numeric matching from q when q can represent IDs.
+
+Frontend Integration Checklist
+- Add q input on list pages where global search is desired.
+- Keep existing column filters; they now combine with q.
+- Keep table pagination fully server-driven using meta.total and requested page/limit.
+- Validate empty-state UX when q/filter returns zero rows.
+- Validate that filter chips/query-state map exactly to these param names.

@@ -27,6 +27,7 @@ export interface UpdateChildTransferRequestDTO {
 }
 
 export interface OptionsGetChildTransferRequestsDTO {
+	q?: string;
 	userId?: string;
 	childId?: number;
 	fromLocation?: number;

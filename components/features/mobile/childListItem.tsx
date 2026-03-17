@@ -6,6 +6,7 @@ import { Child_status, Child_statusToThai, Sex, SexToThai } from "@/types";
 import { MeasurementDrawer } from "./MeasurementDrawer";
 import { UserCircle2, Plus } from "lucide-react";
 import Link from "next/link";
+import { formatAgeThai } from "@/lib/date-utils";
 
 function getChildStatusKey(status: unknown): Child_status | null {
   if (typeof status !== "string") return null;
@@ -18,9 +19,7 @@ function getChildStatusKey(status: unknown): Child_status | null {
 export function MobileChildListItem({ child }: { child: ChildResponse }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const statusKey = getChildStatusKey(child.status);
-  const statusText = statusKey
-    ? Child_statusToThai[statusKey]
-    : "ไม่ทราบสถานะ";
+  const statusText = statusKey ? Child_statusToThai[statusKey] : "ไม่ทราบสถานะ";
   const sexText = SexToThai[child.sex] ?? "ไม่ระบุ";
 
   return (
@@ -35,16 +34,23 @@ export function MobileChildListItem({ child }: { child: ChildResponse }) {
             <UserCircle2 className="h-7 w-7" />
           </div>
 
-          <div className="flex flex-row justify-between w-full items-center">
-            <h3 className="font-semibold text-gray-900 text-xl leading-tight mb-1.5 line-clamp-1 truncate">
-              {child.firstName} {child.lastName}
-            </h3>
-            <span className={`
-                text-[11px] rounded-lg px-2 py-1 
-                font-medium border 
-                ${child.sex == Sex.MALE ? "border-green-600 bg-green-200 text-green-800" : "border-pink-300 bg-pink-200 text-pink-600"}`}>
-                  {sexText}
+          <div className="flex flex-col w-full">
+            <div className="flex flex-row justify-between w-full items-center">
+              <h3 className="font-semibold text-gray-900 text-xl leading-tight mb-1.5 line-clamp-1 truncate">
+                {child.firstName} {child.lastName}
+              </h3>
+              <span
+                className={`
+                  text-[11px] rounded-lg px-2 py-1
+                  font-medium border
+                  ${child.sex == Sex.MALE ? "border-green-600 bg-green-200 text-green-800" : "border-pink-300 bg-pink-200 text-pink-600"}`}
+              >
+                {sexText}
               </span>
+            </div>
+            <p className="text-sm text-gray-500">
+              อายุ: {formatAgeThai(child.birthDate)}
+            </p>
           </div>
         </Link>
 

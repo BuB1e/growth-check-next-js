@@ -6,10 +6,11 @@ import type {
   TeamResponse,
   CreateTeamDto,
   UpdateTeamDto,
+  OptionsGetTeamsDTO,
   PaginatedResponseDTO,
 } from "@/dto";
 
-type GetTeamsParams = {
+type GetTeamsParams = OptionsGetTeamsDTO & {
   page?: number;
   limit?: number;
 };

@@ -39,7 +39,7 @@ export const SexToThai: Record<Sex, string> = {
 
 export type Sex = (typeof Sex)[keyof typeof Sex]
 
-// Child location status
+// Child location status, not child's growth status
 export const Child_status = {
   IN_AREA: 'IN_AREA',
   OUT_AREA: 'OUT_AREA',
@@ -47,12 +47,24 @@ export const Child_status = {
   DIED: 'DIED'
 } as const
 
+// Child location status, not child's growth status
 export const Child_status_TH = {
   IN_AREA: 'อยู่ในพื้นที่',
   OUT_AREA: 'อยู่นอกพื้นที่',
   UNKNOWN: 'ไม่ทราบสถานะ',
   DIED: 'เสียชีวิต'
 }
+
+// Child location status, not child's growth status
+export const Child_statusToThai: Record<Child_status, string> = {
+  [Child_status.IN_AREA]: Child_status_TH.IN_AREA,
+  [Child_status.OUT_AREA]: Child_status_TH.OUT_AREA,
+  [Child_status.UNKNOWN]: Child_status_TH.UNKNOWN,
+  [Child_status.DIED]: Child_status_TH.DIED,
+};
+
+// Child location status, not child's growth status
+export type Child_status = (typeof Child_status)[keyof typeof Child_status]
 
 // export const DevelopmentStatus = {
 //   NORMAL: 'normal',
@@ -82,16 +94,6 @@ export const Child_status_TH = {
 // }
 
 // export type DevelopmentStatus = (typeof DevelopmentStatus)[keyof typeof DevelopmentStatus]
-
-export const Child_statusToThai: Record<Child_status, string> = {
-  [Child_status.IN_AREA]: Child_status_TH.IN_AREA,
-  [Child_status.OUT_AREA]: Child_status_TH.OUT_AREA,
-  [Child_status.UNKNOWN]: Child_status_TH.UNKNOWN,
-  [Child_status.DIED]: Child_status_TH.DIED,
-};
-
-export type Child_status = (typeof Child_status)[keyof typeof Child_status]
-
 
 export const Metric_type = {
   WA: 'WA',

@@ -75,7 +75,7 @@ export function RequestsTable({ rawData }: RequestsTableProps) {
   const searchParams = useSearchParams();
 
   const [searchQuery, setSearchQuery] = useState(
-    searchParams.get("search") || "",
+    searchParams.get("q") || "",
   );
   const [statusFilter, setStatusFilter] = useState(
     searchParams.get("status") || "all",
@@ -95,7 +95,7 @@ export function RequestsTable({ rawData }: RequestsTableProps) {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    updateURLParams({ search: searchQuery || null, page: "1" });
+    updateURLParams({ q: searchQuery || null, page: "1" });
   };
 
   const handleStatusChange = (val: string) => {

@@ -46,6 +46,7 @@ export interface UpdateChildDataDTO {
 }
 
 export interface OptionsGetChildDataDTO {
+	q?: string;
 	childId?: number;
 	locationId?: number;
 	status?: Child_status;

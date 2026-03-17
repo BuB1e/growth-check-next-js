@@ -35,6 +35,7 @@ export interface UpdateChildDTO {
 }
 
 export interface OptionsGetChildrenDTO {
+	q?: string;
 	firstName?: string;
 	lastName?: string;
 	locationId?: number;

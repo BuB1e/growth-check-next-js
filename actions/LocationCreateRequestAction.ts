@@ -41,7 +41,7 @@ export class LocationCreateRequestAction {
 
   static async getRequestsByUserId(
     userId: string,
-    params: { page?: number; limit?: number } = {},
+    params: GetLocationCreateRequestsParams = {},
   ): Promise<PaginatedResponseDTO<LocationCreateRequestResponse>> {
     const defaultParams = {
       page: 1,

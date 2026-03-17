@@ -41,6 +41,7 @@ export interface UpdatePrivateUserDto {
 }
 
 export interface OptionsGetAllUserDTO {
+	q?: string;
 	role?: Role;
 	emailVerified?: boolean;
 	deleteStatus?: boolean;

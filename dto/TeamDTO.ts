@@ -13,3 +13,8 @@ export interface CreateTeamDto {
 export interface UpdateTeamDto {
 	name?: string;
 }
+
+export interface OptionsGetTeamsDTO {
+  q?: string;
+  deleted?: boolean;
+}

@@ -33,6 +33,7 @@ export interface UpdateDevelopmentDTO {
 }
 
 export interface OptionsGetDevelopmentsDTO {
+	q?: string;
 	status?: string;
 	metric?: Metric_type;
 	deleteStatus?: boolean;

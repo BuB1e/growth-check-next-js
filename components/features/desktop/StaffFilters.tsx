@@ -20,7 +20,7 @@ export default function StaffFilters() {
 
   // Local state — only pushed to URL on form submit
   const [searchValue, setSearchValue] = useState(
-    searchParams.get("search") || "",
+    searchParams.get("q") || "",
   );
 
   const createQueryString = useCallback(
@@ -43,7 +43,7 @@ export default function StaffFilters() {
   // Only push to URL when the form is explicitly submitted
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    router.push(`${pathname}?${createQueryString({ search: searchValue })}`);
+    router.push(`${pathname}?${createQueryString({ q: searchValue })}`);
   };
 
   const handleRoleChange = (value: string) => {

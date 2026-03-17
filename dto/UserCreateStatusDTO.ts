@@ -20,3 +20,8 @@ export interface UpdateUserCreateStatusDto {
   updatedBy?: string;
 }
 
+export interface OptionsGetUserCreateStatusDTO {
+  q?: string;
+  deleted?: boolean;
+}
+

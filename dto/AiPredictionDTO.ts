@@ -41,6 +41,7 @@ export interface UpdateAiPredictionDTO {
 }
 
 export interface OptionsGetAiPredictionsDTO {
+	q?: string;
 	childId?: number;
 	month?: number;
 	modelUsed?: string;

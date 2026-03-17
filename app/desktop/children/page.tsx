@@ -70,14 +70,14 @@ async function ChildrenDataWrapper({
     Number.isFinite(parsedLimit) && parsedLimit > 0
       ? parsedLimit
       : EnvConfig.NEXT_PUBLIC_PAGINATION_LIMIT_DESKTOP_SIZE;
-  const search = sp?.search;
+  const q = sp?.q;
   let data = null;
 
   try {
     data = await ChildAction.getChildren({
       ...(page ? { page } : {}),
       ...(limit ? { limit } : {}),
-      firstName: search,
+      q,
     });
   } catch (error) {
     console.error("Failed to load children", error);

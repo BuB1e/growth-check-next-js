@@ -1,6 +1,6 @@
 ---
 name: nextjs-best-practices
-description: Next.js App Router principles. Server Components, data fetching, routing patterns.
+description: Next.js 16+ App Router principles. Server Components, data fetching, routing patterns.
 allowed-tools: Read, Write, Edit, Glob, Grep
 ---
 
@@ -23,7 +23,7 @@ Does it need...?
 ├── Direct data fetching, no interactivity
 │   └── Server Component (default)
 │
-└── Both? 
+└── Both?
     └── Split: Server parent + Client child
 ```
 

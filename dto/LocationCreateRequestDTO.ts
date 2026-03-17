@@ -40,6 +40,7 @@ export interface UpdateLocationRequestDTO {
 
 
 export interface OptionsLocationCreateRequestDTO {
+	q?: string;
 	locationName?: string;
 	locationMap?: string;
 	province?: string;

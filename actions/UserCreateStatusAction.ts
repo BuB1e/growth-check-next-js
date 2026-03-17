@@ -6,10 +6,11 @@ import type {
   UserCreateStatusResponse,
   CreateUserCreateStatusDto,
   UpdateUserCreateStatusDto,
+  OptionsGetUserCreateStatusDTO,
   PaginatedResponseDTO,
 } from "@/dto";
 
-type GetUserCreateStatusParams = {
+type GetUserCreateStatusParams = OptionsGetUserCreateStatusDTO & {
   page?: number;
   limit?: number;
 };
