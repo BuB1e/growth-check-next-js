@@ -10,6 +10,8 @@ interface MobileChildListProps {
   limit?: number;
   search?: string;
   status?: string;
+  minAgeYears?: string;
+  maxAgeYears?: string;
   minAge?: string;
   maxAge?: string;
   heightDev?: string;
@@ -22,6 +24,8 @@ export async function MobileChildList({
   limit = EnvConfig.NEXT_PUBLIC_PAGINATION_LIMIT_MOBILE_SIZE,
   search = "",
   status = "",
+  minAgeYears = "",
+  maxAgeYears = "",
   minAge = "",
   maxAge = "",
   heightDev = "",
@@ -38,6 +42,8 @@ export async function MobileChildList({
       limit,
       q: search || undefined,
       locationId: locationId ? Number(locationId) : undefined,
+      minAgeYears: minAgeYears || undefined,
+      maxAgeYears: maxAgeYears || undefined,
       minAge: minAge || undefined,
       maxAge: maxAge || undefined,
       status: status || undefined,
@@ -83,7 +89,7 @@ export async function MobileChildList({
       {totalPages > 1 && (
         <div className="flex items-center justify-between pt-4 pb-2 border-t border-gray-100">
           <Link
-            href={`?page=${currentPage - 1}${search ? `&q=${encodeURIComponent(search)}` : ""}${status ? `&status=${status}` : ""}${minAge ? `&minAge=${minAge}` : ""}${maxAge ? `&maxAge=${maxAge}` : ""}${heightDev ? `&heightDev=${heightDev}` : ""}${weightDev ? `&weightDev=${weightDev}` : ""}${locationId ? `&locationId=${locationId}` : ""}`}
+            href={`?page=${currentPage - 1}${search ? `&q=${encodeURIComponent(search)}` : ""}${status ? `&status=${status}` : ""}${minAgeYears ? `&minAgeYears=${minAgeYears}` : ""}${maxAgeYears ? `&maxAgeYears=${maxAgeYears}` : ""}${minAge ? `&minAge=${minAge}` : ""}${maxAge ? `&maxAge=${maxAge}` : ""}${heightDev ? `&heightDev=${heightDev}` : ""}${weightDev ? `&weightDev=${weightDev}` : ""}${locationId ? `&locationId=${locationId}` : ""}`}
             className={`flex items-center justify-center w-10 h-10 rounded-full border border-gray-200 bg-white text-gray-700 shadow-sm active:scale-95 transition-all ${!hasPrevPage && "opacity-50 pointer-events-none"}`}
           >
             <ChevronLeft className="h-5 w-5" />
@@ -92,7 +98,7 @@ export async function MobileChildList({
             หน้า {currentPage} จาก {totalPages}
           </span>
           <Link
-            href={`?page=${currentPage + 1}${search ? `&q=${encodeURIComponent(search)}` : ""}${status ? `&status=${status}` : ""}${minAge ? `&minAge=${minAge}` : ""}${maxAge ? `&maxAge=${maxAge}` : ""}${heightDev ? `&heightDev=${heightDev}` : ""}${weightDev ? `&weightDev=${weightDev}` : ""}${locationId ? `&locationId=${locationId}` : ""}`}
+            href={`?page=${currentPage + 1}${search ? `&q=${encodeURIComponent(search)}` : ""}${status ? `&status=${status}` : ""}${minAgeYears ? `&minAgeYears=${minAgeYears}` : ""}${maxAgeYears ? `&maxAgeYears=${maxAgeYears}` : ""}${minAge ? `&minAge=${minAge}` : ""}${maxAge ? `&maxAge=${maxAge}` : ""}${heightDev ? `&heightDev=${heightDev}` : ""}${weightDev ? `&weightDev=${weightDev}` : ""}${locationId ? `&locationId=${locationId}` : ""}`}
             className={`flex items-center justify-center w-10 h-10 rounded-full border border-gray-200 bg-white text-gray-700 shadow-sm active:scale-95 transition-all ${!hasNextPage && "opacity-50 pointer-events-none"}`}
           >
             <ChevronRight className="h-5 w-5" />

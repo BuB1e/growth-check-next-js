@@ -13,6 +13,8 @@ type GetChildrenParams = OptionsGetChildrenDTO & {
   limit?: number;
   minAge?: number | string;
   maxAge?: number | string;
+  minAgeYears?: number | string;
+  maxAgeYears?: number | string;
   status?: string;
   heightDev?: string;
   weightDev?: string;
@@ -62,8 +64,18 @@ const applyClientFilters = (
   params: GetChildrenParams,
 ): ChildResponse[] => {
   const search = (params.q ?? params.firstName)?.toLowerCase().trim();
-  const minAge = toOptionalNumber(params.minAge);
-  const maxAge = toOptionalNumber(params.maxAge);
+  const minAgeMonths = toOptionalNumber(params.minAge);
+  const maxAgeMonths = toOptionalNumber(params.maxAge);
+  const minAgeYears = toOptionalNumber(params.minAgeYears);
+  const maxAgeYears = toOptionalNumber(params.maxAgeYears);
+  const minAge =
+    isDefined(minAgeMonths) || isDefined(minAgeYears)
+      ? (minAgeYears ?? 0) * 12 + (minAgeMonths ?? 0)
+      : undefined;
+  const maxAge =
+    isDefined(maxAgeMonths) || isDefined(maxAgeYears)
+      ? (maxAgeYears ?? 0) * 12 + (maxAgeMonths ?? 0)
+      : undefined;
 
   return children.filter((child) => {
     if (isNonEmptyString(search)) {
@@ -178,6 +190,14 @@ export class ChildAction {
       isNonEmptyString(keyword) &&
       !isNonEmptyString(params.firstName) &&
       !isNonEmptyString(params.lastName);
+    const hasClientOnlyFilters =
+      isDefined(toOptionalNumber(params.minAge)) ||
+      isDefined(toOptionalNumber(params.maxAge)) ||
+      isDefined(toOptionalNumber(params.minAgeYears)) ||
+      isDefined(toOptionalNumber(params.maxAgeYears)) ||
+      isNonEmptyString(params.status) ||
+      isNonEmptyString(params.heightDev) ||
+      isNonEmptyString(params.weightDev);
 
     const commonParams: OptionsGetChildrenDTO = {
       deleteStatus: false,
@@ -190,43 +210,49 @@ export class ChildAction {
         : undefined,
     };
 
-    if (hasGlobalNameSearch && keyword) {
-      const fetchLimit = Math.max(limit, 50);
-      const maxPages = 20;
+    const fetchLimit = Math.max(limit, 50);
+    const maxPages = 20;
 
+    const fetchAllPages = async (
+      extraParams: Partial<OptionsGetChildrenDTO> = {},
+    ): Promise<ChildResponse[]> => {
+      const aggregated: ChildResponse[] = [];
+      let currentPage = 1;
+      let totalPages = 1;
+
+      while (currentPage <= totalPages && currentPage <= maxPages) {
+        const response = await axios.get<ChildrenPayload>(
+          `${this.ACTION_ENDPOINT}/`,
+          {
+            params: {
+              ...commonParams,
+              ...extraParams,
+              page: currentPage,
+              limit: fetchLimit,
+            },
+          },
+        );
+
+        const normalized = normalizePaginatedResponse(response.data, {
+          ...params,
+          page: currentPage,
+          limit: fetchLimit,
+        });
+
+        aggregated.push(...normalized.data);
+        totalPages =
+          normalized.meta.totalPages > 0 ? normalized.meta.totalPages : 1;
+        currentPage += 1;
+      }
+
+      return aggregated;
+    };
+
+    if (hasGlobalNameSearch && keyword) {
       const fetchByNameField = async (
         field: "firstName" | "lastName",
       ): Promise<ChildResponse[]> => {
-        const aggregated: ChildResponse[] = [];
-        let currentPage = 1;
-        let totalPages = 1;
-
-        while (currentPage <= totalPages && currentPage <= maxPages) {
-          const response = await axios.get<ChildrenPayload>(
-            `${this.ACTION_ENDPOINT}/`,
-            {
-              params: {
-                ...commonParams,
-                page: currentPage,
-                limit: fetchLimit,
-                [field]: keyword,
-              },
-            },
-          );
-
-          const normalized = normalizePaginatedResponse(response.data, {
-            ...params,
-            page: currentPage,
-            limit: fetchLimit,
-          });
-
-          aggregated.push(...normalized.data);
-          totalPages =
-            normalized.meta.totalPages > 0 ? normalized.meta.totalPages : 1;
-          currentPage += 1;
-        }
-
-        return aggregated;
+        return fetchAllPages({ [field]: keyword });
       };
 
       const [firstNameMatches, lastNameMatches] = await Promise.all([
@@ -244,6 +270,20 @@ export class ChildAction {
         q: keyword,
       });
 
+      return paginate(filtered, page, limit);
+    }
+
+    if (hasClientOnlyFilters) {
+      const unfilteredServerData = await fetchAllPages({
+        firstName: isNonEmptyString(params.firstName)
+          ? params.firstName.trim()
+          : undefined,
+        lastName: isNonEmptyString(params.lastName)
+          ? params.lastName.trim()
+          : undefined,
+      });
+
+      const filtered = applyClientFilters(unfilteredServerData, params);
       return paginate(filtered, page, limit);
     }
 

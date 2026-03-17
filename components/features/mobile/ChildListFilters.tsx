@@ -3,7 +3,6 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useState } from "react";
 import { Search, SlidersHorizontal } from "lucide-react";
-import { Child_status, Child_statusToThai } from "@/types";
 
 export function ChildListFilters() {
   const router = useRouter();
@@ -12,6 +11,12 @@ export function ChildListFilters() {
 
   const [search, setSearch] = useState(searchParams.get("q") || "");
   const [status, setStatus] = useState(searchParams.get("status") || "");
+  const [minAgeYears, setMinAgeYears] = useState(
+    searchParams.get("minAgeYears") || "",
+  );
+  const [maxAgeYears, setMaxAgeYears] = useState(
+    searchParams.get("maxAgeYears") || "",
+  );
   const [minAge, setMinAge] = useState(searchParams.get("minAge") || "");
   const [maxAge, setMaxAge] = useState(searchParams.get("maxAge") || "");
   const [heightDev, setHeightDev] = useState(
@@ -49,6 +54,8 @@ export function ChildListFilters() {
 
   const handleFilterChange = (key: string, value: string) => {
     if (key === "status") setStatus(value);
+    if (key === "minAgeYears") setMinAgeYears(value);
+    if (key === "maxAgeYears") setMaxAgeYears(value);
     if (key === "minAge") setMinAge(value);
     if (key === "maxAge") setMaxAge(value);
     if (key === "heightDev") setHeightDev(value);
@@ -59,6 +66,8 @@ export function ChildListFilters() {
   const applyAdvancedFilters = () => {
     applyFilters({
       status,
+      minAgeYears,
+      maxAgeYears,
       minAge,
       maxAge,
       heightDev,
@@ -70,6 +79,8 @@ export function ChildListFilters() {
 
   const clearFilters = () => {
     setStatus("");
+    setMinAgeYears("");
+    setMaxAgeYears("");
     setMinAge("");
     setMaxAge("");
     setHeightDev("");
@@ -77,6 +88,8 @@ export function ChildListFilters() {
     setLocationId("");
     applyFilters({
       status: "",
+      minAgeYears: "",
+      maxAgeYears: "",
       minAge: "",
       maxAge: "",
       heightDev: "",
@@ -87,7 +100,7 @@ export function ChildListFilters() {
 
   const activeFiltersCount = [
     status,
-    minAge || maxAge,
+    minAgeYears || maxAgeYears || minAge || maxAge,
     heightDev,
     weightDev,
     locationId,
@@ -168,32 +181,76 @@ export function ChildListFilters() {
             </select>
           </div>*/}
 
-          <div className="space-y-1">
+          <div className="space-y-2">
             <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-              ช่วงอายุ (เดือน)
+              ช่วงอายุ
             </label>
-            <div className="flex items-center gap-2">
-              <input
-                type="number"
-                min="0"
-                placeholder="ต่ำสุด"
-                value={minAge}
-                onChange={(e) => handleFilterChange("minAge", e.target.value)}
-                className="block w-full rounded-xl border-0 py-3 px-3.5 text-center text-gray-900 shadow-sm ring-1 ring-inset ring-gray-200 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6 bg-white outline-none"
-              />
-              <span className="text-gray-400 font-medium">-</span>
-              <input
-                type="number"
-                min="0"
-                placeholder="สูงสุด"
-                value={maxAge}
-                onChange={(e) => handleFilterChange("maxAge", e.target.value)}
-                className="block w-full rounded-xl border-0 py-3 px-3.5 text-center text-gray-900 shadow-sm ring-1 ring-inset ring-gray-200 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6 bg-white outline-none"
-              />
+
+            <div className="rounded-xl border border-gray-200 bg-white p-3">
+              <p className="mb-2 text-xs font-medium text-gray-500">ต่ำสุด</p>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    min="0"
+                    placeholder="ปี"
+                    value={minAgeYears}
+                    onChange={(e) =>
+                      handleFilterChange("minAgeYears", e.target.value)
+                    }
+                    className="block w-full rounded-xl border-0 py-2.5 px-3 text-center text-gray-900 shadow-sm ring-1 ring-inset ring-gray-200 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6 outline-none"
+                  />
+                  <span className="text-xs text-gray-500">ปี</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    min="0"
+                    max="11"
+                    placeholder="เดือน"
+                    value={minAge}
+                    onChange={(e) => handleFilterChange("minAge", e.target.value)}
+                    className="block w-full rounded-xl border-0 py-2.5 px-3 text-center text-gray-900 shadow-sm ring-1 ring-inset ring-gray-200 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6 outline-none"
+                  />
+                  <span className="text-xs text-gray-500">เดือน</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-gray-200 bg-white p-3">
+              <p className="mb-2 text-xs font-medium text-gray-500">สูงสุด</p>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    min="0"
+                    placeholder="ปี"
+                    value={maxAgeYears}
+                    onChange={(e) =>
+                      handleFilterChange("maxAgeYears", e.target.value)
+                    }
+                    className="block w-full rounded-xl border-0 py-2.5 px-3 text-center text-gray-900 shadow-sm ring-1 ring-inset ring-gray-200 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6 outline-none"
+                  />
+                  <span className="text-xs text-gray-500">ปี</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    min="0"
+                    max="11"
+                    placeholder="เดือน"
+                    value={maxAge}
+                    onChange={(e) => handleFilterChange("maxAge", e.target.value)}
+                    className="block w-full rounded-xl border-0 py-2.5 px-3 text-center text-gray-900 shadow-sm ring-1 ring-inset ring-gray-200 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6 outline-none"
+                  />
+                  <span className="text-xs text-gray-500">เดือน</span>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div className="space-y-1">
+          {/* Child Height Growth Status filter, which is not necessary. AND NOT BEING USE NOW IN BUSINESS LOGIC*/}
+          {/* <div className="space-y-1">
             <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
               พัฒนาการด้านส่วนสูง (HA)
             </label>
@@ -209,9 +266,10 @@ export function ChildListFilters() {
               <option value="ค่อนข้างเตี้ย">ค่อนข้างเตี้ย</option>
               <option value="เตี้ย">เตี้ย</option>
             </select>
-          </div>
+          </div> */}
 
-          <div className="space-y-1">
+          {/* Child Height Growth Status filter, which is not necessary. AND NOT BEING USE NOW IN BUSINESS LOGIC*/}
+          {/* <div className="space-y-1">
             <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
               พัฒนาการด้านน้ำหนัก (WA)
             </label>
@@ -227,7 +285,7 @@ export function ChildListFilters() {
               <option value="ค่อนข้างน้อย">ค่อนข้างน้อย</option>
               <option value="น้ำหนักน้อยกว่าเกณฑ์">น้ำหนักน้อยกว่าเกณฑ์</option>
             </select>
-          </div>
+          </div> */}
 
           <div className="flex gap-2 pt-2">
             <button

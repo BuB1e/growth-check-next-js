@@ -1,0 +1,56 @@
+Q Search Logic Summary
+Date: 2026-03-17
+Project: SeniorProject-Backend
+
+What is q?
+- q is a generic keyword search query parameter for list endpoints.
+- It is designed for the frontend global search box.
+- Example: /children?page=1&limit=10&q=anna
+
+How q works
+1) Controller layer
+- Reads q from query string.
+- Places q into endpoint options DTO.
+- Passes options to service/repository list method.
+
+2) Repository layer (Prisma)
+- Builds a whereClause with OR conditions for searchable fields.
+- Uses contains + case-insensitive matching for text fields in most modules.
+- For some endpoints, if q is numeric, it also tries ID-based matches.
+
+3) Combination with filters
+- q works together with specific filters (role, status, locationId, deleteStatus, etc.).
+- Think of q as broad search, while other params are exact/specific filters.
+
+Practical behavior
+- Partial match: q=jo can match John, JO, Jotaro.
+- Case-insensitive: q=ANNA can match anna.
+- Numeric fallback (where implemented): q=12 may match childId=12 or similar numeric fields.
+
+Typical frontend request pattern
+- Send page and limit always.
+- Send q only when user typed a search term.
+- Send additional filter params when chips/dropdowns are selected.
+- Do not client-slice returned rows; backend already paginates.
+
+Response shape reminder
+- All paginated list endpoints return:
+  {
+    data: [...],
+    meta: {
+      total: number,
+      page: number,
+      limit: number,
+      totalPages: number
+    }
+  }
+
+Examples
+- /users?page=1&limit=20&q=somchai&role=USER
+- /locations?page=2&limit=10&q=bangkok&province=กรุงเทพมหานคร
+- /child-data?page=1&limit=10&q=550e8400
+
+Notes
+- q is optional.
+- If q is omitted, list endpoints rely only on specific filters.
+- Keep query param names exactly as backend contracts define.
