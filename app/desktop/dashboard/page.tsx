@@ -9,10 +9,14 @@ import { DateRangePicker } from "@/components/features/desktop/date-range-picker
 import {
   ChildHealthStatusChart,
   ChildHealthTrendChart,
+  DashboardStatusItem,
+  DashboardTrendItem,
 } from "@/components/features/desktop/dashboard-charts";
 import { ChildAction } from "@/actions/ChildAction";
 import { UserAction } from "@/actions/UserAction";
 import { LocationCreateRequestAction } from "@/actions/LocationCreateRequestAction";
+import { LocationAction } from "@/actions/LocationAction";
+import { ChildDataAction } from "@/actions/ChildDataAction";
 import { Baby, Users, MapPin, Activity } from "lucide-react";
 import { Suspense } from "react";
 
@@ -133,29 +137,153 @@ async function DashboardDataWrapper({
   // Await searchParams before destructuring just in case it's used
   await searchParams;
 
+  const normalizeGrowthStatus = (
+    status: string | undefined,
+  ): "normal" | "above" | "below" => {
+    if (!status) return "normal";
+    const s = status.toLowerCase().trim();
+
+    if (
+      s.includes("ตามเกณฑ์") ||
+      s.includes("ปกติ") ||
+      s.includes("normal") ||
+      s.includes("สมส่วน")
+    ) {
+      return "normal";
+    }
+
+    if (
+      s.includes("มาก") ||
+      s.includes("สูง") ||
+      s.includes("over") ||
+      s.includes("above") ||
+      s.includes("เกิน")
+    ) {
+      return "above";
+    }
+
+    return "below";
+  };
+
+  const monthLabel = (date: Date): string =>
+    date.toLocaleDateString("th-TH", { month: "short" });
+
+  const getRecentMonths = (): { key: string; label: string }[] => {
+    const now = new Date();
+    return Array.from({ length: 6 }).map((_, idx) => {
+      const d = new Date(now.getFullYear(), now.getMonth() - (5 - idx), 1);
+      const key = `${d.getFullYear()}-${d.getMonth()}`;
+      return { key, label: monthLabel(d) };
+    });
+  };
+
   // Fetch real metrics from API — gracefully handle failures
-  const [childrenRes, usersRes, requestsRes] =
+  const [childrenRes, usersRes, locationsRes, requestsRes, waitingRequestsRes, childDataRes] =
     await Promise.allSettled([
       ChildAction.getChildren(),
-      UserAction.getUsersByTeam(1),
+      UserAction.getUsers({ page: 1, limit: 5000, deleteStatus: false }),
+      LocationAction.getLocations({ page: 1, limit: 5000, deleted: false }),
       LocationCreateRequestAction.getRequests(),
+      LocationCreateRequestAction.getRequests({ requestStatus: "WAITING" }),
+      ChildDataAction.getChildDataList({ page: 1, limit: 5000, deleteStatus: false }),
     ]);
 
   const totalChildren =
     childrenRes.status === "fulfilled" ? childrenRes.value.meta.total : 0;
   const totalStaff =
     usersRes.status === "fulfilled" ? usersRes.value.length : 0;
-  // No GET /locations/ list endpoint — use approved location requests as proxy for area count
   const totalArea =
-    requestsRes.status === "fulfilled"
-      ? requestsRes.value.data.filter((r) => r.requestStatus === "APPROVE")
-          .length
+    locationsRes.status === "fulfilled"
+      ? locationsRes.value.meta.total
       : 0;
   const activeRequests =
-    requestsRes.status === "fulfilled"
-      ? requestsRes.value.data.filter((r) => r.requestStatus === "WAITING")
-          .length
+    waitingRequestsRes.status === "fulfilled"
+      ? waitingRequestsRes.value.meta.total
       : 0;
+
+  const rawChildData =
+    childDataRes.status === "fulfilled" ? childDataRes.value : [];
+
+  const months = getRecentMonths();
+  const monthIndex = new Map(
+    months.map((m) => [m.key, { month: m.label, normal: 0, above: 0, below: 0 }]),
+  );
+
+  const trendDataWeight: DashboardTrendItem[] = months.map((m) => ({
+    month: m.label,
+    normal: 0,
+    above: 0,
+    below: 0,
+  }));
+  const trendDataHeight: DashboardTrendItem[] = months.map((m) => ({
+    month: m.label,
+    normal: 0,
+    above: 0,
+    below: 0,
+  }));
+
+  rawChildData.forEach((record) => {
+    const date = new Date(record.heightDate);
+    if (Number.isNaN(date.getTime())) return;
+
+    const key = `${date.getFullYear()}-${date.getMonth()}`;
+    const idx = months.findIndex((m) => m.key === key);
+    if (idx === -1) return;
+
+    const weightStatus = normalizeGrowthStatus(record.weightDevelopment?.status);
+    const heightStatus = normalizeGrowthStatus(record.heightDevelopment?.status);
+
+    trendDataWeight[idx][weightStatus] += 1;
+    trendDataHeight[idx][heightStatus] += 1;
+  });
+
+  const latestPerChild = new Map<number, (typeof rawChildData)[number]>();
+  rawChildData.forEach((record) => {
+    const current = latestPerChild.get(record.childId);
+    if (!current) {
+      latestPerChild.set(record.childId, record);
+      return;
+    }
+    if (
+      new Date(record.heightDate).getTime() >
+      new Date(current.heightDate).getTime()
+    ) {
+      latestPerChild.set(record.childId, record);
+    }
+  });
+
+  const statusCounter = { above: 0, normal: 0, below: 0 };
+  latestPerChild.forEach((record) => {
+    const normalized = normalizeGrowthStatus(record.weightDevelopment?.status);
+    statusCounter[normalized] += 1;
+  });
+
+  const statusData: DashboardStatusItem[] = [
+    {
+      status: "above",
+      label: "สูงกว่าเกณฑ์",
+      count: statusCounter.above,
+      fill: "var(--color-above)",
+      color: "#eab308",
+      desc: "น้ำหนัก/ส่วนสูงสูงกว่าค่ามาตรฐาน",
+    },
+    {
+      status: "normal",
+      label: "สมส่วน",
+      count: statusCounter.normal,
+      fill: "var(--color-normal)",
+      color: "#22c55e",
+      desc: "น้ำหนัก/ส่วนสูงอยู่ในเกณฑ์ปกติ",
+    },
+    {
+      status: "below",
+      label: "ต่ำกว่าเกณฑ์",
+      count: statusCounter.below,
+      fill: "var(--color-below)",
+      color: "#ef4444",
+      desc: "น้ำหนัก/ส่วนสูงต่ำกว่าค่ามาตรฐาน — ต้องติดตาม",
+    },
+  ];
 
   return (
     <>
@@ -176,7 +304,7 @@ async function DashboardDataWrapper({
               </span>
             </div>
             <p className="text-xs text-muted-foreground mt-1">
-              +12 จากเดือนที่แล้ว
+              อัปเดตตามข้อมูลจริงจากระบบ
             </p>
           </CardContent>
         </Card>
@@ -236,7 +364,7 @@ async function DashboardDataWrapper({
               </span>
             </div>
             <p className="text-xs text-destructive font-medium mt-1">
-              ต้องดำเนินการด่วน 3 รายการ
+              คำร้องที่ยังไม่ได้ดำเนินการ
             </p>
           </CardContent>
         </Card>
@@ -252,7 +380,10 @@ async function DashboardDataWrapper({
             </CardDescription>
           </CardHeader>
           <CardContent className="flex-1 w-full flex items-center justify-center -ml-4 pr-6">
-            <ChildHealthTrendChart />
+            <ChildHealthTrendChart
+              trendDataWeight={trendDataWeight}
+              trendDataHeight={trendDataHeight}
+            />
           </CardContent>
         </Card>
 
@@ -264,7 +395,7 @@ async function DashboardDataWrapper({
             </CardDescription>
           </CardHeader>
           <CardContent className="flex-1 w-full flex items-center justify-center">
-            <ChildHealthStatusChart />
+            <ChildHealthStatusChart statusData={statusData} />
           </CardContent>
         </Card>
       </div>
