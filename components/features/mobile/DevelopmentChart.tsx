@@ -27,7 +27,7 @@ export function DevelopmentChart({ history }: DevelopmentChartProps) {
   const chartData = useMemo(() => {
     return [...history].reverse().map((record) => {
       // Create a short date label "DD MMM"
-      const shortDate = formatBE(record.heightDate, "d MMM");
+      const shortDate = formatBE(record.heightDate, "d MMM yy");
 
       return {
         name: `ครั้งที่ ${record.id}`,
@@ -109,10 +109,17 @@ export function DevelopmentChart({ history }: DevelopmentChartProps) {
               orientation="left"
               axisLine={false}
               tickLine={false}
-              tick={{ fill: "#3b82f6", fontSize: 12, fontWeight: 600 }}
+              tick={{
+                fill: activeMetric === "weight" ? "#f97316" : "#3b82f6",
+                fontSize: 12,
+                fontWeight: 600,
+              }}
               dx={-10}
-              domain={["dataMin - 5", "dataMax + 5"]}
-              hide={activeMetric === "weight"}
+              domain={
+                activeMetric === "weight"
+                  ? ["dataMin - 2", "dataMax + 2"]
+                  : ["dataMin - 5", "dataMax + 5"]
+              }
             />
 
             <YAxis
@@ -123,7 +130,7 @@ export function DevelopmentChart({ history }: DevelopmentChartProps) {
               tick={{ fill: "#f97316", fontSize: 12, fontWeight: 600 }}
               dx={10}
               domain={["dataMin - 2", "dataMax + 2"]}
-              hide={activeMetric === "height"}
+              hide={activeMetric !== "both"}
             />
 
             <Tooltip
@@ -169,7 +176,7 @@ export function DevelopmentChart({ history }: DevelopmentChartProps) {
 
             {(activeMetric === "both" || activeMetric === "weight") && (
               <Line
-                yAxisId="right"
+                yAxisId={activeMetric === "weight" ? "left" : "right"}
                 type="monotone"
                 name="น้ำหนัก (กก.)"
                 dataKey="weight"

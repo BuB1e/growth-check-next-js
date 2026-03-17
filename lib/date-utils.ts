@@ -16,6 +16,7 @@ export function formatBE(
 
   // Calculate Buddhist Era year
   const beYear = d.getFullYear() + 543;
+  const beYearShort = beYear.toString().slice(-2);
 
   // Create a string with the same format tokens, but replace the year part manually since date-fns doesn't fully support custom years easily without complex locale hacks.
   const day = d.getDate().toString().padStart(2, "0");
@@ -25,9 +26,19 @@ export function formatBE(
     return `${day}-${month}-${beYear}`;
   }
 
-  // Fallback to a basic string replace for custom formats if needed, or just return the default
-  const result = dateFnsFormat(d, formatStr, { locale: th });
-  return result.replace(d.getFullYear().toString(), beYear.toString());
+  // Support both BE full year (yyyy) and BE short year (yy), e.g. "d MMM yy" => "5 ธ.ค. 68"
+  const YEAR_FULL_TOKEN = "§§1§§";
+  const YEAR_SHORT_TOKEN = "§§2§§";
+
+  const tokenizedFormat = formatStr
+    .replace(/yyyy/g, YEAR_FULL_TOKEN)
+    .replace(/yy/g, YEAR_SHORT_TOKEN);
+
+  const result = dateFnsFormat(d, tokenizedFormat, { locale: th });
+
+  return result
+    .replace(new RegExp(YEAR_FULL_TOKEN, "g"), beYear.toString())
+    .replace(new RegExp(YEAR_SHORT_TOKEN, "g"), beYearShort);
 }
 
 export function formatAgeThai(

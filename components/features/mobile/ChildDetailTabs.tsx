@@ -19,6 +19,7 @@ import {
   Ruler,
 } from "lucide-react";
 import { formatAgeThai, formatBE } from "@/lib/date-utils";
+import { map } from "zod";
 
 function getChildStatusKey(status: unknown): Child_status | null {
   if (typeof status !== "string") return null;
@@ -272,9 +273,11 @@ export function ChildDetailTabs({
               developmentView === "list" ? (
                 // List View
                 <div className="space-y-4">
-                  {history.map((record) => (
-                    <DevelopmentCard key={record.id} data={record} />
-                  ))}
+                  {
+                    history.sort((a, b) => b.id - a.id).map((record) => (
+                      <DevelopmentCard key={record.id} data={record} />
+                    ))
+                  }
                 </div>
               ) : (
                 // Chart View
