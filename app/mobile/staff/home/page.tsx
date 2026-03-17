@@ -83,7 +83,7 @@ export default function StaffHomePage(props: {
 
       {/* Floating Action Button */}
       <Link
-        href="/staff/create_child"
+        href="/mobile/staff/create_child"
         className="fixed right-5 bottom-24 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-blue-600 text-white shadow-lg shadow-blue-600/30 transition-transform active:scale-95 hover:bg-blue-700"
         aria-label="เพิ่มเด็กใหม่"
       >

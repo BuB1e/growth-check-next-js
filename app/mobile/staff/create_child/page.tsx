@@ -97,7 +97,7 @@ export default function CreateChildPage() {
               <div className="flex gap-2 w-full">
                 <Input
                   name="birthDateDay"
-                  placeholder="DD"
+                  placeholder="วว"
                   maxLength={2}
                   inputMode="numeric"
                   onChange={(e) => {
@@ -110,7 +110,7 @@ export default function CreateChildPage() {
                 </span>
                 <Input
                   name="birthDateMonth"
-                  placeholder="MM"
+                  placeholder="ดด"
                   maxLength={2}
                   inputMode="numeric"
                   onChange={(e) => {
@@ -123,7 +123,7 @@ export default function CreateChildPage() {
                 </span>
                 <Input
                   name="birthDateYear"
-                  placeholder="YYYY"
+                  placeholder="ปปปป"
                   maxLength={4}
                   inputMode="numeric"
                   onChange={(e) => {
@@ -137,7 +137,7 @@ export default function CreateChildPage() {
                 state.errors?.birthDateYear) && (
                 <p className="text-xs text-red-500 mt-1">
                   กรุณาระบุ วัน/เดือน/ปีเกิด ให้ครบถ้วนและถูกต้อง (เช่น
-                  15/05/2563)
+                  15/05/2565)
                 </p>
               )}
             </div>
@@ -148,7 +148,7 @@ export default function CreateChildPage() {
                   htmlFor="weight"
                   className="text-sm font-medium text-gray-700"
                 >
-                  น้ำหนักแรกเข้า (กก.)
+                  น้ำหนัก (ก.ก.)
                 </Label>
                 <div className="relative">
                   <Input
@@ -175,7 +175,7 @@ export default function CreateChildPage() {
                   htmlFor="height"
                   className="text-sm font-medium text-gray-700"
                 >
-                  ส่วนสูงแรกเข้า (ซม.)
+                  ส่วนสูง (ซ.ม.)
                 </Label>
                 <div className="relative">
                   <Input
@@ -203,20 +203,18 @@ export default function CreateChildPage() {
                 htmlFor="locationId"
                 className="text-sm font-medium text-gray-700"
               >
-                ศูนย์พัฒนาเด็กเล็ก
+                เขต
               </Label>
-              {/* TODO: Fetch location data from API */}
               <select
                 id="locationId"
                 name="locationId"
                 defaultValue=""
                 className="w-full rounded-xl h-12 px-4 bg-gray-50 border border-gray-200 text-gray-900 focus:bg-white focus:ring-2 focus:ring-blue-600 focus:outline-none transition-all"
               >
+                {/* TODO: this should be staff location (user.teamId => team.location) */}
                 <option value="" disabled>
-                  เลือกศูนย์พัฒนาเด็กเล็ก
+                  MOCK DATA : เขต 1
                 </option>
-                <option value="1">เขต 1</option>
-                <option value="2">เขต 2</option>
               </select>
               {state.errors?.locationId && (
                 <p className="text-xs text-red-500 mt-1">

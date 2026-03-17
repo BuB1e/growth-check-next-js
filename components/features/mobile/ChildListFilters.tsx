@@ -98,7 +98,9 @@ export function ChildListFilters() {
 
       {showAdvanced && (
         <div className="flex flex-col gap-3 rounded-2xl bg-gray-50/50 p-4 border border-gray-100">
-          <div className="space-y-1">
+          
+          {/* Child Status filter, which is not necessary */}
+          {/*<div className="space-y-1">
             <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
               สถานะเด็ก
             </label>
@@ -121,13 +123,13 @@ export function ChildListFilters() {
                 {Child_statusToThai[Child_status.DIED]}
               </option>
             </select>
-          </div>
+          </div>*/}
 
-          <div className="space-y-1">
+          {/* Location filter, which is not necessary */}
+          {/*<div className="space-y-1">
             <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
               เขต
             </label>
-            {/* TODO: Fetch location data from API */}
             <select
               value={locationId}
               onChange={(e) => handleFilterChange("locationId", e.target.value)}
@@ -137,7 +139,7 @@ export function ChildListFilters() {
               <option value="1">เขต 1</option>
               <option value="2">เขต 2</option>
             </select>
-          </div>
+          </div>*/}
 
           <div className="space-y-1">
             <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">

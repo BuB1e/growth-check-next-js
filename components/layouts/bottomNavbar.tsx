@@ -18,12 +18,13 @@ export default function BottomNavbar() {
       icon: Home,
       href: "/mobile/staff/home",
     },
-    {
-      id: EMobilePage.LOCATION,
-      label: EMobilePageToThai[EMobilePage.LOCATION],
-      icon: MapPin,
-      href: "/mobile/staff/location", // Example future route
-    },
+    // Not use now
+    // {
+    //   id: EMobilePage.LOCATION,
+    //   label: EMobilePageToThai[EMobilePage.LOCATION],
+    //   icon: MapPin,
+    //   href: "/mobile/staff/location", // Example future route
+    // },
     {
       id: EMobilePage.PROFILE,
       label: EMobilePageToThai[EMobilePage.PROFILE],
