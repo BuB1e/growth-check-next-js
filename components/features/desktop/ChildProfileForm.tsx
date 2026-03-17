@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { ChildResponse } from "@/dto";
+import { ChildResponse, LocationResponse } from "@/dto";
 import { Button } from "@/components/ui/button";
 import { updateChildAction } from "../../../app/desktop/children/actions";
 import {
@@ -25,6 +25,7 @@ import {
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
+import { formatAgeThai, formatBE } from "@/lib/date-utils";
 
 // Minimal schema logic mapping the data points we want Head to securely edit
 const profileFormSchema = z.object({
@@ -41,11 +42,14 @@ const profileFormSchema = z.object({
 
 interface ChildProfileFormProps {
   child: ChildResponse;
+  locations: LocationResponse[];
 }
 
-export function ChildProfileForm({ child }: ChildProfileFormProps) {
+export function ChildProfileForm({ child, locations }: ChildProfileFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const ageText = formatAgeThai(child.birthDate);
+  const birthDateText = formatBE(child.birthDate, "d MMM yy");
 
   const form = useForm<z.infer<typeof profileFormSchema>>({
     resolver: zodResolver(profileFormSchema),
@@ -74,6 +78,22 @@ export function ChildProfileForm({ child }: ChildProfileFormProps) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <div className="grid gap-4 md:grid-cols-2">
+          <FormItem>
+            <FormLabel>อายุ</FormLabel>
+            <FormControl>
+              <Input value={ageText} readOnly disabled />
+            </FormControl>
+          </FormItem>
+
+          <FormItem>
+            <FormLabel>วันเกิด</FormLabel>
+            <FormControl>
+              <Input value={birthDateText} readOnly disabled />
+            </FormControl>
+          </FormItem>
+        </div>
+
         <FormField
           control={form.control}
           name="firstName"
@@ -100,7 +120,6 @@ export function ChildProfileForm({ child }: ChildProfileFormProps) {
             </FormItem>
           )}
         />
-        {/* TODO: Fetch location data from API */}
         <FormField
           control={form.control}
           name="locationId"
@@ -110,7 +129,7 @@ export function ChildProfileForm({ child }: ChildProfileFormProps) {
               <Select
                 disabled={isPending}
                 onValueChange={field.onChange}
-                defaultValue={field.value.toString()}
+                value={field.value.toString()}
               >
                 <FormControl>
                   <SelectTrigger>
@@ -118,9 +137,22 @@ export function ChildProfileForm({ child }: ChildProfileFormProps) {
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="1">ชุมชน A</SelectItem>
-                  <SelectItem value="2">ชุมชน B</SelectItem>
-                  <SelectItem value="3">ชุมชน C (อื่นๆ)</SelectItem>
+                  {locations.length ? (
+                    [...locations]
+                      .sort((a, b) => a.name.localeCompare(b.name, "th"))
+                      .map((location) => (
+                        <SelectItem
+                          key={location.id}
+                          value={location.id.toString()}
+                        >
+                          {location.name}
+                        </SelectItem>
+                      ))
+                  ) : (
+                    <SelectItem value={field.value || "0"}>
+                      ไม่พบข้อมูลชุมชน
+                    </SelectItem>
+                  )}
                 </SelectContent>
               </Select>
               <FormMessage />

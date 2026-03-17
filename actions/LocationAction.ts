@@ -15,6 +15,51 @@ type GetLocationsParams = OptionsGetAllLocationDTO & {
   limit?: number;
 };
 
+type LocationsPayload =
+  | PaginatedResponseDTO<LocationResponse>
+  | LocationResponse[]
+  | {
+      data?: LocationResponse[];
+      meta?: Partial<PaginatedResponseDTO<LocationResponse>["meta"]>;
+    };
+
+const normalizeLocationsResponse = (
+  payload: LocationsPayload,
+  page: number,
+  limit: number,
+): PaginatedResponseDTO<LocationResponse> => {
+  if (Array.isArray(payload)) {
+    return {
+      data: payload,
+      meta: {
+        total: payload.length,
+        page,
+        limit,
+        totalPages: Math.ceil(payload.length / limit),
+      },
+    };
+  }
+
+  const data = Array.isArray(payload?.data) ? payload.data : [];
+  const meta = payload?.meta;
+
+  return {
+    data,
+    meta: {
+      total: typeof meta?.total === "number" ? meta.total : data.length,
+      page: typeof meta?.page === "number" ? meta.page : page,
+      limit: typeof meta?.limit === "number" ? meta.limit : limit,
+      totalPages:
+        typeof meta?.totalPages === "number"
+          ? meta.totalPages
+          : Math.ceil(
+              (typeof meta?.total === "number" ? meta.total : data.length) /
+                (typeof meta?.limit === "number" ? meta.limit : limit),
+            ),
+    },
+  };
+};
+
 export class LocationAction {
   static BACKEND_ENDPOINT = EnvConfig.BACKEND_ENDPOINT;
   static API_ENDPOINT = "/locations";
@@ -23,13 +68,21 @@ export class LocationAction {
   static async getLocations(
     params: GetLocationsParams = {},
   ): Promise<PaginatedResponseDTO<LocationResponse>> {
+    const page =
+      typeof params.page === "number" && params.page > 0 ? params.page : 1;
+    const limit =
+      typeof params.limit === "number" && params.limit > 0
+        ? params.limit
+        : EnvConfig.NEXT_PUBLIC_PAGINATION_LIMIT_DESKTOP_SIZE;
     const defaultParams = {
-      page: 1,
-      limit: EnvConfig.NEXT_PUBLIC_PAGINATION_LIMIT_DESKTOP_SIZE,
+      page,
+      limit,
       ...params,
     };
-    const response = await axios.get(`${this.ACTION_ENDPOINT}/`, { params: defaultParams });
-    return response.data;
+    const response = await axios.get<LocationsPayload>(`${this.ACTION_ENDPOINT}/`, {
+      params: defaultParams,
+    });
+    return normalizeLocationsResponse(response.data, page, limit);
   }
 
   static async getLocationById(id: string): Promise<LocationResponse> {

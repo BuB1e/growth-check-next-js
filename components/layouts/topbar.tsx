@@ -7,15 +7,15 @@ import { ESidebar, ESidebarToThai } from "@/types";
 
 // Optional helper to get current page title from pathname
 function getPageTitle(pathname: string) {
-  if (pathname.startsWith("/head/dashboard"))
+  if (pathname.startsWith("/dashboard"))
     return ESidebarToThai[ESidebar.DASHBOARD];
-  if (pathname.startsWith("/head/location"))
+  if (pathname.startsWith("/location"))
     return ESidebarToThai[ESidebar.LOCATION];
-  if (pathname.startsWith("/head/staff")) return ESidebarToThai[ESidebar.STAFF];
-  if (pathname.startsWith("/head/child")) return ESidebarToThai[ESidebar.CHILD];
-  if (pathname.startsWith("/head/request"))
+  if (pathname.startsWith("/staff")) return ESidebarToThai[ESidebar.STAFF];
+  if (pathname.startsWith("/children")) return ESidebarToThai[ESidebar.CHILD];
+  if (pathname.startsWith("/requests"))
     return ESidebarToThai[ESidebar.REQUEST];
-  if (pathname.startsWith("/head/history"))
+  if (pathname.startsWith("/history"))
     return ESidebarToThai[ESidebar.HISTORY];
   return "ระบบจัดการส่วนกลาง";
 }

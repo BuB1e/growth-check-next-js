@@ -15,6 +15,7 @@ export function proxy(request: NextRequest) {
   // Define which shared top-level routes need to be routed
   const sharedRoutes = [
     "/dashboard",
+    "/location",
     "/staff",
     "/children",
     "/requests",
@@ -46,6 +47,12 @@ export function proxy(request: NextRequest) {
     const isMobileView = isMobileDevice;
 
     const url = request.nextUrl.clone();
+
+    // Location management is desktop-only for admin/head currently.
+    if (pathname.startsWith("/location")) {
+      url.pathname = `/desktop${pathname}`;
+      return NextResponse.rewrite(url);
+    }
 
     if (isMobileView) {
       // Rewrite transparently to /mobile/...

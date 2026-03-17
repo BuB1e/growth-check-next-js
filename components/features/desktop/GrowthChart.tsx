@@ -41,13 +41,18 @@ const chartConfig = {
 export function GrowthChart({ childId: _childId, data = [] }: GrowthChartProps) {
   const [metric, setMetric] = useState<"weight" | "height">("weight");
 
-  // Format data points from real API data
-  const chartData = data.map((d) => ({
-    date: d.heightDate,
-    weight: d.weight,
-    height: d.height,
-    formattedDate: formatBE(d.heightDate, "MMM yyyy"),
-  }));
+  // Format and sort data points chronologically for clearer trend reading.
+  const chartData = [...data]
+    .sort(
+      (a, b) =>
+        new Date(a.heightDate).getTime() - new Date(b.heightDate).getTime(),
+    )
+    .map((d) => ({
+      date: d.heightDate,
+      weight: d.weight,
+      height: d.height,
+      formattedDate: formatBE(d.heightDate, "d MMM yy"),
+    }));
 
   // Dynamic Y-axis domain based on actual data
   const values = chartData.map((d) => d[metric]);
@@ -55,12 +60,22 @@ export function GrowthChart({ childId: _childId, data = [] }: GrowthChartProps) 
   const maxVal = values.length > 0 ? Math.max(...values) : 100;
   const padding = (maxVal - minVal) * 0.2 || 10;
   const yAxisDomain = [Math.floor(minVal - padding), Math.ceil(maxVal + padding)];
+  const latest = chartData[chartData.length - 1];
+  const unit = metric === "weight" ? "กก." : "ซม.";
 
   // Reference zone: approximate normal growth range
   const referenceZone =
     metric === "weight"
-      ? { y1: Math.floor(minVal - padding * 0.5), y2: Math.ceil(maxVal + padding * 0.5), color: "hsl(var(--muted)/0.3)" }
-      : { y1: Math.floor(minVal - padding * 0.5), y2: Math.ceil(maxVal + padding * 0.5), color: "hsl(var(--muted)/0.3)" };
+      ? {
+          y1: Math.floor(minVal - padding * 0.5),
+          y2: Math.ceil(maxVal + padding * 0.5),
+          color: "rgba(226, 232, 240, 0.28)",
+        }
+      : {
+          y1: Math.floor(minVal - padding * 0.5),
+          y2: Math.ceil(maxVal + padding * 0.5),
+          color: "rgba(226, 232, 240, 0.28)",
+        };
 
   if (chartData.length === 0) {
     return (
@@ -72,7 +87,23 @@ export function GrowthChart({ childId: _childId, data = [] }: GrowthChartProps) 
 
   return (
     <div className="w-full flex flex-col gap-4">
-      <div className="flex gap-2 justify-end mt-2">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="rounded-xl border bg-slate-50/70 px-3 py-2 text-sm">
+          <p className="text-muted-foreground">ค่าล่าสุด</p>
+          <p className="font-semibold text-foreground">
+            {metric === "weight"
+              ? latest.weight.toFixed(1)
+              : latest.height.toFixed(1)}{" "}
+            {unit}
+          </p>
+        </div>
+
+        <div className="rounded-xl border bg-slate-50/70 px-3 py-2 text-sm">
+          <p className="text-muted-foreground">จำนวนครั้งที่วัด</p>
+          <p className="font-semibold text-foreground">{chartData.length} ครั้ง</p>
+        </div>
+
+        <div className="flex gap-2">
         <Button
           variant={metric === "weight" ? "default" : "outline"}
           size="sm"
@@ -87,22 +118,33 @@ export function GrowthChart({ childId: _childId, data = [] }: GrowthChartProps) 
         >
           ส่วนสูง
         </Button>
+        </div>
       </div>
 
-      <ChartContainer config={chartConfig} className="min-h-[250px] w-full">
+      <ChartContainer
+        config={chartConfig}
+        className="min-h-[320px] w-full rounded-xl bg-slate-50/40 p-2"
+      >
         <LineChart
           accessibilityLayer
           data={chartData}
           margin={{ left: 12, right: 12, bottom: 0 }}
         >
-          <CartesianGrid vertical={false} opacity={0.4} />
+          <CartesianGrid vertical={false} opacity={0.2} strokeDasharray="3 3" />
           <XAxis
             dataKey="formattedDate"
             tickLine={false}
             tickMargin={8}
             axisLine={false}
+            minTickGap={20}
           />
-          <YAxis domain={yAxisDomain} hide />
+          <YAxis
+            domain={yAxisDomain}
+            tickLine={false}
+            axisLine={false}
+            tick={{ fontSize: 12 }}
+            width={42}
+          />
           <ReferenceArea
             y1={referenceZone.y1}
             y2={referenceZone.y2}
@@ -125,8 +167,8 @@ export function GrowthChart({ childId: _childId, data = [] }: GrowthChartProps) 
           />
         </LineChart>
       </ChartContainer>
-      <div className="flex items-center gap-2 justify-center text-xs text-muted-foreground mt-4">
-        <div className="h-3 w-4 rounded-sm bg-muted-foreground/20" />
+      <div className="mt-2 flex items-center justify-center gap-2 text-xs text-muted-foreground">
+        <div className="h-3 w-4 rounded-sm bg-slate-300/60" />
         พื้นที่สีเทาคือช่วงเกณฑ์การเจริญเติบโตที่คาดหวัง (สมส่วน)
       </div>
     </div>

@@ -92,13 +92,24 @@ async function StaffDataWrapper({
   let users: UserResponse[] = [];
 
   try {
-    // TODO: Replace teamId with real team ID from session/context
-    users = await UserAction.getUsersByTeam(1, {
+    users = await UserAction.getUsers({
       page,
       limit,
       q,
       role,
+      deleteStatus: false,
     });
+
+    // Fallback for environments where /users may be restricted and team endpoint is still required.
+    if (!users.length) {
+      users = await UserAction.getUsersByTeam(1, {
+        page,
+        limit,
+        q,
+        role,
+        deleteStatus: false,
+      });
+    }
   } catch (error) {
     console.error("Failed to fetch staff data:", error);
   }

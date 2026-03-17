@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { ChildAction } from "@/actions/ChildAction";
 import { ChildDataAction } from "@/actions/ChildDataAction";
+import { LocationAction } from "@/actions/LocationAction";
 import { notFound } from "next/navigation";
 import {
   Card,
@@ -17,6 +18,7 @@ import { MeasurementHistory } from "@/components/features/desktop/MeasurementHis
 import { GrowthChart } from "@/components/features/desktop/GrowthChart";
 import { EnvConfig } from "@/configs/BackendConfig";
 import { formatAgeThai, formatBE } from "@/lib/date-utils";
+import type { LocationResponse } from "@/dto";
 
 export const metadata = {
   title: "รายละเอียดข้อมูลเด็ก",
@@ -99,49 +101,56 @@ async function ChildDetailContent({
     console.error("Failed to load child data for charts:", error);
   }
 
+  // Fetch real locations for profile location selector.
+  let locations: LocationResponse[] = [];
+  try {
+    const locationRes = await LocationAction.getLocations({
+      page: 1,
+      limit: 200,
+      deleted: false,
+    });
+    locations = locationRes.data;
+  } catch (error) {
+    console.error("Failed to load locations for child profile:", error);
+  }
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-      {/* Left Column: Personal Info Form */}
-      <div className="md:col-span-1 space-y-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>ข้อมูลส่วนตัว</CardTitle>
-            <CardDescription>
-              {child.firstName} {child.lastName} • อายุ {ageText} • เกิดวันที่ {birthDateText}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ChildProfileForm child={child} />
-          </CardContent>
-        </Card>
-      </div>
+    <div className="mx-auto w-full max-w-6xl space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>ข้อมูลส่วนตัว</CardTitle>
+          <CardDescription>
+            {child.firstName} {child.lastName} • อายุ {ageText} • เกิดวันที่ {birthDateText}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ChildProfileForm child={child} locations={locations} />
+        </CardContent>
+      </Card>
 
-      {/* Right Column: Graphs and History Table */}
-      <div className="md:col-span-2 space-y-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>แผนภูมิการเจริญเติบโต</CardTitle>
-            <CardDescription>
-              แสดงแนวโน้มน้ำหนักและส่วนสูงเทียบกับเกณฑ์มาตรฐาน
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <GrowthChart childId={childId} data={childData} />
-          </CardContent>
-        </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>แผนภูมิการเจริญเติบโต</CardTitle>
+          <CardDescription>
+            แสดงแนวโน้มน้ำหนักและส่วนสูงเทียบกับเกณฑ์มาตรฐาน
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <GrowthChart childId={childId} data={childData} />
+        </CardContent>
+      </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>ประวัติการประเมินพัฒนาการ</CardTitle>
-            <CardDescription>
-              ผลเชิงลึกจากการตรวจวัดน้ำหนัก ส่วนสูงรายครั้ง
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <MeasurementHistory childId={childId} />
-          </CardContent>
-        </Card>
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>ประวัติการประเมินพัฒนาการ</CardTitle>
+          <CardDescription>
+            ผลเชิงลึกจากการตรวจวัดน้ำหนัก ส่วนสูงรายครั้ง
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <MeasurementHistory childId={childId} />
+        </CardContent>
+      </Card>
     </div>
   );
 }
