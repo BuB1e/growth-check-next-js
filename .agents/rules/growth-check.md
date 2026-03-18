@@ -17,6 +17,6 @@ trigger: always_on
 - Make responsive components and page so they compatible full size and readability on any resolution on each devices.
 - Optimize UX/UI.
 - Optimize best performance and don't leak API, ENV, Endpoint.
-- Currently in development process and Backend isn't ready yet. Please use MockUp data and MockApi in every route now.
 - Add comment what to do with "TODO: " syntax (TODO tree).
 - Backend is source-of-truth. Need to fetch pagination, filter, search, and other query params from server.
+- Security first for design any data and pattern.

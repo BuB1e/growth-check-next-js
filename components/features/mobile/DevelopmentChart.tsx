@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { ChildDataResponse } from "@/dto";
+import { AiPredictionResponse, ChildDataResponse } from "@/dto";
 import {
   LineChart,
   Line,
@@ -13,30 +13,48 @@ import {
   Legend,
 } from "recharts";
 import { formatBE } from "@/lib/date-utils";
+import { buildPredictionPoints } from "@/lib/prediction-utils";
 
 interface DevelopmentChartProps {
   history: ChildDataResponse[];
+  prediction?: AiPredictionResponse | null;
 }
 
-export function DevelopmentChart({ history }: DevelopmentChartProps) {
+export function DevelopmentChart({ history, prediction = null }: DevelopmentChartProps) {
   const [activeMetric, setActiveMetric] = useState<
     "both" | "height" | "weight"
   >("both");
 
   // Format data for Recharts (Reverse so it reads left-to-right chronologically)
   const chartData = useMemo(() => {
-    return [...history].reverse().map((record) => {
+    const historicalData = [...history]
+      .filter((record) => !Number.isNaN(new Date(record.heightDate).getTime()))
+      .reverse()
+      .map((record) => {
       // Create a short date label "DD MMM"
       const shortDate = formatBE(record.heightDate, "d MMM yy");
 
       return {
         name: `ครั้งที่ ${record.id}`,
+        dateOrder: new Date(record.heightDate).getTime(),
         shortDate,
         height: Number(record.height.toFixed(1)),
         weight: Number(record.weight.toFixed(1)),
       };
     });
-  }, [history]);
+
+    const predictedData = buildPredictionPoints(prediction).map((point, index) => ({
+      name: `ทำนาย ${index + 1}`,
+      dateOrder: point.predictedDate.getTime(),
+      shortDate: formatBE(point.predictedDate, "d MMM yy"),
+      predictedHeight: point.predictedHeight,
+      predictedWeight: point.predictedWeight,
+    }));
+
+    return [...historicalData, ...predictedData]
+      .filter((point) => Number.isFinite(point.dateOrder))
+      .sort((a, b) => a.dateOrder - b.dateOrder);
+  }, [history, prediction]);
 
   if (history.length === 0) return null;
 
@@ -174,6 +192,21 @@ export function DevelopmentChart({ history }: DevelopmentChartProps) {
               />
             )}
 
+            {(activeMetric === "both" || activeMetric === "height") && (
+              <Line
+                yAxisId="left"
+                type="monotone"
+                name="ส่วนสูงที่ทำนาย"
+                dataKey="predictedHeight"
+                stroke="#8b5cf6"
+                strokeWidth={2}
+                strokeDasharray="6 4"
+                dot={{ r: 3, strokeWidth: 0, fill: "#8b5cf6" }}
+                activeDot={{ r: 5, strokeWidth: 0, fill: "#7c3aed" }}
+                connectNulls
+              />
+            )}
+
             {(activeMetric === "both" || activeMetric === "weight") && (
               <Line
                 yAxisId={activeMetric === "weight" ? "left" : "right"}
@@ -184,6 +217,21 @@ export function DevelopmentChart({ history }: DevelopmentChartProps) {
                 strokeWidth={3}
                 dot={{ r: 4, strokeWidth: 2, fill: "#fff" }}
                 activeDot={{ r: 6, strokeWidth: 0, fill: "#ea580c" }}
+              />
+            )}
+
+            {(activeMetric === "both" || activeMetric === "weight") && (
+              <Line
+                yAxisId={activeMetric === "weight" ? "left" : "right"}
+                type="monotone"
+                name="น้ำหนักที่ทำนาย"
+                dataKey="predictedWeight"
+                stroke="#0ea5e9"
+                strokeWidth={2}
+                strokeDasharray="6 4"
+                dot={{ r: 3, strokeWidth: 0, fill: "#0ea5e9" }}
+                activeDot={{ r: 5, strokeWidth: 0, fill: "#0284c7" }}
+                connectNulls
               />
             )}
           </LineChart>

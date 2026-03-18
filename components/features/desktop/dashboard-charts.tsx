@@ -40,23 +40,21 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-const trendDataWeight = [
-  { month: "ม.ค.", normal: 120, above: 30, below: 10 },
-  { month: "ก.พ.", normal: 135, above: 25, below: 15 },
-  { month: "มี.ค.", normal: 150, above: 20, below: 12 },
-  { month: "เม.ย.", normal: 160, above: 22, below: 18 },
-  { month: "พ.ค.", normal: 145, above: 28, below: 14 },
-  { month: "มิ.ย.", normal: 170, above: 15, below: 20 },
-];
+export interface DashboardTrendItem {
+  month: string;
+  normal: number;
+  above: number;
+  below: number;
+}
 
-const trendDataHeight = [
-  { month: "ม.ค.", normal: 110, above: 20, below: 30 },
-  { month: "ก.พ.", normal: 125, above: 22, below: 28 },
-  { month: "มี.ค.", normal: 140, above: 25, below: 17 },
-  { month: "เม.ย.", normal: 150, above: 28, below: 22 },
-  { month: "พ.ค.", normal: 155, above: 25, below: 18 },
-  { month: "มิ.ย.", normal: 165, above: 20, below: 15 },
-];
+export interface DashboardStatusItem {
+  status: "above" | "normal" | "below";
+  label: string;
+  count: number;
+  fill: string;
+  color: string;
+  desc: string;
+}
 
 // ─── Metric summary chip ────────────────────────────────────────────────────
 function MetricChip({
@@ -90,9 +88,23 @@ function MetricChip({
 }
 
 // ─── Trend chart ─────────────────────────────────────────────────────────────
-export function ChildHealthTrendChart() {
+export function ChildHealthTrendChart({
+  trendDataWeight = [],
+  trendDataHeight = [],
+}: {
+  trendDataWeight?: DashboardTrendItem[];
+  trendDataHeight?: DashboardTrendItem[];
+}) {
   const [metric, setMetric] = useState<"weight" | "height">("weight");
   const data = metric === "weight" ? trendDataWeight : trendDataHeight;
+
+  if (!data.length) {
+    return (
+      <div className="flex h-[260px] items-center justify-center text-sm text-muted-foreground">
+        ยังไม่มีข้อมูลแนวโน้มสำหรับแสดงกราฟ
+      </div>
+    );
+  }
 
   // Current month totals for the metric chips
   const latest = data[data.length - 1];
@@ -220,36 +232,20 @@ export function ChildHealthTrendChart() {
   );
 }
 
-// ─── Status data ──────────────────────────────────────────────────────────────
-const statusData = [
-  {
-    status: "above",
-    label: "สูงกว่าเกณฑ์",
-    count: 20,
-    fill: "var(--color-above)",
-    color: "#eab308",
-    desc: "น้ำหนัก/ส่วนสูงสูงกว่าค่ามาตรฐาน",
-  },
-  {
-    status: "normal",
-    label: "สมส่วน",
-    count: 170,
-    fill: "var(--color-normal)",
-    color: "#22c55e",
-    desc: "น้ำหนัก/ส่วนสูงอยู่ในเกณฑ์ปกติ",
-  },
-  {
-    status: "below",
-    label: "ต่ำกว่าเกณฑ์",
-    count: 15,
-    fill: "var(--color-below)",
-    color: "#ef4444",
-    desc: "น้ำหนัก/ส่วนสูงต่ำกว่าค่ามาตรฐาน — ต้องติดตาม",
-  },
-];
-
 // ─── Status chart ─────────────────────────────────────────────────────────────
-export function ChildHealthStatusChart() {
+export function ChildHealthStatusChart({
+  statusData = [],
+}: {
+  statusData?: DashboardStatusItem[];
+}) {
+  if (!statusData.length) {
+    return (
+      <div className="flex h-[220px] items-center justify-center text-sm text-muted-foreground">
+        ยังไม่มีข้อมูลสถานะการเจริญเติบโต
+      </div>
+    );
+  }
+
   const total = statusData.reduce((s, d) => s + d.count, 0);
 
   return (

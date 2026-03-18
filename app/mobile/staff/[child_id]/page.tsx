@@ -1,9 +1,11 @@
 import { Suspense } from "react";
+import { AiPredictionAction } from "@/actions/AiPredictionAction";
 import { ChildAction } from "@/actions/ChildAction";
 import { ChildDataAction } from "@/actions/ChildDataAction";
 import { ChildDetailTabs } from "@/components/features/mobile/ChildDetailTabs";
 import { notFound } from "next/navigation";
 import { Loader2 } from "lucide-react";
+import type { AiPredictionResponse } from "@/dto";
 
 async function ChildProfileContent({
   paramsPromise,
@@ -23,13 +25,29 @@ async function ChildProfileContent({
     ChildDataAction.getChildDataList({ childId: childId }),
   ]);
 
+  let latestPrediction: AiPredictionResponse | null = null;
+  try {
+    const predictionRes = await AiPredictionAction.getPredictions({
+      childId,
+      page: 1,
+      limit: 10,
+    });
+
+    latestPrediction =
+      [...predictionRes.data].sort(
+        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+      )[0] ?? null;
+  } catch (error) {
+    console.error("Failed to load mobile predictions:", error);
+  }
+
   const history = childDataResponse || [];
 
   if (!child) {
     notFound();
   }
 
-  return <ChildDetailTabs child={child} history={history} />;
+  return <ChildDetailTabs child={child} history={history} latestPrediction={latestPrediction} />;
 }
 
 export default function ChildProfilePage({

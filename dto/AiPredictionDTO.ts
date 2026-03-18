@@ -9,8 +9,8 @@ export interface AiPredictionResponse {
 	modelVersion: string;
 	dateTime: Date;
 	month: number;
-	height: number;
-	weight: number;
+	height: number | number[];
+	weight: number | number[];
 	createdAt: Date;
 }
 
@@ -23,8 +23,8 @@ export interface CreateAiPredictionDTO {
 	modelVersion: string;
 	dateTime: Date;
 	month: number;
-	height: number;
-	weight: number;
+	height: number | number[];
+	weight: number | number[];
 }
 
 export interface UpdateAiPredictionDTO {
@@ -36,8 +36,8 @@ export interface UpdateAiPredictionDTO {
 	modelVersion?: string;
 	dateTime?: Date;
 	month?: number;
-	height?: number;
-	weight?: number;
+	height?: number | number[];
+	weight?: number | number[];
 }
 
 export interface OptionsGetAiPredictionsDTO {

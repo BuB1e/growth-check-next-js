@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { ChildAction } from "@/actions/ChildAction";
+import { AiPredictionAction } from "@/actions/AiPredictionAction";
 import { ChildDataAction } from "@/actions/ChildDataAction";
 import { LocationAction } from "@/actions/LocationAction";
 import { notFound } from "next/navigation";
@@ -16,9 +17,10 @@ import { Button } from "@/components/ui/button";
 import { ChildProfileForm } from "@/components/features/desktop/ChildProfileForm";
 import { MeasurementHistory } from "@/components/features/desktop/MeasurementHistory";
 import { GrowthChart } from "@/components/features/desktop/GrowthChart";
+import { PredictionCard } from "@/components/features/desktop/PredictionCard";
 import { EnvConfig } from "@/configs/BackendConfig";
 import { formatAgeThai, formatBE } from "@/lib/date-utils";
-import type { LocationResponse } from "@/dto";
+import type { AiPredictionResponse, LocationResponse } from "@/dto";
 
 export const metadata = {
   title: "รายละเอียดข้อมูลเด็ก",
@@ -114,6 +116,22 @@ async function ChildDetailContent({
     console.error("Failed to load locations for child profile:", error);
   }
 
+  let latestPrediction: AiPredictionResponse | null = null;
+  try {
+    const predictionRes = await AiPredictionAction.getPredictions({
+      childId,
+      page: 1,
+      limit: 10,
+    });
+
+    latestPrediction =
+      [...predictionRes.data].sort(
+        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+      )[0] ?? null;
+  } catch (error) {
+    console.error("Failed to load child predictions:", error);
+  }
+
   return (
     <div className="mx-auto w-full max-w-6xl space-y-6">
       <Card>
@@ -136,7 +154,19 @@ async function ChildDetailContent({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <GrowthChart childId={childId} data={childData} />
+          <GrowthChart childId={childId} data={childData} prediction={latestPrediction} />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>การทำนายการเจริญเติบโต</CardTitle>
+          <CardDescription>
+            คาดการณ์จากข้อมูลย้อนหลังและแสดงผลล่าสุดของเด็กคนนี้
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <PredictionCard childId={childId} latestPrediction={latestPrediction} />
         </CardContent>
       </Card>
 

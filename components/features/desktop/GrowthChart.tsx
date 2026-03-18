@@ -9,6 +9,7 @@ import {
   YAxis,
 } from "recharts";
 import { formatBE } from "@/lib/date-utils";
+import { buildPredictionPoints } from "@/lib/prediction-utils";
 
 import {
   ChartConfig,
@@ -20,11 +21,12 @@ import {
 } from "@/components/ui/chart";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import type { ChildDataResponse } from "@/dto";
+import type { AiPredictionResponse, ChildDataResponse } from "@/dto";
 
 interface GrowthChartProps {
   childId: number;
   data?: ChildDataResponse[];
+  prediction?: AiPredictionResponse | null;
 }
 
 const chartConfig = {
@@ -38,29 +40,54 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export function GrowthChart({ childId: _childId, data = [] }: GrowthChartProps) {
+export function GrowthChart({
+  childId: _childId,
+  data = [],
+  prediction = null,
+}: GrowthChartProps) {
   const [metric, setMetric] = useState<"weight" | "height">("weight");
 
-  // Format and sort data points chronologically for clearer trend reading.
-  const chartData = [...data]
+  const historicalData = [...data]
+    .filter((d) => !Number.isNaN(new Date(d.heightDate).getTime()))
     .sort(
       (a, b) =>
         new Date(a.heightDate).getTime() - new Date(b.heightDate).getTime(),
     )
     .map((d) => ({
-      date: d.heightDate,
+      date: new Date(d.heightDate),
       weight: d.weight,
       height: d.height,
       formattedDate: formatBE(d.heightDate, "d MMM yy"),
     }));
 
+  const predictionPoints = buildPredictionPoints(prediction);
+
+  const chartData = [
+    ...historicalData,
+    ...predictionPoints.map((point) => ({
+      date: point.predictedDate,
+      predictedWeight: point.predictedWeight,
+      predictedHeight: point.predictedHeight,
+      formattedDate: formatBE(point.predictedDate, "d MMM yy"),
+    })),
+  ]
+    .filter((d) => !Number.isNaN(d.date.getTime()))
+    .sort((a, b) => a.date.getTime() - b.date.getTime());
+
   // Dynamic Y-axis domain based on actual data
-  const values = chartData.map((d) => d[metric]);
+  const values = [
+    ...historicalData.map((d) => d[metric]),
+    ...predictionPoints
+      .map((point) =>
+        metric === "weight" ? point.predictedWeight : point.predictedHeight,
+      )
+      .filter((value): value is number => typeof value === "number"),
+  ];
   const minVal = values.length > 0 ? Math.min(...values) : 0;
   const maxVal = values.length > 0 ? Math.max(...values) : 100;
   const padding = (maxVal - minVal) * 0.2 || 10;
   const yAxisDomain = [Math.floor(minVal - padding), Math.ceil(maxVal + padding)];
-  const latest = chartData[chartData.length - 1];
+  const latest = historicalData[historicalData.length - 1];
   const unit = metric === "weight" ? "กก." : "ซม.";
 
   // Reference zone: approximate normal growth range
@@ -77,7 +104,7 @@ export function GrowthChart({ childId: _childId, data = [] }: GrowthChartProps) 
           color: "rgba(226, 232, 240, 0.28)",
         };
 
-  if (chartData.length === 0) {
+  if (historicalData.length === 0) {
     return (
       <div className="flex items-center justify-center h-[250px] text-muted-foreground text-sm">
         ยังไม่มีข้อมูลการวัดสำหรับแสดงกราฟ
@@ -164,6 +191,18 @@ export function GrowthChart({ childId: _childId, data = [] }: GrowthChartProps) 
             strokeWidth={3}
             dot={{ r: 4, fill: `var(--color-${metric})` }}
             activeDot={{ r: 6 }}
+            name={metric === "weight" ? "น้ำหนักจริง" : "ส่วนสูงจริง"}
+          />
+          <Line
+            type="monotone"
+            dataKey={metric === "weight" ? "predictedWeight" : "predictedHeight"}
+            stroke={metric === "weight" ? "#0ea5e9" : "#8b5cf6"}
+            strokeWidth={2}
+            strokeDasharray="6 4"
+            dot={{ r: 3, fill: metric === "weight" ? "#0ea5e9" : "#8b5cf6" }}
+            activeDot={{ r: 5 }}
+            connectNulls
+            name={metric === "weight" ? "น้ำหนักที่ทำนาย" : "ส่วนสูงที่ทำนาย"}
           />
         </LineChart>
       </ChartContainer>

@@ -29,7 +29,32 @@ export class AiPredictionAction {
       ...params,
     };
     const response = await axios.get(`${this.ACTION_ENDPOINT}/`, { params: defaultParams });
-    return response.data;
+
+    if (Array.isArray(response.data)) {
+      return {
+        data: response.data,
+        meta: {
+          total: response.data.length,
+          page: Number(defaultParams.page) || 1,
+          limit: Number(defaultParams.limit) || response.data.length,
+          totalPages: 1,
+        },
+      };
+    }
+
+    if (response.data?.data && Array.isArray(response.data.data)) {
+      return response.data;
+    }
+
+    return {
+      data: [],
+      meta: {
+        total: 0,
+        page: Number(defaultParams.page) || 1,
+        limit: Number(defaultParams.limit) || 10,
+        totalPages: 0,
+      },
+    };
   }
 
   static async getPredictionById(id: string): Promise<AiPredictionResponse> {

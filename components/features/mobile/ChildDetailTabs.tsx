@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ChildResponse, ChildDataResponse } from "@/dto";
+import { AiPredictionResponse, ChildResponse, ChildDataResponse } from "@/dto";
 import {
   Child_status,
   Child_statusToThai,
@@ -19,7 +19,7 @@ import {
   Ruler,
 } from "lucide-react";
 import { formatAgeThai, formatBE } from "@/lib/date-utils";
-import { map } from "zod";
+import { getPredictionSummaryValue } from "@/lib/prediction-utils";
 
 function getChildStatusKey(status: unknown): Child_status | null {
   if (typeof status !== "string") return null;
@@ -48,9 +48,11 @@ function toThaiDevelopmentStatus(status?: string | null): string {
 export function ChildDetailTabs({
   child,
   history,
+  latestPrediction,
 }: {
   child: ChildResponse;
   history: ChildDataResponse[];
+  latestPrediction: AiPredictionResponse | null;
 }) {
   const [activeTab, setActiveTab] = useState<"personal" | "development">(
     "personal",
@@ -79,6 +81,12 @@ export function ChildDetailTabs({
   const latestRecordedDate = latestRecord
     ? formatBE(latestRecord.heightDate, "d MMM yyyy")
     : "-";
+  const predictedHeight = latestPrediction
+    ? getPredictionSummaryValue(latestPrediction.height)
+    : null;
+  const predictedWeight = latestPrediction
+    ? getPredictionSummaryValue(latestPrediction.weight)
+    : null;
 
   return (
     <div className="w-full">
@@ -195,6 +203,39 @@ export function ChildDetailTabs({
             {/* View Toggle Header */}
             {history.length > 0 && (
               <div className="mb-2 space-y-3">
+                {latestPrediction && (
+                  <div className="rounded-3xl border border-sky-100 bg-linear-to-br from-blue-50 via-sky-50 to-white p-4 shadow-sm ring-1 ring-sky-100/60">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <h3 className="text-[16px] font-bold text-slate-800 tracking-tight">
+                          ผลทำนายล่าสุด
+                        </h3>
+                        <p className="mt-0.5 text-xs font-medium text-slate-500">
+                          ทำนายเมื่อ {formatBE(latestPrediction.dateTime, "d MMM yyyy")}
+                        </p>
+                      </div>
+                      <span className="inline-flex rounded-full border border-sky-200 bg-white/80 px-2.5 py-1 text-xs font-semibold text-sky-700">
+                        AI
+                      </span>
+                    </div>
+
+                    <div className="mt-3 grid grid-cols-2 gap-3">
+                      <div className="rounded-2xl bg-white p-3 shadow-sm border border-slate-100">
+                        <p className="text-xs font-semibold text-slate-400">ส่วนสูงที่ทำนาย</p>
+                        <p className="mt-1 text-lg font-bold text-slate-900">
+                          {predictedHeight !== null ? `${predictedHeight.toFixed(1)} ซม.` : "-"}
+                        </p>
+                      </div>
+                      <div className="rounded-2xl bg-white p-3 shadow-sm border border-slate-100">
+                        <p className="text-xs font-semibold text-slate-400">น้ำหนักที่ทำนาย</p>
+                        <p className="mt-1 text-lg font-bold text-slate-900">
+                          {predictedWeight !== null ? `${predictedWeight.toFixed(1)} กก.` : "-"}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 <div className="rounded-3xl border border-sky-100 bg-linear-to-br from-sky-50 via-cyan-50 to-white p-4 shadow-sm ring-1 ring-sky-100/60">
                   <div className="flex items-start justify-between gap-3">
                     <div>
@@ -281,7 +322,7 @@ export function ChildDetailTabs({
                 </div>
               ) : (
                 // Chart View
-                <DevelopmentChart history={history} />
+                <DevelopmentChart history={history} prediction={latestPrediction} />
               )
             ) : (
               // Empty State

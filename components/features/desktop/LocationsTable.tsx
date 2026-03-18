@@ -81,7 +81,11 @@ export function LocationsTable({ rawData }: LocationsTableProps) {
             <TableBody>
               {data.length ? (
                 data.map((location) => (
-                  <TableRow key={location.id}>
+                  <TableRow
+                    key={location.id}
+                    className="cursor-pointer hover:bg-muted/50"
+                    onClick={() => router.push(`${pathname}/${location.id}`)}
+                  >
                     <TableCell className="font-medium">{location.name}</TableCell>
                     <TableCell>{location.province}</TableCell>
                     <TableCell>{location.district}</TableCell>

@@ -340,9 +340,12 @@ export class ChildAction {
 
   static async predictChild(
     id: string,
-    data: Record<string, unknown>,
-  ): Promise<void> {
-    await axios.put(`${this.ACTION_ENDPOINT}/predict/${id}`, data);
+    model: "arima" | "lstm",
+  ): Promise<{ message?: string }> {
+    const response = await axios.put(`${this.ACTION_ENDPOINT}/predict/${id}`, {
+      model,
+    });
+    return response.data;
   }
 
   static async deleteChild(id: string): Promise<void> {

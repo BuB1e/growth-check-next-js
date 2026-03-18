@@ -15,7 +15,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, Save } from "lucide-react";
+import { Loader2, Save, Sparkles } from "lucide-react";
 import { formatBE } from "@/lib/date-utils";
 
 const measurementSchema = z.object({
@@ -50,6 +50,10 @@ export function MeasurementDrawer({
 
   const [isPending, setIsPending] = useState(false);
   const [isError, setIsError] = useState(false);
+  const [isPredicting, setIsPredicting] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
+  const [predictionMessage, setPredictionMessage] = useState<string | null>(null);
+  const [predictionError, setPredictionError] = useState<string | null>(null);
 
   const resetForm = () => {
     setHeight("");
@@ -58,12 +62,17 @@ export function MeasurementDrawer({
     setMonth(defaultMonth);
     setYear(defaultYear);
     setErrors({});
+    setSaveSuccess(false);
+    setPredictionMessage(null);
+    setPredictionError(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
     setIsError(false);
+    setPredictionMessage(null);
+    setPredictionError(null);
 
     const adYear = parseInt(year) - 543;
     const dateStr = `${adYear}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
@@ -100,13 +109,41 @@ export function MeasurementDrawer({
         userCreated: "current-user", // TODO: Get from session
         userUpdated: "current-user", // TODO: Get from session
       });
-      resetForm();
-      onOpenChange(false);
+      setSaveSuccess(true);
       router.refresh();
     } catch {
       setIsError(true);
     } finally {
       setIsPending(false);
+    }
+  };
+
+  const handleCreatePrediction = async () => {
+    if (!childId) {
+      return;
+    }
+
+    setIsPredicting(true);
+    setPredictionMessage(null);
+    setPredictionError(null);
+
+    try {
+      const { createPredictionForChildAction } = await import(
+        "@/app/mobile/staff/[child_id]/actions"
+      );
+      const result = await createPredictionForChildAction(childId, "lstm");
+
+      if (!result.success) {
+        setPredictionError(result.error ?? "ทำนายไม่สำเร็จ กรุณาลองใหม่");
+        return;
+      }
+
+      setPredictionMessage("ส่งคำขอทำนายแล้ว ระบบกำลังประมวลผล");
+      router.refresh();
+    } catch {
+      setPredictionError("ไม่สามารถทำนายได้ กรุณาลองใหม่อีกครั้ง");
+    } finally {
+      setIsPredicting(false);
     }
   };
 
@@ -125,6 +162,24 @@ export function MeasurementDrawer({
             {isError && (
               <div className="rounded-lg bg-red-50 p-3 text-sm text-red-600">
                 บันทึกข้อมูลไม่สำเร็จ กรุณาลองใหม่
+              </div>
+            )}
+
+            {saveSuccess && (
+              <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-700">
+                บันทึกข้อมูลเรียบร้อยแล้ว คุณสามารถทำนายการเจริญเติบโตต่อได้ทันที
+              </div>
+            )}
+
+            {predictionMessage && (
+              <div className="rounded-lg bg-blue-50 p-3 text-sm text-blue-700">
+                {predictionMessage}
+              </div>
+            )}
+
+            {predictionError && (
+              <div className="rounded-lg bg-amber-50 p-3 text-sm text-amber-700">
+                {predictionError}
               </div>
             )}
 
@@ -240,20 +295,40 @@ export function MeasurementDrawer({
             </div>
 
             <DrawerFooter className="px-0 pt-4 pb-8">
-              <Button
-                type="submit"
-                className="min-h-[52px] w-full rounded-xl text-base font-semibold bg-blue-600 hover:bg-blue-700 shadow-sm transition-all active:scale-[0.98]"
-                disabled={isPending}
-              >
-                {isPending ? (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                ) : (
-                  <Save className="mr-2 h-4 w-4" />
-                )}
-                บันทึก
-              </Button>
+              {!saveSuccess ? (
+                <Button
+                  type="submit"
+                  className="min-h-[52px] w-full rounded-xl text-base font-semibold bg-blue-600 hover:bg-blue-700 shadow-sm transition-all active:scale-[0.98]"
+                  disabled={isPending}
+                >
+                  {isPending ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <Save className="mr-2 h-4 w-4" />
+                  )}
+                  บันทึก
+                </Button>
+              ) : (
+                <Button
+                  type="button"
+                  className="min-h-[52px] w-full rounded-xl text-base font-semibold bg-sky-600 hover:bg-sky-700 shadow-sm transition-all active:scale-[0.98]"
+                  onClick={handleCreatePrediction}
+                  disabled={isPredicting}
+                >
+                  {isPredicting ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <Sparkles className="mr-2 h-4 w-4" />
+                  )}
+                  ทำนายการเจริญเติบโต
+                </Button>
+              )}
               <DrawerClose asChild>
-                <Button variant="outline" className="min-h-[48px] w-full">
+                <Button
+                  variant="outline"
+                  className="min-h-[48px] w-full"
+                  onClick={resetForm}
+                >
                   ยกเลิก
                 </Button>
               </DrawerClose>
