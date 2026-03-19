@@ -26,8 +26,6 @@ import {
   Clock,
   MoreVertical,
 } from "lucide-react";
-import { format } from "date-fns";
-import { th } from "date-fns/locale";
 import { formatBE } from "@/lib/date-utils";
 
 interface HistoryTableProps {
@@ -37,7 +35,7 @@ interface HistoryTableProps {
 function ActorLabel({ actor }: { actor: HistoryActor }) {
   if (actor.role === "Admin") return <span>{actor.role}</span>;
   return (
-    <span className="text-muted-foreground text-sm truncate max-w-[220px] block">
+    <span className="text-muted-foreground text-sm truncate max-w-55 block">
       {actor.role} - {actor.name}
       {actor.locationName ? ` - ${actor.locationName}` : ""}
     </span>
@@ -134,7 +132,7 @@ export function HistoryTable({ rawData }: HistoryTableProps) {
         </form>
 
         <Select value={typeFilter} onValueChange={handleTypeChange}>
-          <SelectTrigger className="w-[200px]">
+          <SelectTrigger className="w-50">
             <SelectValue placeholder="ทุกประเภท" />
           </SelectTrigger>
           <SelectContent>

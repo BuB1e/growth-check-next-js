@@ -47,6 +47,25 @@ export function GrowthChart({
   data = [],
   prediction = null,
 }: GrowthChartProps) {
+  const formatNumber = (value: number): string =>
+    Number.isInteger(value) ? `${value}` : value.toFixed(2);
+
+  const buildTicks = (maxValue: number): number[] => {
+    const upper = Math.max(30, Math.ceil(maxValue + 30));
+    const step = upper <= 20 ? 1 : upper <= 50 ? 2 : 5;
+    const ticks: number[] = [];
+
+    for (let i = 0; i <= upper; i += step) {
+      ticks.push(i);
+    }
+
+    if (ticks[ticks.length - 1] !== upper) {
+      ticks.push(upper);
+    }
+
+    return ticks;
+  };
+
   const historicalData = [...data]
     .filter((d) => !Number.isNaN(new Date(d.heightDate).getTime()))
     .sort(
@@ -105,15 +124,10 @@ export function GrowthChart({
       .filter((value): value is number => typeof value === "number"),
   ];
 
-  const withPaddingDomain = (values: number[]): [number, number] => {
-    const minVal = values.length > 0 ? Math.min(...values) : 0;
-    const maxVal = values.length > 0 ? Math.max(...values) : 100;
-    const padding = (maxVal - minVal) * 0.15 || 5;
-    return [Math.floor(minVal - padding), Math.ceil(maxVal + padding)];
-  };
-
-  const weightDomain = withPaddingDomain(weightValues);
-  const heightDomain = withPaddingDomain(heightValues);
+  const weightTicks = buildTicks(Math.max(0, ...weightValues));
+  const heightTicks = buildTicks(Math.max(0, ...heightValues));
+  const weightDomain: [number, number] = [0, weightTicks[weightTicks.length - 1]];
+  const heightDomain: [number, number] = [0, heightTicks[heightTicks.length - 1]];
   const latest = historicalData[historicalData.length - 1];
 
   if (historicalData.length === 0) {
@@ -194,11 +208,13 @@ export function GrowthChart({
           <YAxis
             yAxisId="weight"
             domain={weightDomain}
+            ticks={weightTicks}
+            allowDecimals={false}
             tickLine
             axisLine={{ stroke: "rgba(148, 163, 184, 0.7)" }}
             tick={{ fontSize: 12, fill: "#9a3412" }}
             width={52}
-            tickFormatter={(value) => `${value}`}
+            tickFormatter={formatNumber}
             label={{
               value: "น้ำหนัก (กก.)",
               angle: -90,
@@ -210,11 +226,13 @@ export function GrowthChart({
             yAxisId="height"
             orientation="right"
             domain={heightDomain}
+            ticks={heightTicks}
+            allowDecimals={false}
             tickLine
             axisLine={{ stroke: "rgba(148, 163, 184, 0.7)" }}
             tick={{ fontSize: 12, fill: "#1e40af" }}
             width={52}
-            tickFormatter={(value) => `${value}`}
+            tickFormatter={formatNumber}
             label={{
               value: "ส่วนสูง (ซม.)",
               angle: 90,
@@ -224,7 +242,20 @@ export function GrowthChart({
           />
           <ChartTooltip
             cursor={{ strokeDasharray: "3 3" }}
-            content={<ChartTooltipContent />}
+            content={
+              <ChartTooltipContent
+                formatter={(value, name) => {
+                  const numericValue =
+                    typeof value === "number" ? value : Number(value);
+
+                  if (!Number.isFinite(numericValue)) {
+                    return [value, name];
+                  }
+
+                  return [numericValue.toFixed(2), name];
+                }}
+              />
+            }
           />
 
           <Line

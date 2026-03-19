@@ -56,6 +56,23 @@ export interface DashboardStatusItem {
   desc: string;
 }
 
+function buildCountAxisTicks(maxValue: number): number[] {
+  const safeMax = Math.max(0, Math.ceil(maxValue));
+  const tickMax = Math.max(30, safeMax + 30);
+  const step = tickMax <= 20 ? 1 : 2;
+  const ticks: number[] = [];
+
+  for (let i = 0; i <= tickMax; i += step) {
+    ticks.push(i);
+  }
+
+  if (ticks[ticks.length - 1] !== tickMax) {
+    ticks.push(tickMax);
+  }
+
+  return ticks;
+}
+
 // ─── Metric summary chip ────────────────────────────────────────────────────
 function MetricChip({
   label,
@@ -69,7 +86,7 @@ function MetricChip({
   pct: string;
 }) {
   return (
-    <div className="flex items-center gap-2 px-3 py-2 rounded-lg border bg-card shadow-sm min-w-[120px]">
+    <div className="flex min-w-30 items-center gap-2 rounded-lg border bg-card px-3 py-2 shadow-sm">
       <span
         className="w-3 h-3 rounded-full shrink-0"
         style={{ background: color }}
@@ -100,7 +117,7 @@ export function ChildHealthTrendChart({
 
   if (!data.length) {
     return (
-      <div className="flex h-[260px] items-center justify-center text-sm text-muted-foreground">
+      <div className="flex h-65 items-center justify-center text-sm text-muted-foreground">
         ยังไม่มีข้อมูลแนวโน้มสำหรับแสดงกราฟ
       </div>
     );
@@ -110,6 +127,11 @@ export function ChildHealthTrendChart({
   const latest = data[data.length - 1];
   const total = latest.normal + latest.above + latest.below;
   const pct = (n: number) => ((n / total) * 100).toFixed(0);
+  const trendMax = Math.max(
+    0,
+    ...data.flatMap((item) => [item.normal, item.above, item.below]),
+  );
+  const trendTicks = buildCountAxisTicks(trendMax);
 
   return (
     <div className="w-full flex flex-col gap-3">
@@ -161,33 +183,45 @@ export function ChildHealthTrendChart({
 
       <ChartContainer
         config={chartConfig}
-        className="min-h-[200px] md:min-h-[260px] w-full"
+        className="min-h-50 w-full md:min-h-65"
       >
         <LineChart
           accessibilityLayer
           data={data}
           margin={{ left: 4, right: 12, bottom: 0, top: 4 }}
         >
-          <CartesianGrid vertical={false} opacity={0.3} />
+          <CartesianGrid
+            vertical
+            stroke="rgba(148, 163, 184, 0.4)"
+            strokeDasharray="3 3"
+          />
           <XAxis
             dataKey="month"
-            tickLine={false}
+            tickLine
             tickMargin={8}
-            axisLine={false}
-            tick={{ fontSize: 13 }}
+            axisLine={{ stroke: "rgba(148, 163, 184, 0.8)" }}
+            tick={{ fontSize: 13, fill: "#334155" }}
+            label={{
+              value: "เดือน",
+              position: "insideBottom",
+              offset: -4,
+              style: { fontSize: 11, fill: "#64748b" },
+            }}
           />
           <YAxis
-            tickLine={false}
-            axisLine={false}
-            tick={{ fontSize: 12 }}
+            domain={[0, trendTicks[trendTicks.length - 1]]}
+            ticks={trendTicks}
+            allowDecimals={false}
+            tickLine
+            axisLine={{ stroke: "rgba(148, 163, 184, 0.8)" }}
+            tick={{ fontSize: 12, fill: "#334155" }}
             tickFormatter={(v) => `${v}`}
-            width={36}
+            width={44}
             label={{
-              value: "คน",
-              position: "insideTopLeft",
-              offset: 4,
-              fontSize: 11,
-              fill: "#94a3b8",
+              value: "จำนวนเด็ก (คน)",
+              angle: -90,
+              position: "insideLeft",
+              style: { fontSize: 11, fill: "#64748b" },
             }}
           />
           <ChartTooltip
@@ -240,13 +274,15 @@ export function ChildHealthStatusChart({
 }) {
   if (!statusData.length) {
     return (
-      <div className="flex h-[220px] items-center justify-center text-sm text-muted-foreground">
+      <div className="flex h-55 items-center justify-center text-sm text-muted-foreground">
         ยังไม่มีข้อมูลสถานะการเจริญเติบโต
       </div>
     );
   }
 
   const total = statusData.reduce((s, d) => s + d.count, 0);
+  const statusMax = Math.max(0, ...statusData.map((d) => d.count));
+  const statusTicks = buildCountAxisTicks(statusMax);
 
   return (
     <div className="w-full flex flex-col gap-3 p-2 md:p-4">
@@ -271,26 +307,45 @@ export function ChildHealthStatusChart({
 
       <ChartContainer
         config={chartConfig}
-        className="min-h-[200px] md:min-h-[220px] w-full"
+        className="min-h-50 w-full md:min-h-55"
       >
         <BarChart
           accessibilityLayer
           data={statusData}
           margin={{ top: 24, left: 0, right: 0, bottom: 0 }}
         >
-          <CartesianGrid vertical={false} opacity={0.3} />
+          <CartesianGrid
+            vertical
+            stroke="rgba(148, 163, 184, 0.4)"
+            strokeDasharray="3 3"
+          />
           <XAxis
             dataKey="label"
-            tickLine={false}
+            tickLine
             tickMargin={10}
-            axisLine={false}
-            tick={{ fontSize: 13 }}
+            axisLine={{ stroke: "rgba(148, 163, 184, 0.8)" }}
+            tick={{ fontSize: 13, fill: "#334155" }}
+            label={{
+              value: "สถานะการเจริญเติบโต",
+              position: "insideBottom",
+              offset: -4,
+              style: { fontSize: 11, fill: "#64748b" },
+            }}
           />
           <YAxis
-            tickLine={false}
-            axisLine={false}
-            tick={{ fontSize: 12 }}
-            width={36}
+            domain={[0, statusTicks[statusTicks.length - 1]]}
+            ticks={statusTicks}
+            allowDecimals={false}
+            tickLine
+            axisLine={{ stroke: "rgba(148, 163, 184, 0.8)" }}
+            tick={{ fontSize: 12, fill: "#334155" }}
+            width={44}
+            label={{
+              value: "จำนวนเด็ก (คน)",
+              angle: -90,
+              position: "insideLeft",
+              style: { fontSize: 11, fill: "#64748b" },
+            }}
           />
           <ChartTooltip
             cursor={false}
@@ -301,7 +356,8 @@ export function ChildHealthStatusChart({
               />
             }
           />
-          <Bar dataKey="count" radius={8} maxBarSize={72}>
+          <ChartLegend content={<ChartLegendContent />} />
+          <Bar dataKey="count" name="จำนวนเด็ก" radius={8} maxBarSize={72}>
             <LabelList
               dataKey="count"
               position="top"

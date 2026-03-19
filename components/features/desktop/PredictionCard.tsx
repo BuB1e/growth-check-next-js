@@ -453,7 +453,7 @@ export function PredictionCard({
           ) : (
             <Sparkles className="h-4 w-4" />
           )}
-          <span className="ml-2">เริ่มทำนาย</span>
+          <span className="ml-2">ทำนายผล 6 เดือน</span>
         </Button>
       </div>
 

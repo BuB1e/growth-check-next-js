@@ -20,3 +20,7 @@ trigger: always_on
 - Add comment what to do with "TODO: " syntax (TODO tree).
 - Backend is source-of-truth. Need to fetch pagination, filter, search, and other query params from server.
 - Security first for design any data and pattern.
+- Every chart has grid line, legends and label.
+- Chart axis y start from 0, and show value on sub grid like 1, 2, 3, 4, 5 not like old one 1, 5, 10
+- Chart start with 0 but end with max+30.
+- Chart show floating number only 2 point.

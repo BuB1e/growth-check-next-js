@@ -15,7 +15,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { LocationCreateRequestResponse } from "@/dto";
 import type { PaginatedResponseDTO } from "@/dto";
 import { Button } from "@/components/ui/button";
@@ -36,8 +36,6 @@ import {
   CheckCircle2,
   XCircle,
 } from "lucide-react"; // Assuming these icons are from lucide-react
-import { format } from "date-fns";
-import { th } from "date-fns/locale";
 import { formatBE } from "@/lib/date-utils";
 
 interface RequestsTableProps {
@@ -72,6 +70,7 @@ function StatusBadge({ status }: { status: string }) {
 
 export function RequestsTable({ rawData }: RequestsTableProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
 
   const [searchQuery, setSearchQuery] = useState(
@@ -90,7 +89,7 @@ export function RequestsTable({ rawData }: RequestsTableProps) {
         params.set(key, value);
       }
     });
-    router.push(`/head/requests?${params.toString()}`);
+    router.push(`${pathname}?${params.toString()}`);
   };
 
   const handleSearch = (e: React.FormEvent) => {
@@ -194,7 +193,7 @@ export function RequestsTable({ rawData }: RequestsTableProps) {
         </form>
 
         <Select value={statusFilter} onValueChange={handleStatusChange}>
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="w-45">
             <SelectValue placeholder="ทุกสถานะ" />
           </SelectTrigger>
           <SelectContent>
@@ -232,9 +231,7 @@ export function RequestsTable({ rawData }: RequestsTableProps) {
                   <TableRow
                     key={row.id}
                     className="cursor-pointer hover:bg-muted/50 transition-colors"
-                    onClick={() =>
-                      router.push(`/head/requests/${row.original.id}`)
-                    }
+                    onClick={() => router.push(`${pathname}/${row.original.id}`)}
                   >
                     {row.getVisibleCells().map((cell) => (
                       <TableCell key={cell.id} className="py-3">

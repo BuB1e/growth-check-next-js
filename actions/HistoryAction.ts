@@ -22,7 +22,54 @@ import type {
 export class HistoryAction {
   static BACKEND_ENDPOINT = EnvConfig.BACKEND_ENDPOINT;
   static PAGE_LIMIT = EnvConfig.NEXT_PUBLIC_PAGINATION_LIMIT_DESKTOP_SIZE;
-  static SOURCE_FETCH_LIMIT = EnvConfig.NEXT_PUBLIC_PAGINATION_LIMIT_DESKTOP_SIZE;
+
+  private static async fetchAllTransferRequests(): Promise<
+    ChildTransferRequestResponse[]
+  > {
+    const all: ChildTransferRequestResponse[] = [];
+    let page = 1;
+
+    while (true) {
+      const res = await ChildTransferRequestAction.getRequests({
+        page,
+        limit: this.PAGE_LIMIT,
+      });
+      const items = Array.isArray(res?.data) ? res.data : [];
+      all.push(...items);
+
+      if (!items.length || page >= (res?.meta?.totalPages ?? page)) {
+        break;
+      }
+
+      page += 1;
+    }
+
+    return all;
+  }
+
+  private static async fetchAllLocationRequests(): Promise<
+    LocationCreateRequestResponse[]
+  > {
+    const all: LocationCreateRequestResponse[] = [];
+    let page = 1;
+
+    while (true) {
+      const res = await LocationCreateRequestAction.getRequests({
+        page,
+        limit: this.PAGE_LIMIT,
+      });
+      const items = Array.isArray(res?.data) ? res.data : [];
+      all.push(...items);
+
+      if (!items.length || page >= (res?.meta?.totalPages ?? page)) {
+        break;
+      }
+
+      page += 1;
+    }
+
+    return all;
+  }
 
   /**
    * Composes history from child-transfer-requests and location-create-requests.
@@ -37,26 +84,15 @@ export class HistoryAction {
     orderDirection: "asc" | "desc" = "desc",
   ): Promise<PaginatedHistoryResponse> {
     const [transfersRes, locationRequestsRes] = await Promise.allSettled([
-      ChildTransferRequestAction.getRequests({
-        page: 1,
-        limit: this.SOURCE_FETCH_LIMIT,
-      }),
-      // Fetch all location requests instead of user "all" to prevent backend 500
-      LocationCreateRequestAction.getRequests({
-        page: 1,
-        limit: this.SOURCE_FETCH_LIMIT,
-      }),
+      this.fetchAllTransferRequests(),
+      this.fetchAllLocationRequests(),
     ]);
 
     const entries: HistoryEntry[] = [];
 
     // Map child transfer requests to history entries
     if (transfersRes.status === "fulfilled") {
-      // API currently returns plain array or PaginatedResponse, we normalize it:
-      const transfersResponse = transfersRes.value;
-      const transfers = Array.isArray(transfersResponse) ? transfersResponse : transfersResponse.data || [];
-      
-      transfers.forEach((t: ChildTransferRequestResponse) => {
+      transfersRes.value.forEach((t: ChildTransferRequestResponse) => {
         entries.push({
           id: t.id + 10000, // Offset to avoid ID collisions
           type: "TRANSFER",
@@ -73,8 +109,7 @@ export class HistoryAction {
 
     // Map location create requests to history entries
     if (locationRequestsRes.status === "fulfilled") {
-      const requests = locationRequestsRes.value.data;
-      requests.forEach((r: LocationCreateRequestResponse) => {
+      locationRequestsRes.value.forEach((r: LocationCreateRequestResponse) => {
         const historyType: HistoryType =
           r.requestStatus === "REJECT"
             ? "LOCATION_REJECT"
@@ -138,7 +173,7 @@ export class HistoryAction {
 
   static async getHistoryById(id: number): Promise<HistoryEntry | null> {
     // Try to find from composed history
-    const result = await this.getHistory(1, this.SOURCE_FETCH_LIMIT);
+    const result = await this.getHistory(1, Number.MAX_SAFE_INTEGER);
     return result.data.find((h) => h.id === id) || null;
   }
 }
