@@ -4,7 +4,6 @@ import {
   CartesianGrid,
   Line,
   LineChart,
-  ReferenceArea,
   XAxis,
   YAxis,
 } from "recharts";
@@ -16,11 +15,7 @@ import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-  ChartLegend,
-  ChartLegendContent,
 } from "@/components/ui/chart";
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import type { AiPredictionResponse, ChildDataResponse } from "@/dto";
 
 interface GrowthChartProps {
@@ -31,22 +26,27 @@ interface GrowthChartProps {
 
 const chartConfig = {
   weight: {
-    label: "น้ำหนัก (กิโลกรัม)",
-    color: "#22c55e",
+    label: "น้ำหนักจริง (กก.)",
+    color: "#f97316",
   },
   height: {
-    label: "ส่วนสูง (เซนติเมตร)",
-    color: "#3b82f6",
+    label: "ส่วนสูงจริง (ซม.)",
+    color: "#2563eb",
+  },
+  predictedWeight: {
+    label: "น้ำหนักที่ทำนาย",
+    color: "#fb923c",
+  },
+  predictedHeight: {
+    label: "ส่วนสูงที่ทำนาย",
+    color: "#60a5fa",
   },
 } satisfies ChartConfig;
 
 export function GrowthChart({
-  childId: _childId,
   data = [],
   prediction = null,
 }: GrowthChartProps) {
-  const [metric, setMetric] = useState<"weight" | "height">("weight");
-
   const historicalData = [...data]
     .filter((d) => !Number.isNaN(new Date(d.heightDate).getTime()))
     .sort(
@@ -57,10 +57,25 @@ export function GrowthChart({
       date: new Date(d.heightDate),
       weight: d.weight,
       height: d.height,
+      predictedWeightTrend: undefined as number | undefined,
+      predictedHeightTrend: undefined as number | undefined,
       formattedDate: formatBE(d.heightDate, "d MMM yy"),
     }));
 
-  const predictionPoints = buildPredictionPoints(prediction);
+  const latestHistoricalDate = historicalData[historicalData.length - 1]?.date;
+  const predictionPoints = buildPredictionPoints(prediction, {
+    anchorDate: latestHistoricalDate,
+  });
+
+  if (historicalData.length > 0 && predictionPoints.length > 0) {
+    const lastIndex = historicalData.length - 1;
+    const last = historicalData[lastIndex];
+    historicalData[lastIndex] = {
+      ...last,
+      predictedWeightTrend: last.weight,
+      predictedHeightTrend: last.height,
+    };
+  }
 
   const chartData = [
     ...historicalData,
@@ -68,45 +83,42 @@ export function GrowthChart({
       date: point.predictedDate,
       predictedWeight: point.predictedWeight,
       predictedHeight: point.predictedHeight,
+      predictedWeightTrend: point.predictedWeight,
+      predictedHeightTrend: point.predictedHeight,
       formattedDate: formatBE(point.predictedDate, "d MMM yy"),
     })),
   ]
     .filter((d) => !Number.isNaN(d.date.getTime()))
     .sort((a, b) => a.date.getTime() - b.date.getTime());
 
-  // Dynamic Y-axis domain based on actual data
-  const values = [
-    ...historicalData.map((d) => d[metric]),
+  const weightValues = [
+    ...historicalData.map((d) => d.weight),
     ...predictionPoints
-      .map((point) =>
-        metric === "weight" ? point.predictedWeight : point.predictedHeight,
-      )
+      .map((point) => point.predictedWeight)
       .filter((value): value is number => typeof value === "number"),
   ];
-  const minVal = values.length > 0 ? Math.min(...values) : 0;
-  const maxVal = values.length > 0 ? Math.max(...values) : 100;
-  const padding = (maxVal - minVal) * 0.2 || 10;
-  const yAxisDomain = [Math.floor(minVal - padding), Math.ceil(maxVal + padding)];
-  const latest = historicalData[historicalData.length - 1];
-  const unit = metric === "weight" ? "กก." : "ซม.";
 
-  // Reference zone: approximate normal growth range
-  const referenceZone =
-    metric === "weight"
-      ? {
-          y1: Math.floor(minVal - padding * 0.5),
-          y2: Math.ceil(maxVal + padding * 0.5),
-          color: "rgba(226, 232, 240, 0.28)",
-        }
-      : {
-          y1: Math.floor(minVal - padding * 0.5),
-          y2: Math.ceil(maxVal + padding * 0.5),
-          color: "rgba(226, 232, 240, 0.28)",
-        };
+  const heightValues = [
+    ...historicalData.map((d) => d.height),
+    ...predictionPoints
+      .map((point) => point.predictedHeight)
+      .filter((value): value is number => typeof value === "number"),
+  ];
+
+  const withPaddingDomain = (values: number[]): [number, number] => {
+    const minVal = values.length > 0 ? Math.min(...values) : 0;
+    const maxVal = values.length > 0 ? Math.max(...values) : 100;
+    const padding = (maxVal - minVal) * 0.15 || 5;
+    return [Math.floor(minVal - padding), Math.ceil(maxVal + padding)];
+  };
+
+  const weightDomain = withPaddingDomain(weightValues);
+  const heightDomain = withPaddingDomain(heightValues);
+  const latest = historicalData[historicalData.length - 1];
 
   if (historicalData.length === 0) {
     return (
-      <div className="flex items-center justify-center h-[250px] text-muted-foreground text-sm">
+      <div className="flex h-62.5 items-center justify-center text-sm text-muted-foreground">
         ยังไม่มีข้อมูลการวัดสำหรับแสดงกราฟ
       </div>
     );
@@ -116,99 +128,153 @@ export function GrowthChart({
     <div className="w-full flex flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="rounded-xl border bg-slate-50/70 px-3 py-2 text-sm">
-          <p className="text-muted-foreground">ค่าล่าสุด</p>
+          <p className="text-muted-foreground">น้ำหนักล่าสุด</p>
           <p className="font-semibold text-foreground">
-            {metric === "weight"
-              ? latest.weight.toFixed(1)
-              : latest.height.toFixed(1)}{" "}
-            {unit}
+            {latest.weight.toFixed(1)} กก.
+          </p>
+        </div>
+
+        <div className="rounded-xl border bg-slate-50/70 px-3 py-2 text-sm">
+          <p className="text-muted-foreground">ส่วนสูงล่าสุด</p>
+          <p className="font-semibold text-foreground">
+            {latest.height.toFixed(1)} ซม.
           </p>
         </div>
 
         <div className="rounded-xl border bg-slate-50/70 px-3 py-2 text-sm">
           <p className="text-muted-foreground">จำนวนครั้งที่วัด</p>
-          <p className="font-semibold text-foreground">{chartData.length} ครั้ง</p>
+          <p className="font-semibold text-foreground">{historicalData.length} ครั้ง</p>
         </div>
+      </div>
 
-        <div className="flex gap-2">
-        <Button
-          variant={metric === "weight" ? "default" : "outline"}
-          size="sm"
-          onClick={() => setMetric("weight")}
-        >
-          น้ำหนัก
-        </Button>
-        <Button
-          variant={metric === "height" ? "default" : "outline"}
-          size="sm"
-          onClick={() => setMetric("height")}
-        >
-          ส่วนสูง
-        </Button>
+      <div className="rounded-xl border border-slate-200 bg-white px-3 py-2">
+        <p className="text-xs font-semibold text-slate-500">คำอธิบาย Metric</p>
+        <div className="mt-2 flex flex-wrap gap-x-4 gap-y-2 text-xs text-slate-700">
+          <span className="inline-flex items-center gap-2">
+            <span className="h-2.5 w-2.5 rounded-full bg-orange-500" />
+            น้ำหนักจริง (กก.)
+          </span>
+          <span className="inline-flex items-center gap-2">
+            <span className="h-2.5 w-2.5 rounded-full bg-blue-600" />
+            ส่วนสูงจริง (ซม.)
+          </span>
+          <span className="inline-flex items-center gap-2">
+            <span className="h-2.5 w-2.5 rounded-full bg-orange-300" />
+            น้ำหนักที่ทำนาย (เส้นประ)
+          </span>
+          <span className="inline-flex items-center gap-2">
+            <span className="h-2.5 w-2.5 rounded-full bg-blue-300" />
+            ส่วนสูงที่ทำนาย (เส้นประ)
+          </span>
         </div>
       </div>
 
       <ChartContainer
         config={chartConfig}
-        className="min-h-[320px] w-full rounded-xl bg-slate-50/40 p-2"
+        className="min-h-80 w-full rounded-xl border border-slate-200 bg-white p-2"
       >
         <LineChart
           accessibilityLayer
           data={chartData}
           margin={{ left: 12, right: 12, bottom: 0 }}
         >
-          <CartesianGrid vertical={false} opacity={0.2} strokeDasharray="3 3" />
+          <CartesianGrid
+            vertical
+            stroke="rgba(148, 163, 184, 0.35)"
+            strokeDasharray="3 3"
+          />
           <XAxis
             dataKey="formattedDate"
-            tickLine={false}
+            tickLine
             tickMargin={8}
-            axisLine={false}
+            axisLine={{ stroke: "rgba(148, 163, 184, 0.7)" }}
             minTickGap={20}
+            tick={{ fontSize: 12, fill: "#334155" }}
           />
           <YAxis
-            domain={yAxisDomain}
-            tickLine={false}
-            axisLine={false}
-            tick={{ fontSize: 12 }}
-            width={42}
+            yAxisId="weight"
+            domain={weightDomain}
+            tickLine
+            axisLine={{ stroke: "rgba(148, 163, 184, 0.7)" }}
+            tick={{ fontSize: 12, fill: "#9a3412" }}
+            width={52}
+            tickFormatter={(value) => `${value}`}
+            label={{
+              value: "น้ำหนัก (กก.)",
+              angle: -90,
+              position: "insideLeft",
+              style: { fill: "#9a3412", fontSize: 12, fontWeight: 600 },
+            }}
           />
-          <ReferenceArea
-            y1={referenceZone.y1}
-            y2={referenceZone.y2}
-            fill={referenceZone.color}
-            strokeOpacity={0}
+          <YAxis
+            yAxisId="height"
+            orientation="right"
+            domain={heightDomain}
+            tickLine
+            axisLine={{ stroke: "rgba(148, 163, 184, 0.7)" }}
+            tick={{ fontSize: 12, fill: "#1e40af" }}
+            width={52}
+            tickFormatter={(value) => `${value}`}
+            label={{
+              value: "ส่วนสูง (ซม.)",
+              angle: 90,
+              position: "insideRight",
+              style: { fill: "#1e40af", fontSize: 12, fontWeight: 600 },
+            }}
           />
           <ChartTooltip
             cursor={{ strokeDasharray: "3 3" }}
             content={<ChartTooltipContent />}
           />
-          <ChartLegend content={<ChartLegendContent />} />
 
           <Line
             type="monotone"
-            dataKey={metric}
-            stroke={`var(--color-${metric})`}
+            yAxisId="weight"
+            dataKey="weight"
+            stroke="var(--color-weight)"
             strokeWidth={3}
-            dot={{ r: 4, fill: `var(--color-${metric})` }}
+            dot={{ r: 4, fill: "var(--color-weight)" }}
             activeDot={{ r: 6 }}
-            name={metric === "weight" ? "น้ำหนักจริง" : "ส่วนสูงจริง"}
+            name="น้ำหนักจริง"
           />
           <Line
             type="monotone"
-            dataKey={metric === "weight" ? "predictedWeight" : "predictedHeight"}
-            stroke={metric === "weight" ? "#0ea5e9" : "#8b5cf6"}
+            yAxisId="height"
+            dataKey="height"
+            stroke="var(--color-height)"
+            strokeWidth={3}
+            dot={{ r: 4, fill: "var(--color-height)" }}
+            activeDot={{ r: 6 }}
+            name="ส่วนสูงจริง"
+          />
+          <Line
+            type="monotone"
+            yAxisId="weight"
+            dataKey="predictedWeightTrend"
+            stroke="var(--color-predictedWeight)"
             strokeWidth={2}
             strokeDasharray="6 4"
-            dot={{ r: 3, fill: metric === "weight" ? "#0ea5e9" : "#8b5cf6" }}
+            dot={{ r: 3, fill: "var(--color-predictedWeight)" }}
             activeDot={{ r: 5 }}
             connectNulls
-            name={metric === "weight" ? "น้ำหนักที่ทำนาย" : "ส่วนสูงที่ทำนาย"}
+            name="น้ำหนักที่ทำนาย"
+          />
+          <Line
+            type="monotone"
+            yAxisId="height"
+            dataKey="predictedHeightTrend"
+            stroke="var(--color-predictedHeight)"
+            strokeWidth={2}
+            strokeDasharray="6 4"
+            dot={{ r: 3, fill: "var(--color-predictedHeight)" }}
+            activeDot={{ r: 5 }}
+            connectNulls
+            name="ส่วนสูงที่ทำนาย"
           />
         </LineChart>
       </ChartContainer>
       <div className="mt-2 flex items-center justify-center gap-2 text-xs text-muted-foreground">
-        <div className="h-3 w-4 rounded-sm bg-slate-300/60" />
-        พื้นที่สีเทาคือช่วงเกณฑ์การเจริญเติบโตที่คาดหวัง (สมส่วน)
+        เส้นทึบคือค่าจริง และเส้นประคือค่าที่ AI ทำนาย
       </div>
     </div>
   );

@@ -40,6 +40,9 @@ export function getPredictionSummaryValue(
 
 export function buildPredictionPoints(
   prediction: AiPredictionResponse | null | undefined,
+  options?: {
+    anchorDate?: Date;
+  },
 ): Array<{
   predictedDate: Date;
   predictedHeight?: number;
@@ -56,7 +59,16 @@ export function buildPredictionPoints(
     return [];
   }
 
-  const baseDate = new Date(prediction.dateTime);
+  const anchorBase = options?.anchorDate ? new Date(options.anchorDate) : null;
+  const dateTimeBase = new Date(prediction.dateTime);
+  const createdAtBase = new Date(prediction.createdAt);
+  const baseDate =
+    anchorBase && !Number.isNaN(anchorBase.getTime())
+      ? anchorBase
+      : Number.isNaN(dateTimeBase.getTime())
+        ? createdAtBase
+        : dateTimeBase;
+
   if (Number.isNaN(baseDate.getTime())) {
     return [];
   }

@@ -146,6 +146,7 @@ async function ChildDetailContent({
         </CardContent>
       </Card>
 
+      {/* Growth Chart */}
       <Card>
         <CardHeader>
           <CardTitle>แผนภูมิการเจริญเติบโต</CardTitle>
@@ -158,6 +159,7 @@ async function ChildDetailContent({
         </CardContent>
       </Card>
 
+      {/* AI Prediction */}
       <Card>
         <CardHeader>
           <CardTitle>การทำนายการเจริญเติบโต</CardTitle>
