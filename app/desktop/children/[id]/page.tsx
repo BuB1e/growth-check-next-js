@@ -18,6 +18,7 @@ import { ChildProfileForm } from "@/components/features/desktop/ChildProfileForm
 import { MeasurementHistory } from "@/components/features/desktop/MeasurementHistory";
 import { GrowthChart } from "@/components/features/desktop/GrowthChart";
 import { PredictionCard } from "@/components/features/desktop/PredictionCard";
+import { MeasurementQuickAddCard } from "@/components/features/desktop/MeasurementQuickAddCard";
 import { EnvConfig } from "@/configs/BackendConfig";
 import { formatAgeThai, formatBE } from "@/lib/date-utils";
 import type { AiPredictionResponse, LocationResponse } from "@/dto";
@@ -143,6 +144,18 @@ async function ChildDetailContent({
         </CardHeader>
         <CardContent>
           <ChildProfileForm child={child} locations={locations} />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>บันทึกข้อมูลล่าสุด</CardTitle>
+          <CardDescription>
+            เพิ่มส่วนสูง น้ำหนัก และวันที่วัดใหม่ (รูปแบบเดียวกับหน้า mobile)
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <MeasurementQuickAddCard childId={childId} locationId={child.locationId} />
         </CardContent>
       </Card>
 

@@ -3,9 +3,10 @@
 import { AiPredictionAction } from "@/actions/AiPredictionAction";
 import { ChildAction } from "@/actions/ChildAction";
 import { ChildDataAction } from "@/actions/ChildDataAction";
+import { DevelopmentAction } from "@/actions/DevelopmentAction";
 import { EnvConfig } from "@/configs/BackendConfig";
 import { revalidatePath } from "next/cache";
-import type { AiPredictionResponse } from "@/dto";
+import type { AiPredictionResponse, CreateChildDataDTO } from "@/dto";
 
 export type PredictionModel = "lstm";
 
@@ -58,6 +59,103 @@ export async function updateChildAction(
     return {
       success: false,
       error: "ไม่สามารถบันทึกข้อมูลได้ กรุณาลองใหม่อีกครั้ง",
+    };
+  }
+}
+
+export async function createChildDataAction(data: CreateChildDataDTO) {
+  try {
+    // TODO: Remove MOCK_USER_ID fallback when real authenticated user session is available.
+    const resolvedUserId =
+      EnvConfig.MOCK_USER_ID ?? data.userCreated ?? data.userUpdated;
+
+    if (!resolvedUserId) {
+      return {
+        success: false,
+        error: "ไม่พบผู้ใช้สำหรับบันทึกข้อมูล กรุณาตั้งค่า MOCK_USER_ID ใน .env",
+      };
+    }
+
+    const latestRecords = await ChildDataAction.getChildDataList({
+      childId: data.childId,
+      page: 1,
+      limit: 100,
+    });
+
+    const latestWithDev = [...latestRecords]
+      .sort(
+        (a, b) =>
+          new Date(b.heightDate).getTime() - new Date(a.heightDate).getTime(),
+      )
+      .find((item) => item.heightDevelopmentId > 0 && item.weightDevelopmentId > 0);
+
+    const [heightDevRes, weightDevRes] = await Promise.all([
+      DevelopmentAction.getDevelopments({
+        metric: "HA",
+        deleteStatus: false,
+        page: 1,
+        limit: 1,
+      }),
+      DevelopmentAction.getDevelopments({
+        metric: "WA",
+        deleteStatus: false,
+        page: 1,
+        limit: 1,
+      }),
+    ]);
+
+    const fallbackHeightDevId = heightDevRes.data[0]?.id;
+    const fallbackWeightDevId = weightDevRes.data[0]?.id;
+
+    const child = await ChildAction.getChildById(data.childId.toString());
+
+    const resolvedLocationId =
+      data.locationId > 0 ? data.locationId : (child?.locationId ?? 0);
+    const resolvedHeightDevelopmentId =
+      data.heightDevelopmentId > 0
+        ? data.heightDevelopmentId
+        : (latestWithDev?.heightDevelopmentId ?? fallbackHeightDevId ?? 0);
+    const resolvedWeightDevelopmentId =
+      data.weightDevelopmentId > 0
+        ? data.weightDevelopmentId
+        : (latestWithDev?.weightDevelopmentId ?? fallbackWeightDevId ?? 0);
+
+    if (
+      resolvedLocationId <= 0 ||
+      resolvedHeightDevelopmentId <= 0 ||
+      resolvedWeightDevelopmentId <= 0
+    ) {
+      return {
+        success: false,
+        error:
+          "ข้อมูลอ้างอิงไม่ครบสำหรับบันทึก (location/development) กรุณา seed ตาราง developments และข้อมูลเด็กให้ครบ",
+      };
+    }
+
+    const payload: CreateChildDataDTO = {
+      ...data,
+      locationId: resolvedLocationId,
+      heightDevelopmentId: resolvedHeightDevelopmentId,
+      weightDevelopmentId: resolvedWeightDevelopmentId,
+      userCreated: resolvedUserId,
+      userUpdated: resolvedUserId,
+    };
+
+    const created = await ChildDataAction.createChildData(payload);
+
+    revalidatePath(`/children/${data.childId}`);
+    revalidatePath(`/desktop/children/${data.childId}`);
+    revalidatePath(`/mobile/staff/${data.childId}`);
+
+    return {
+      success: true,
+      data: created,
+    };
+  } catch (error) {
+    console.error("Failed to create child data:", error);
+    return {
+      success: false,
+      error: "ไม่สามารถบันทึกข้อมูลการวัดได้ กรุณาลองใหม่อีกครั้ง",
     };
   }
 }
