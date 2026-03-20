@@ -35,6 +35,8 @@ async function ChildListWrapper({
     typeof searchParams?.weightDev === "string" ? searchParams.weightDev : "";
   const locationId =
     typeof searchParams?.locationId === "string" ? searchParams.locationId : "";
+  const sex =
+    typeof searchParams?.sex === "string" ? searchParams.sex : "";
   const page =
     typeof searchParams?.page === "string"
       ? parseInt(searchParams.page, 10)
@@ -60,6 +62,7 @@ async function ChildListWrapper({
       heightDev={heightDev}
       weightDev={weightDev}
       locationId={locationId}
+      sex={sex}
       limit={limit}
     />
   );

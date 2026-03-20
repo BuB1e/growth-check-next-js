@@ -8,8 +8,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { ChildrenTable } from "@/components/features/desktop/ChildrenTable";
-import { Loader2 } from "lucide-react";
+import { Loader2, Plus } from "lucide-react";
 import { EnvConfig } from "@/configs/BackendConfig";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 export const metadata = {
   title: "ข้อมูลเด็กทั้งหมด",
@@ -28,6 +30,14 @@ export default function ChildrenPage({
           <p className="text-muted-foreground mt-1">
             จัดการและดูข้อมูลพัฒนาการเด็กทั้งหมดในความดูแล
           </p>
+        </div>
+        <div className="flex items-center space-x-2">
+          <Button asChild>
+            <Link href="/desktop/children/create">
+              <Plus className="mr-2 h-4 w-4" />
+              เพิ่มข้อมูลเด็ก
+            </Link>
+          </Button>
         </div>
       </div>
 

@@ -2,13 +2,11 @@
 
 import { z } from "zod";
 import { ChildAction } from "@/actions/ChildAction";
+import { ChildDataAction } from "@/actions/ChildDataAction";
 import { DevelopmentAction } from "@/actions/DevelopmentAction";
 import { LocationAction } from "@/actions/LocationAction";
 import { EnvConfig } from "@/configs/BackendConfig";
 import { redirect } from "next/navigation";
-
-import { ChildDataAction } from "@/actions/ChildDataAction";
-import { Sex } from "@/types";
 
 // Utility to pad and clamp day/month
 function normalizeDay(day: string | FormDataEntryValue | null): string {
@@ -27,12 +25,12 @@ function normalizeMonth(month: string | FormDataEntryValue | null): string {
 const createChildSchema = z.object({
   firstName: z.string().min(1, "กรุณากรอกชื่อจริง"),
   lastName: z.string().min(1, "กรุณากรอกนามสกุล"),
-  sex: z.enum([Sex.MALE, Sex.FEMALE], { message: "กรุณาเลือกเพศ" }),
+  sex: z.enum(["MALE", "FEMALE"], { message: "กรุณาเลือกเพศ" }), // Using enum manually or import if available
   birthDateDay: z.string().length(2, "ระบุวัน (01-31)"),
   birthDateMonth: z.string().length(2, "ระบุเดือน (01-12)"),
   birthDateYear: z.string().length(4, "ระบุปี พ.ศ. (4 หลัก)"),
   locationId: z.string().min(1, "กรุณาเลือกศูนย์พัฒนาเด็กเล็ก"),
-  measurementsJSON: z.string().min(1, "กรุณาระบุข้อมูลการเจริญเติบโตอย่างน้อย 1 รายการ"),
+  measurementsJSON: z.string().min(2, "ข้อมูลการเจริญเติบโตไม่ถูกต้อง"),
 });
 
 export type ActionState = {
@@ -67,6 +65,7 @@ export async function createChildServerAction(
   const normalizedDay = normalizeDay(rawDay);
   const normalizedMonth = normalizeMonth(rawMonth);
 
+
   // Validate fields
   const validatedFields = createChildSchema.safeParse({
     firstName: formData.get("firstName"),
@@ -86,6 +85,7 @@ export async function createChildServerAction(
       success: false,
     };
   }
+
 
   const {
     firstName,
@@ -145,10 +145,10 @@ export async function createChildServerAction(
       throw new Error("Empty measurements");
     }
     measurements = rawMeasurements.map((m: { dateYear: string; dateMonth: string; dateDay: string; weight: string; height: string }) => {
-      const adYear = parseInt(m.dateYear, 10) - 543;
-      const dateStr = `${adYear}-${m.dateMonth}-${m.dateDay}`;
+      const msAdYear = parseInt(m.dateYear, 10) - 543;
+      const msDateStr = `${msAdYear}-${m.dateMonth}-${m.dateDay}`;
       return {
-        date: dateStr,
+        date: msDateStr,
         weight: parseFloat(m.weight),
         height: parseFloat(m.height),
       };
@@ -173,7 +173,7 @@ export async function createChildServerAction(
     const childResponse = await ChildAction.createChild({
       firstName,
       lastName,
-      sex,
+      sex: sex as import("@/types").Sex,
       birthDate,
       locationId: parseInt(locationId),
       // TODO: Replace with actual user ID from authenticated session.
@@ -208,7 +208,7 @@ export async function createChildServerAction(
     }
 
   } catch (error) {
-    console.error("[createChildServerAction] Failed to create child/data:", error);
+    console.error("[createChildServerAction] Desktop Failed to create child/data:", error);
     return {
       message: "เกิดข้อผิดพลาดในการบันทึกข้อมูล กรุณาลองใหม่",
       success: false,
@@ -216,5 +216,5 @@ export async function createChildServerAction(
   }
 
   // Redirect runs outside try-catch to work correctly in Next.js
-  redirect("/mobile/staff/home");
+  redirect("/desktop/children");
 }

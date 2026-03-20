@@ -17,6 +17,7 @@ interface MobileChildListProps {
   heightDev?: string;
   weightDev?: string;
   locationId?: string;
+  sex?: string;
 }
 
 export async function MobileChildList({
@@ -31,6 +32,7 @@ export async function MobileChildList({
   heightDev = "",
   weightDev = "",
   locationId = "",
+  sex = "",
 }: MobileChildListProps) {
   let listData: PaginatedResponseDTO<ChildResponse> = {
     data: [],
@@ -49,6 +51,7 @@ export async function MobileChildList({
       status: status || undefined,
       heightDev: heightDev || undefined,
       weightDev: weightDev || undefined,
+      sex: sex || undefined,
     });
   } catch (error) {
     console.error("Failed to load children", error);
@@ -89,7 +92,7 @@ export async function MobileChildList({
       {totalPages > 1 && (
         <div className="flex items-center justify-between pt-4 pb-2 border-t border-gray-100">
           <Link
-            href={`?page=${currentPage - 1}${search ? `&q=${encodeURIComponent(search)}` : ""}${status ? `&status=${status}` : ""}${minAgeYears ? `&minAgeYears=${minAgeYears}` : ""}${maxAgeYears ? `&maxAgeYears=${maxAgeYears}` : ""}${minAge ? `&minAge=${minAge}` : ""}${maxAge ? `&maxAge=${maxAge}` : ""}${heightDev ? `&heightDev=${heightDev}` : ""}${weightDev ? `&weightDev=${weightDev}` : ""}${locationId ? `&locationId=${locationId}` : ""}`}
+            href={`?page=${currentPage - 1}${search ? `&q=${encodeURIComponent(search)}` : ""}${status ? `&status=${status}` : ""}${minAgeYears ? `&minAgeYears=${minAgeYears}` : ""}${maxAgeYears ? `&maxAgeYears=${maxAgeYears}` : ""}${minAge ? `&minAge=${minAge}` : ""}${maxAge ? `&maxAge=${maxAge}` : ""}${heightDev ? `&heightDev=${heightDev}` : ""}${weightDev ? `&weightDev=${weightDev}` : ""}${locationId ? `&locationId=${locationId}` : ""}${sex ? `&sex=${sex}` : ""}`}
             className={`flex items-center justify-center w-10 h-10 rounded-full border border-gray-200 bg-white text-gray-700 shadow-sm active:scale-95 transition-all ${!hasPrevPage && "opacity-50 pointer-events-none"}`}
           >
             <ChevronLeft className="h-5 w-5" />
@@ -98,7 +101,7 @@ export async function MobileChildList({
             หน้า {currentPage} จาก {totalPages}
           </span>
           <Link
-            href={`?page=${currentPage + 1}${search ? `&q=${encodeURIComponent(search)}` : ""}${status ? `&status=${status}` : ""}${minAgeYears ? `&minAgeYears=${minAgeYears}` : ""}${maxAgeYears ? `&maxAgeYears=${maxAgeYears}` : ""}${minAge ? `&minAge=${minAge}` : ""}${maxAge ? `&maxAge=${maxAge}` : ""}${heightDev ? `&heightDev=${heightDev}` : ""}${weightDev ? `&weightDev=${weightDev}` : ""}${locationId ? `&locationId=${locationId}` : ""}`}
+            href={`?page=${currentPage + 1}${search ? `&q=${encodeURIComponent(search)}` : ""}${status ? `&status=${status}` : ""}${minAgeYears ? `&minAgeYears=${minAgeYears}` : ""}${maxAgeYears ? `&maxAgeYears=${maxAgeYears}` : ""}${minAge ? `&minAge=${minAge}` : ""}${maxAge ? `&maxAge=${maxAge}` : ""}${heightDev ? `&heightDev=${heightDev}` : ""}${weightDev ? `&weightDev=${weightDev}` : ""}${locationId ? `&locationId=${locationId}` : ""}${sex ? `&sex=${sex}` : ""}`}
             className={`flex items-center justify-center w-10 h-10 rounded-full border border-gray-200 bg-white text-gray-700 shadow-sm active:scale-95 transition-all ${!hasNextPage && "opacity-50 pointer-events-none"}`}
           >
             <ChevronRight className="h-5 w-5" />

@@ -18,6 +18,7 @@ type GetChildrenParams = OptionsGetChildrenDTO & {
   status?: string;
   heightDev?: string;
   weightDev?: string;
+  sex?: string;
 };
 
 type ChildrenPayload =
@@ -94,6 +95,11 @@ const applyClientFilters = (
     }
 
     if (isNonEmptyString(params.status) && child.status !== params.status) {
+      return false;
+    }
+
+    // Filter by sex (server-side fallback)
+    if (isNonEmptyString(params.sex) && child.sex !== params.sex) {
       return false;
     }
 
@@ -197,9 +203,10 @@ export class ChildAction {
       isDefined(toOptionalNumber(params.maxAgeYears)) ||
       isNonEmptyString(params.status) ||
       isNonEmptyString(params.heightDev) ||
-      isNonEmptyString(params.weightDev);
+      isNonEmptyString(params.weightDev) ||
+      isNonEmptyString(params.sex);
 
-    const commonParams: OptionsGetChildrenDTO = {
+    const commonParams: OptionsGetChildrenDTO & { sex?: string } = {
       deleteStatus: false,
       locationId:
         typeof params.locationId === "number" && Number.isFinite(params.locationId)
@@ -208,6 +215,7 @@ export class ChildAction {
       createdByUser: isNonEmptyString(params.createdByUser)
         ? params.createdByUser.trim()
         : undefined,
+      sex: isNonEmptyString(params.sex) ? params.sex : undefined,
     };
 
     const fetchLimit = Math.max(limit, 50);

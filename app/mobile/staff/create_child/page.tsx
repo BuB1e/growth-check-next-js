@@ -8,10 +8,11 @@ import {
 } from "./actions";
 import { Loader2, Save, UserPlus } from "lucide-react";
 import { useMobilePageStore } from "@/stores/MobilePageStore";
-import { EMobilePage } from "@/types";
+import { EMobilePage, Sex, SexToThai } from "@/types";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Plus, Trash2 } from "lucide-react";
 
 const initialState: ActionState = {
   errors: {},
@@ -33,6 +34,43 @@ export default function CreateChildPage() {
   const [locationLoadError, setLocationLoadError] = useState<string | null>(
     null,
   );
+
+  const [measurements, setMeasurements] = useState([
+    {
+      id: crypto.randomUUID(),
+      dateDay: new Date().getDate().toString().padStart(2, "0"),
+      dateMonth: (new Date().getMonth() + 1).toString().padStart(2, "0"),
+      dateYear: (new Date().getFullYear() + 543).toString(),
+      weight: "",
+      height: "",
+    },
+  ]);
+
+  const addMeasurement = () => {
+    setMeasurements([
+      ...measurements,
+      {
+        id: Math.random().toString(36).substring(7),
+        dateDay: new Date().getDate().toString().padStart(2, "0"),
+        dateMonth: (new Date().getMonth() + 1).toString().padStart(2, "0"),
+        dateYear: (new Date().getFullYear() + 543).toString(),
+        weight: "",
+        height: "",
+      },
+    ]);
+  };
+
+  const removeMeasurement = (id: string) => {
+    if (measurements.length > 1) {
+      setMeasurements(measurements.filter((m) => m.id !== id));
+    }
+  };
+
+  const updateMeasurement = (id: string, field: string, value: string) => {
+    setMeasurements((prev) =>
+      prev.map((m) => (m.id === id ? { ...m, [field]: value } : m)),
+    );
+  };
 
   useEffect(() => {
     setSelectedTab(EMobilePage.CREATE_CHILD);
@@ -128,6 +166,24 @@ export default function CreateChildPage() {
                   </p>
                 )}
               </div>
+              <div className="space-y-1.5 focus-within:text-blue-600 transition-colors">
+                <Label htmlFor="sex" className="text-sm font-medium text-gray-700">
+                  เพศ
+                </Label>
+                <select
+                  id="sex"
+                  name="sex"
+                  defaultValue=""
+                  className="w-full rounded-xl h-12 px-4 bg-gray-50 border border-gray-200 text-gray-900 focus:bg-white focus:ring-2 focus:ring-blue-600 focus:outline-none transition-all"
+                >
+                  <option value="" disabled>เลือกเพศ</option>
+                  <option value={Sex.MALE}>{SexToThai[Sex.MALE]}</option>
+                  <option value={Sex.FEMALE}>{SexToThai[Sex.FEMALE]}</option>
+                </select>
+                {state.errors?.sex && (
+                  <p className="text-xs text-red-500 mt-1">{state.errors.sex[0]}</p>
+                )}
+              </div>
             </div>
 
             <div className="space-y-1.5 pt-1 focus-within:text-blue-600 transition-colors">
@@ -141,7 +197,10 @@ export default function CreateChildPage() {
                   maxLength={2}
                   inputMode="numeric"
                   onChange={(e) => {
-                    e.target.value = e.target.value.replace(/[^0-9]/g, "");
+                    const cleaned = e.target.value.replace(/[^0-9]/g, "");
+                    const num = parseInt(cleaned, 10);
+                    // Clamp day to max 31 while typing
+                    e.target.value = !cleaned ? "" : num > 31 ? "31" : cleaned;
                   }}
                   onBlur={(e) => {
                     let n = parseInt(e.target.value, 10);
@@ -160,7 +219,10 @@ export default function CreateChildPage() {
                   maxLength={2}
                   inputMode="numeric"
                   onChange={(e) => {
-                    e.target.value = e.target.value.replace(/[^0-9]/g, "");
+                    const cleaned = e.target.value.replace(/[^0-9]/g, "");
+                    const num = parseInt(cleaned, 10);
+                    // Clamp month to max 12 while typing
+                    e.target.value = !cleaned ? "" : num > 12 ? "12" : cleaned;
                   }}
                   onBlur={(e) => {
                     let n = parseInt(e.target.value, 10);
@@ -179,7 +241,19 @@ export default function CreateChildPage() {
                   maxLength={4}
                   inputMode="numeric"
                   onChange={(e) => {
-                    e.target.value = e.target.value.replace(/[^0-9]/g, "");
+                    const cleaned = e.target.value.replace(/[^0-9]/g, "");
+                    const num = parseInt(cleaned, 10);
+                    // Clamp year to max current Buddhist Era year
+                    const currentBEYear = new Date().getFullYear() + 543;
+                    e.target.value = !cleaned ? "" : num > currentBEYear ? String(currentBEYear) : cleaned;
+                  }}
+                  onBlur={(e) => {
+                    if (!e.target.value) return;
+                    let n = parseInt(e.target.value, 10);
+                    const currentBEYear = new Date().getFullYear() + 543;
+                    if (isNaN(n) || n < 1) n = 1;
+                    if (n > currentBEYear) n = currentBEYear;
+                    e.target.value = n.toString();
                   }}
                   className="flex-1 rounded-xl h-12 text-center bg-gray-50 border-gray-200 focus:bg-white focus:ring-2 focus:ring-blue-600 transition-all"
                 />
@@ -192,62 +266,157 @@ export default function CreateChildPage() {
                   15/05/2565)
                 </p>
               )}
+              {state.errors?.measurementsJSON && (
+                <p className="text-xs text-red-500 mt-1">
+                  {state.errors.measurementsJSON[0]}
+                </p>
+              )}
             </div>
 
-            <div className="grid grid-cols-2 gap-4 pt-1">
-              <div className="space-y-1.5 focus-within:text-blue-600 transition-colors">
-                <Label
-                  htmlFor="weight"
-                  className="text-sm font-medium text-gray-700"
+            <div className="pt-2 border-t border-gray-100 space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="font-semibold text-gray-800">ข้อมูลการเจริญเติบโต</h3>
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={addMeasurement}
+                  className="rounded-full h-10 px-4 text-sm font-semibold bg-blue-100 text-blue-700 hover:bg-blue-200 transition-colors"
                 >
-                  น้ำหนัก (ก.ก.)
-                </Label>
-                <div className="relative">
-                  <Input
-                    id="weight"
-                    name="weight"
-                    type="number"
-                    step="0.1"
-                    placeholder="0.0"
-                    className="rounded-xl h-12 pr-10 bg-gray-50 border-gray-200 focus:bg-white focus:ring-2 focus:ring-blue-600 transition-all"
-                  />
-                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-gray-400 font-medium pointer-events-none">
-                    kg
-                  </span>
-                </div>
-                {state.errors?.weight && (
-                  <p className="text-xs text-red-500 mt-1">
-                    {state.errors.weight[0]}
-                  </p>
-                )}
+                  <Plus className="h-4 w-4 mr-1.5" />
+                  เพิ่มข้อมูล
+                </Button>
               </div>
 
-              <div className="space-y-1.5 focus-within:text-blue-600 transition-colors">
-                <Label
-                  htmlFor="height"
-                  className="text-sm font-medium text-gray-700"
-                >
-                  ส่วนสูง (ซ.ม.)
-                </Label>
-                <div className="relative">
-                  <Input
-                    id="height"
-                    name="height"
-                    type="number"
-                    step="0.1"
-                    placeholder="0.0"
-                    className="rounded-xl h-12 pr-10 bg-gray-50 border-gray-200 focus:bg-white focus:ring-2 focus:ring-blue-600 transition-all"
-                  />
-                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-gray-400 font-medium pointer-events-none">
-                    cm
-                  </span>
+              {measurements.map((m, index) => (
+                <div key={m.id} className="bg-gray-50 rounded-2xl p-4 border border-gray-100 shadow-sm flex flex-col gap-4">
+                  
+                  {/* Card Header & Delete Button */}
+                  <div className="flex justify-between items-center border-b border-gray-200/60 pb-2">
+                    <span className="text-sm font-semibold text-gray-700 bg-white px-3 py-1 rounded-full border border-gray-200 shadow-sm">
+                      ครั้งที่ {index + 1}
+                    </span>
+                    {measurements.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removeMeasurement(m.id)}
+                        className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors active:scale-95"
+                        aria-label="ลบข้อมูล"
+                      >
+                        <Trash2 className="h-5 w-5" />
+                      </button>
+                    )}
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1.5 focus-within:text-blue-600 transition-colors">
+                      <Label className="text-sm font-medium text-gray-700">น้ำหนัก (ก.ก.)</Label>
+                      <div className="relative">
+                        <Input
+                          type="number"
+                          step="0.1"
+                          placeholder="0.0"
+                          value={m.weight}
+                          onChange={(e) => updateMeasurement(m.id, "weight", e.target.value)}
+                          className="rounded-xl h-12 pr-10 bg-white border-gray-200 focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all"
+                        />
+                        <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-gray-400 font-medium pointer-events-none">
+                          kg
+                        </span>
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-1.5 focus-within:text-blue-600 transition-colors">
+                      <Label className="text-sm font-medium text-gray-700">ส่วนสูง (ซ.ม.)</Label>
+                      <div className="relative">
+                        <Input
+                          type="number"
+                          step="0.1"
+                          placeholder="0.0"
+                          value={m.height}
+                          onChange={(e) => updateMeasurement(m.id, "height", e.target.value)}
+                          className="rounded-xl h-12 pr-10 bg-white border-gray-200 focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all"
+                        />
+                        <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-gray-400 font-medium pointer-events-none">
+                          cm
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-1.5 focus-within:text-blue-600 transition-colors">
+                    <Label className="text-sm font-medium text-gray-700">วันที่วัด (พ.ศ.)</Label>
+                    <div className="flex gap-2 w-full">
+                      <Input
+                        placeholder="วว"
+                        maxLength={2}
+                        inputMode="numeric"
+                        value={m.dateDay}
+                        onChange={(e) => {
+                          const cleaned = e.target.value.replace(/[^0-9]/g, "");
+                          const num = parseInt(cleaned, 10);
+                          const val = !cleaned ? "" : num > 31 ? "31" : cleaned;
+                          updateMeasurement(m.id, "dateDay", val);
+                        }}
+                        onBlur={(e) => {
+                          let n = parseInt(e.target.value, 10);
+                          if (isNaN(n) || n < 1) n = 1;
+                          if (n > 31) n = 31;
+                          updateMeasurement(m.id, "dateDay", n.toString().padStart(2, "0"));
+                        }}
+                        className="w-20 rounded-xl h-12 text-center bg-white border-gray-200 focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all"
+                      />
+                      <span className="flex items-center justify-center text-gray-300 font-light text-xl">
+                        /
+                      </span>
+                      <Input
+                        placeholder="ดด"
+                        maxLength={2}
+                        inputMode="numeric"
+                        value={m.dateMonth}
+                        onChange={(e) => {
+                          const cleaned = e.target.value.replace(/[^0-9]/g, "");
+                          const num = parseInt(cleaned, 10);
+                          const val = !cleaned ? "" : num > 12 ? "12" : cleaned;
+                          updateMeasurement(m.id, "dateMonth", val);
+                        }}
+                        onBlur={(e) => {
+                          let n = parseInt(e.target.value, 10);
+                          if (isNaN(n) || n < 1) n = 1;
+                          if (n > 12) n = 12;
+                          updateMeasurement(m.id, "dateMonth", n.toString().padStart(2, "0"));
+                        }}
+                        className="w-20 rounded-xl h-12 text-center bg-white border-gray-200 focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all"
+                      />
+                      <span className="flex items-center justify-center text-gray-300 font-light text-xl">
+                        /
+                      </span>
+                      <Input
+                        placeholder="ปปปป"
+                        maxLength={4}
+                        inputMode="numeric"
+                        value={m.dateYear}
+                        onChange={(e) => {
+                          const cleaned = e.target.value.replace(/[^0-9]/g, "");
+                          const num = parseInt(cleaned, 10);
+                          const currentBEYear = new Date().getFullYear() + 543;
+                          const val = !cleaned ? "" : num > currentBEYear ? String(currentBEYear) : cleaned;
+                          updateMeasurement(m.id, "dateYear", val);
+                        }}
+                        onBlur={(e) => {
+                          if (!e.target.value) return;
+                          let n = parseInt(e.target.value, 10);
+                          const currentBEYear = new Date().getFullYear() + 543;
+                          if (isNaN(n) || n < 1) n = 1;
+                          if (n > currentBEYear) n = currentBEYear;
+                          updateMeasurement(m.id, "dateYear", n.toString());
+                        }}
+                        className="flex-1 rounded-xl h-12 text-center bg-white border-gray-200 focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all"
+                      />
+                    </div>
+                  </div>
                 </div>
-                {state.errors?.height && (
-                  <p className="text-xs text-red-500 mt-1">
-                    {state.errors.height[0]}
-                  </p>
-                )}
-              </div>
+              ))}
+              <input type="hidden" name="measurementsJSON" value={JSON.stringify(measurements)} />
             </div>
 
             <div className="space-y-1.5 pt-1 focus-within:text-blue-600 transition-colors">
