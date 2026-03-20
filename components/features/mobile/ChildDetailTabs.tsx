@@ -2,7 +2,12 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { AiPredictionResponse, ChildResponse, ChildDataResponse } from "@/dto";
+import {
+  AiPredictionResponse,
+  ChildResponse,
+  ChildDataResponse,
+  DevelopmentResponse,
+} from "@/dto";
 import {
   Child_status,
   Child_statusToThai,
@@ -52,10 +57,12 @@ export function ChildDetailTabs({
   child,
   history,
   latestPrediction,
+  developments,
 }: {
   child: ChildResponse;
   history: ChildDataResponse[];
   latestPrediction: AiPredictionResponse | null;
+  developments: DevelopmentResponse[];
 }) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<"personal" | "development">(
@@ -374,7 +381,11 @@ export function ChildDetailTabs({
                 <div className="space-y-4">
                   {
                     history.sort((a, b) => b.id - a.id).map((record) => (
-                      <DevelopmentCard key={record.id} data={record} />
+                      <DevelopmentCard
+                        key={record.id}
+                        data={record}
+                        developments={developments}
+                      />
                     ))
                   }
                 </div>

@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { AiPredictionAction } from "@/actions/AiPredictionAction";
 import { ChildAction } from "@/actions/ChildAction";
 import { ChildDataAction } from "@/actions/ChildDataAction";
+import { DevelopmentAction } from "@/actions/DevelopmentAction";
 import { ChildDetailTabs } from "@/components/features/mobile/ChildDetailTabs";
 import { notFound } from "next/navigation";
 import { Loader2 } from "lucide-react";
@@ -19,10 +20,11 @@ async function ChildProfileContent({
     notFound();
   }
 
-  const [child, childDataResponse] = await Promise.all([
+  const [child, childDataResponse, developmentsResponse] = await Promise.all([
     ChildAction.getChildById(p.child_id.replace("child_", "")),
     // Replace with real API call filtered by childId
     ChildDataAction.getChildDataList({ childId: childId }),
+    DevelopmentAction.getDevelopments({ page: 1, limit: 1000 }),
   ]);
 
   let latestPrediction: AiPredictionResponse | null = null;
@@ -47,7 +49,14 @@ async function ChildProfileContent({
     notFound();
   }
 
-  return <ChildDetailTabs child={child} history={history} latestPrediction={latestPrediction} />;
+  return (
+    <ChildDetailTabs
+      child={child}
+      history={history}
+      latestPrediction={latestPrediction}
+      developments={developmentsResponse.data}
+    />
+  );
 }
 
 export default function ChildProfilePage({
