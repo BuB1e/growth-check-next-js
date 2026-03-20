@@ -131,7 +131,7 @@ export function ChildDetailTabs({
     <div className="w-full">
       {/* Sticky Tabs Header */}
       <div className="sticky top-18.25 z-40 flex border-b border-gray-100 bg-white/80 px-2 pb-0 pt-2 backdrop-blur-md">
-        
+
         {/* Development Tab */}
         <button
           onClick={() => setActiveTab("development")}
@@ -273,11 +273,8 @@ export function ChildDetailTabs({
                     <div className="flex items-start justify-between gap-3">
                       <div>
                         <h3 className="text-[16px] font-bold text-slate-800 tracking-tight">
-                          ผลทำนายล่าสุด
+                          การเจริญเติบโตที่คาดการณ์ในอีก 6 เดือนข้างหน้า
                         </h3>
-                        <p className="mt-0.5 text-xs font-medium text-slate-500">
-                          ทำนายเมื่อ {formatBE(latestPrediction.dateTime, "d MMM yyyy")}
-                        </p>
                       </div>
                       <span className="inline-flex rounded-full border border-sky-200 bg-white/80 px-2.5 py-1 text-xs font-semibold text-sky-700">
                         AI

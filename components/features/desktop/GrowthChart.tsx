@@ -27,19 +27,19 @@ interface GrowthChartProps {
 const chartConfig = {
   weight: {
     label: "น้ำหนักจริง (กก.)",
-    color: "#f97316",
+    color: "#f97316", // orange-500
   },
   height: {
     label: "ส่วนสูงจริง (ซม.)",
-    color: "#2563eb",
+    color: "#3b82f6", // blue-500
   },
   predictedWeight: {
     label: "น้ำหนักที่ทำนาย",
-    color: "#fb923c",
+    color: "#0ea5e9", // cyan-500
   },
   predictedHeight: {
     label: "ส่วนสูงที่ทำนาย",
-    color: "#60a5fa",
+    color: "#8b5cf6", // violet-500
   },
 } satisfies ChartConfig;
 
@@ -161,24 +161,26 @@ export function GrowthChart({
         </div>
       </div>
 
-      <div className="rounded-xl border border-slate-200 bg-white px-3 py-2">
-        <p className="text-xs font-semibold text-slate-500">คำอธิบาย Metric</p>
-        <div className="mt-2 flex flex-wrap gap-x-4 gap-y-2 text-xs text-slate-700">
-          <span className="inline-flex items-center gap-2">
+      <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
+        <p className="text-[11px] font-semibold text-slate-500">
+          คำอธิบาย Metric
+        </p>
+        <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[11px] font-medium text-slate-700">
+          <span className="inline-flex items-center gap-1.5">
+            <span className="h-2.5 w-2.5 rounded-full bg-blue-500" />
+            ส่วนสูงจริง
+          </span>
+          <span className="inline-flex items-center gap-1.5">
             <span className="h-2.5 w-2.5 rounded-full bg-orange-500" />
-            น้ำหนักจริง (กก.)
+            น้ำหนักจริง
           </span>
-          <span className="inline-flex items-center gap-2">
-            <span className="h-2.5 w-2.5 rounded-full bg-blue-600" />
-            ส่วนสูงจริง (ซม.)
+          <span className="inline-flex items-center gap-1.5">
+            <span className="h-2.5 w-2.5 rounded-full bg-violet-500" />
+            ส่วนสูงที่ทำนาย
           </span>
-          <span className="inline-flex items-center gap-2">
-            <span className="h-2.5 w-2.5 rounded-full bg-orange-300" />
-            น้ำหนักที่ทำนาย (เส้นประ)
-          </span>
-          <span className="inline-flex items-center gap-2">
-            <span className="h-2.5 w-2.5 rounded-full bg-blue-300" />
-            ส่วนสูงที่ทำนาย (เส้นประ)
+          <span className="inline-flex items-center gap-1.5">
+            <span className="h-2.5 w-2.5 rounded-full bg-cyan-500" />
+            น้ำหนักที่ทำนาย
           </span>
         </div>
       </div>

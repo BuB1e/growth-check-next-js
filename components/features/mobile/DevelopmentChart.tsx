@@ -20,7 +20,10 @@ interface DevelopmentChartProps {
   prediction?: AiPredictionResponse | null;
 }
 
-export function DevelopmentChart({ history, prediction = null }: DevelopmentChartProps) {
+export function DevelopmentChart({
+  history,
+  prediction = null,
+}: DevelopmentChartProps) {
   const [activeMetric, setActiveMetric] = useState<
     "both" | "height" | "weight"
   >("both");
@@ -38,24 +41,26 @@ export function DevelopmentChart({ history, prediction = null }: DevelopmentChar
   }, [history]);
 
   const chartData = useMemo(() => {
-    const historicalData = [...history]
+    const sortedHistory = [...history]
       .filter((record) => !Number.isNaN(new Date(record.heightDate).getTime()))
-      .reverse()
-      .map((record) => {
-        const shortDate = formatBE(record.heightDate, "d MMM yy");
+      .sort(
+        (a, b) =>
+          new Date(a.heightDate).getTime() - new Date(b.heightDate).getTime(),
+      );
 
-        return {
-          name: `ครั้งที่ ${record.id}`,
-          dateOrder: new Date(record.heightDate).getTime(),
-          shortDate,
-          height: Number(record.height.toFixed(1)),
-          weight: Number(record.weight.toFixed(1)),
-          predictedHeight: undefined as number | undefined,
-          predictedWeight: undefined as number | undefined,
-          predictedHeightTrend: undefined as number | undefined,
-          predictedWeightTrend: undefined as number | undefined,
-        };
-      });
+    const historicalData = sortedHistory.map((record) => {
+      const shortDate = formatBE(record.heightDate, "d MMM yy");
+
+      return {
+        name: `ครั้งที่ ${record.id}`,
+        dateOrder: new Date(record.heightDate).getTime(),
+        shortDate,
+        height: Number(record.height.toFixed(1)),
+        weight: Number(record.weight.toFixed(1)),
+        predictedHeightTrend: undefined as number | undefined,
+        predictedWeightTrend: undefined as number | undefined,
+      };
+    });
 
     const predictedData = buildPredictionPoints(prediction, {
       anchorDate: latestHistoricalDate,
@@ -65,8 +70,6 @@ export function DevelopmentChart({ history, prediction = null }: DevelopmentChar
       shortDate: formatBE(point.predictedDate, "d MMM yy"),
       height: undefined as number | undefined,
       weight: undefined as number | undefined,
-      predictedHeight: point.predictedHeight,
-      predictedWeight: point.predictedWeight,
       predictedHeightTrend: point.predictedHeight,
       predictedWeightTrend: point.predictedWeight,
     }));
@@ -171,7 +174,9 @@ export function DevelopmentChart({ history, prediction = null }: DevelopmentChar
         </div>
 
         <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
-          <p className="mb-2 text-[11px] font-semibold text-slate-500">คำอธิบายเส้นกราฟ</p>
+          <p className="mb-2 text-[11px] font-semibold text-slate-500">
+            คำอธิบาย Metric
+          </p>
           <div className="flex flex-wrap gap-x-3 gap-y-1 text-[11px] font-medium text-slate-700">
             <span className="inline-flex items-center gap-1.5">
               <span className="h-2.5 w-2.5 rounded-full bg-blue-500" />
