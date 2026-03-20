@@ -95,7 +95,7 @@ export function MeasurementDrawer({
 
     setIsPending(true);
     try {
-      const { createChildDataAction } = await import(
+      const { createChildDataAction, createPredictionForChildAction } = await import(
         "@/app/mobile/staff/[child_id]/actions"
       );
       await createChildDataAction({
@@ -109,12 +109,27 @@ export function MeasurementDrawer({
         userCreated: "current-user", // TODO: Get from session
         userUpdated: "current-user", // TODO: Get from session
       });
+
+      if (childId) {
+        setIsPredicting(true);
+        const predictionResult = await createPredictionForChildAction(childId, "lstm");
+        if (predictionResult.success) {
+          setPredictionMessage("บันทึกแล้วและส่งคำขอทำนายผล 6 เดือนเรียบร้อย");
+        } else {
+          setPredictionError(
+            predictionResult.error ?? "บันทึกสำเร็จ แต่ไม่สามารถส่งคำขอทำนายได้",
+          );
+        }
+        setIsPredicting(false);
+      }
+
       setSaveSuccess(true);
       router.refresh();
     } catch {
       setIsError(true);
     } finally {
       setIsPending(false);
+      setIsPredicting(false);
     }
   };
 
@@ -198,7 +213,7 @@ export function MeasurementDrawer({
                     onChange={(e) =>
                       setHeight(e.target.value.replace(/[^0-9.]/g, ""))
                     }
-                    className="min-h-[52px] text-lg rounded-xl pl-4 pr-12 focus-visible:ring-blue-500 bg-gray-50/50"
+                    className="min-h-13 bg-gray-50/50 pl-4 pr-12 text-lg rounded-xl focus-visible:ring-blue-500"
                   />
                   <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 font-medium">
                     cm
@@ -226,7 +241,7 @@ export function MeasurementDrawer({
                     onChange={(e) =>
                       setWeight(e.target.value.replace(/[^0-9.]/g, ""))
                     }
-                    className="min-h-[52px] text-lg rounded-xl pl-4 pr-12 focus-visible:ring-blue-500 bg-gray-50/50"
+                    className="min-h-13 bg-gray-50/50 pl-4 pr-12 text-lg rounded-xl focus-visible:ring-blue-500"
                   />
                   <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 font-medium">
                     kg
@@ -254,7 +269,7 @@ export function MeasurementDrawer({
                     onChange={(e) =>
                       setDay(e.target.value.replace(/[^0-9]/g, ""))
                     }
-                    className="min-h-[52px] w-[80px] text-lg rounded-xl text-center focus-visible:ring-blue-500 bg-gray-50/50"
+                    className="min-h-13 w-20 bg-gray-50/50 text-lg rounded-xl text-center focus-visible:ring-blue-500"
                   />
                   <span className="flex items-center justify-center text-gray-300 text-xl font-light">
                     /
@@ -268,7 +283,7 @@ export function MeasurementDrawer({
                     onChange={(e) =>
                       setMonth(e.target.value.replace(/[^0-9]/g, ""))
                     }
-                    className="min-h-[52px] w-[80px] text-lg rounded-xl text-center focus-visible:ring-blue-500 bg-gray-50/50"
+                    className="min-h-13 w-20 bg-gray-50/50 text-lg rounded-xl text-center focus-visible:ring-blue-500"
                   />
                   <span className="flex items-center justify-center text-gray-300 text-xl font-light">
                     /
@@ -282,7 +297,7 @@ export function MeasurementDrawer({
                     onChange={(e) =>
                       setYear(e.target.value.replace(/[^0-9]/g, ""))
                     }
-                    className="min-h-[52px] flex-1 text-lg rounded-xl text-center focus-visible:ring-blue-500 bg-gray-50/50"
+                    className="min-h-13 flex-1 bg-gray-50/50 text-lg rounded-xl text-center focus-visible:ring-blue-500"
                   />
                 </div>
                 {errors.date && (
@@ -298,7 +313,7 @@ export function MeasurementDrawer({
               {!saveSuccess ? (
                 <Button
                   type="submit"
-                  className="min-h-[52px] w-full rounded-xl text-base font-semibold bg-blue-600 hover:bg-blue-700 shadow-sm transition-all active:scale-[0.98]"
+                  className="min-h-13 w-full rounded-xl bg-blue-600 text-base font-semibold shadow-sm transition-all hover:bg-blue-700 active:scale-[0.98]"
                   disabled={isPending}
                 >
                   {isPending ? (
@@ -311,7 +326,7 @@ export function MeasurementDrawer({
               ) : (
                 <Button
                   type="button"
-                  className="min-h-[52px] w-full rounded-xl text-base font-semibold bg-sky-600 hover:bg-sky-700 shadow-sm transition-all active:scale-[0.98]"
+                  className="min-h-13 w-full rounded-xl bg-sky-600 text-base font-semibold shadow-sm transition-all hover:bg-sky-700 active:scale-[0.98]"
                   onClick={handleCreatePrediction}
                   disabled={isPredicting}
                 >
@@ -320,13 +335,13 @@ export function MeasurementDrawer({
                   ) : (
                     <Sparkles className="mr-2 h-4 w-4" />
                   )}
-                  ทำนายการเจริญเติบโต
+                  ทำนายผล 6 เดือน
                 </Button>
               )}
               <DrawerClose asChild>
                 <Button
                   variant="outline"
-                  className="min-h-[48px] w-full"
+                  className="min-h-12 w-full"
                   onClick={resetForm}
                 >
                   ยกเลิก

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { AiPredictionResponse, ChildResponse, ChildDataResponse } from "@/dto";
 import {
   Child_status,
@@ -17,6 +18,8 @@ import {
   LineChart as LineChartIcon,
   Weight,
   Ruler,
+  Sparkles,
+  Loader2,
 } from "lucide-react";
 import { formatAgeThai, formatBE } from "@/lib/date-utils";
 import { getPredictionSummaryValue } from "@/lib/prediction-utils";
@@ -54,12 +57,16 @@ export function ChildDetailTabs({
   history: ChildDataResponse[];
   latestPrediction: AiPredictionResponse | null;
 }) {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<"personal" | "development">(
-    "personal",
+    "development",
   );
   const [developmentView, setDevelopmentView] = useState<"list" | "chart">(
-    "list",
+    "chart",
   ); // <-- Added View State
+  const [isManualPredicting, setIsManualPredicting] = useState(false);
+  const [manualPredictMessage, setManualPredictMessage] = useState<string | null>(null);
+  const [manualPredictError, setManualPredictError] = useState<string | null>(null);
 
   const childStatusKey = getChildStatusKey(child.status);
   const childStatusText = childStatusKey
@@ -88,27 +95,37 @@ export function ChildDetailTabs({
     ? getPredictionSummaryValue(latestPrediction.weight)
     : null;
 
+  const handleManualPrediction = async () => {
+    setIsManualPredicting(true);
+    setManualPredictMessage(null);
+    setManualPredictError(null);
+
+    try {
+      const { createPredictionForChildAction } = await import(
+        "@/app/mobile/staff/[child_id]/actions"
+      );
+
+      const result = await createPredictionForChildAction(child.id, "lstm");
+      if (!result.success) {
+        setManualPredictError(result.error ?? "ทำนายไม่สำเร็จ กรุณาลองใหม่");
+        return;
+      }
+
+      setManualPredictMessage("ส่งคำขอทำนายผล 6 เดือนแล้ว ระบบกำลังประมวลผล");
+      router.refresh();
+    } catch {
+      setManualPredictError("ไม่สามารถทำนายได้ กรุณาลองใหม่อีกครั้ง");
+    } finally {
+      setIsManualPredicting(false);
+    }
+  };
+
   return (
     <div className="w-full">
       {/* Sticky Tabs Header */}
-      <div className="sticky top-[73px] z-40 bg-white/80 backdrop-blur-md border-b border-gray-100 flex pb-0 pt-2 px-2">
-        <button
-          onClick={() => setActiveTab("personal")}
-          className={`flex-1 pb-3 text-[15px] font-semibold transition-all relative ${
-            activeTab === "personal"
-              ? "text-blue-600"
-              : "text-gray-400 hover:text-gray-600"
-          }`}
-        >
-          <div className="flex items-center justify-center gap-2">
-            <User className="w-4 h-4" />
-            ข้อมูลส่วนบุคคล
-          </div>
-          {activeTab === "personal" && (
-            <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-blue-600 rounded-t-full" />
-          )}
-        </button>
-
+      <div className="sticky top-18.25 z-40 flex border-b border-gray-100 bg-white/80 px-2 pb-0 pt-2 backdrop-blur-md">
+        
+        {/* Development Tab */}
         <button
           onClick={() => setActiveTab("development")}
           className={`flex-1 pb-3 text-[15px] font-semibold transition-all relative ${
@@ -122,7 +139,25 @@ export function ChildDetailTabs({
             พัฒนาการ
           </div>
           {activeTab === "development" && (
-            <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-orange-600 rounded-t-full" />
+            <div className="absolute bottom-0 left-0 right-0 h-0.75 rounded-t-full bg-orange-600" />
+          )}
+        </button>
+
+        {/* Personal data Tab */}
+        <button
+          onClick={() => setActiveTab("personal")}
+          className={`flex-1 pb-3 text-[15px] font-semibold transition-all relative ${
+            activeTab === "personal"
+              ? "text-blue-600"
+              : "text-gray-400 hover:text-gray-600"
+          }`}
+        >
+          <div className="flex items-center justify-center gap-2">
+            <User className="w-4 h-4" />
+            ข้อมูลส่วนบุคคล
+          </div>
+          {activeTab === "personal" && (
+            <div className="absolute bottom-0 left-0 right-0 h-0.75 rounded-t-full bg-blue-600" />
           )}
         </button>
       </div>
@@ -200,6 +235,29 @@ export function ChildDetailTabs({
 
         {activeTab === "development" && (
           <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
+            <div className="rounded-2xl border border-sky-100 bg-sky-50/70 p-3">
+              <button
+                type="button"
+                onClick={handleManualPrediction}
+                disabled={isManualPredicting}
+                className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-sky-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-700 disabled:opacity-60"
+              >
+                {isManualPredicting ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Sparkles className="h-4 w-4" />
+                )}
+                ทำนายผล 6 เดือน
+              </button>
+
+              {manualPredictMessage && (
+                <p className="mt-2 text-xs font-medium text-sky-700">{manualPredictMessage}</p>
+              )}
+              {manualPredictError && (
+                <p className="mt-2 text-xs font-medium text-amber-700">{manualPredictError}</p>
+              )}
+            </div>
+
             {/* View Toggle Header */}
             {history.length > 0 && (
               <div className="mb-2 space-y-3">
@@ -333,7 +391,7 @@ export function ChildDetailTabs({
                 <h3 className="text-lg font-semibold text-gray-900 mb-1">
                   ยังไม่มีประวัติการวัด
                 </h3>
-                <p className="text-sm text-gray-500 max-w-[250px] mx-auto">
+                <p className="mx-auto max-w-62.5 text-sm text-gray-500">
                   เด็กคนนี้ยังไม่มีข้อมูลการเจริญเติบโตที่ถูกบันทึกในระบบ
                 </p>
               </div>

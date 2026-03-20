@@ -1,7 +1,11 @@
 "use client";
 
-import { useActionState, useEffect } from "react";
-import { createChildServerAction, ActionState } from "./actions";
+import { useActionState, useEffect, useState } from "react";
+import {
+  createChildServerAction,
+  ActionState,
+  getCreateChildLocationOptions,
+} from "./actions";
 import { Loader2, Save, UserPlus } from "lucide-react";
 import { useMobilePageStore } from "@/stores/MobilePageStore";
 import { EMobilePage } from "@/types";
@@ -22,10 +26,46 @@ export default function CreateChildPage() {
   );
 
   const setSelectedTab = useMobilePageStore((state) => state.setSelectedTab);
+  const [locations, setLocations] = useState<
+    Array<{ id: number; name: string; district: string; province: string }>
+  >([]);
+  const [isLoadingLocations, setIsLoadingLocations] = useState(true);
+  const [locationLoadError, setLocationLoadError] = useState<string | null>(
+    null,
+  );
 
   useEffect(() => {
     setSelectedTab(EMobilePage.CREATE_CHILD);
   }, [setSelectedTab]);
+
+  useEffect(() => {
+    let mounted = true;
+
+    const loadLocations = async () => {
+      setIsLoadingLocations(true);
+      setLocationLoadError(null);
+
+      try {
+        const result = await getCreateChildLocationOptions();
+        if (!mounted) return;
+        setLocations(result);
+      } catch (error) {
+        console.error("Failed to load location options:", error);
+        if (!mounted) return;
+        setLocationLoadError("ไม่สามารถโหลดข้อมูลเขตได้ กรุณาลองใหม่");
+      } finally {
+        if (mounted) {
+          setIsLoadingLocations(false);
+        }
+      }
+    };
+
+    loadLocations();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50 pb-24">
@@ -103,7 +143,13 @@ export default function CreateChildPage() {
                   onChange={(e) => {
                     e.target.value = e.target.value.replace(/[^0-9]/g, "");
                   }}
-                  className="w-[80px] rounded-xl h-12 text-center bg-gray-50 border-gray-200 focus:bg-white focus:ring-2 focus:ring-blue-600 transition-all"
+                  onBlur={(e) => {
+                    let n = parseInt(e.target.value, 10);
+                    if (isNaN(n) || n < 1) n = 1;
+                    if (n > 31) n = 31;
+                    e.target.value = n.toString().padStart(2, "0");
+                  }}
+                  className="w-20 rounded-xl h-12 text-center bg-gray-50 border-gray-200 focus:bg-white focus:ring-2 focus:ring-blue-600 transition-all"
                 />
                 <span className="flex items-center justify-center text-gray-300 font-light text-xl">
                   /
@@ -116,7 +162,13 @@ export default function CreateChildPage() {
                   onChange={(e) => {
                     e.target.value = e.target.value.replace(/[^0-9]/g, "");
                   }}
-                  className="w-[80px] rounded-xl h-12 text-center bg-gray-50 border-gray-200 focus:bg-white focus:ring-2 focus:ring-blue-600 transition-all"
+                  onBlur={(e) => {
+                    let n = parseInt(e.target.value, 10);
+                    if (isNaN(n) || n < 1) n = 1;
+                    if (n > 12) n = 12;
+                    e.target.value = n.toString().padStart(2, "0");
+                  }}
+                  className="w-20 rounded-xl h-12 text-center bg-gray-50 border-gray-200 focus:bg-white focus:ring-2 focus:ring-blue-600 transition-all"
                 />
                 <span className="flex items-center justify-center text-gray-300 font-light text-xl">
                   /
@@ -211,11 +263,19 @@ export default function CreateChildPage() {
                 defaultValue=""
                 className="w-full rounded-xl h-12 px-4 bg-gray-50 border border-gray-200 text-gray-900 focus:bg-white focus:ring-2 focus:ring-blue-600 focus:outline-none transition-all"
               >
-                {/* TODO: this should be staff location (user.teamId => team.location) */}
                 <option value="" disabled>
-                  MOCK DATA : เขต 1
+                  {isLoadingLocations ? "กำลังโหลดข้อมูลเขต..." : "เลือกเขต"}
                 </option>
+                {!isLoadingLocations &&
+                  locations.map((location) => (
+                    <option key={location.id} value={location.id}>
+                      {location.name} ({location.district}, {location.province})
+                    </option>
+                  ))}
               </select>
+              {locationLoadError && (
+                <p className="text-xs text-red-500 mt-1">{locationLoadError}</p>
+              )}
               {state.errors?.locationId && (
                 <p className="text-xs text-red-500 mt-1">
                   {state.errors.locationId[0]}
