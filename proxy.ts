@@ -20,6 +20,7 @@ export function proxy(request: NextRequest) {
     "/children",
     "/requests",
     "/history",
+    "/profile",
   ];
 
   // Head-only routes

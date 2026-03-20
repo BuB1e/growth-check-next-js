@@ -33,10 +33,10 @@ export default function BottomNavbar() {
     },
   ];
 
-  // Optional: Auto-sync tab state based on URL if user reloads directly
+  // Auto-sync tab state based on URL if user reloads directly or navigates via link
   useEffect(() => {
-    if (pathname === "/staff/home") setSelectedTab(EMobilePage.HOME);
-    // Add others if needed later
+    if (pathname.includes("/home")) setSelectedTab(EMobilePage.HOME);
+    if (pathname.includes("/profile")) setSelectedTab(EMobilePage.PROFILE);
   }, [pathname, setSelectedTab]);
 
   return (

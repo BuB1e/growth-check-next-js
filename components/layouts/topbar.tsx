@@ -4,9 +4,11 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 import { UserCircle } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { ESidebar, ESidebarToThai } from "@/types";
+import Link from "next/link";
 
 // Optional helper to get current page title from pathname
 function getPageTitle(pathname: string) {
+  if (pathname.startsWith("/profile")) return "โปรไฟล์";
   if (pathname.startsWith("/dashboard"))
     return ESidebarToThai[ESidebar.DASHBOARD];
   if (pathname.startsWith("/location"))
@@ -31,12 +33,15 @@ export default function TopbarDesktop() {
         <h1 className="text-lg font-semibold tracking-tight">{pageTitle}</h1>
       </div>
       <div className="flex items-center gap-4">
-        <div className="flex items-center gap-2 cursor-pointer hover:bg-slate-50 p-2 rounded-md transition-colors">
+        <Link
+          href="/profile"
+          className="flex items-center gap-2 hover:bg-slate-50 p-2 rounded-md transition-colors"
+        >
           <div className="w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center">
             <UserCircle className="w-5 h-5 text-slate-500" />
           </div>
-          <div className="text-sm font-medium hidden md:block">โปรไฟล์</div>
-        </div>
+          <span className="text-sm font-medium hidden md:block">โปรไฟล์</span>
+        </Link>
       </div>
     </header>
   );

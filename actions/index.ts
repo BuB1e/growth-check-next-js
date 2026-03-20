@@ -11,3 +11,4 @@ export * from "./SessionAction";
 export * from "./AccountAction";
 export * from "./VerificationAction";
 export * from "./UserCreateStatusAction";
+export * from "./ProfileAction";
