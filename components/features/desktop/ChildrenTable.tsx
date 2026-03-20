@@ -18,18 +18,10 @@ import {
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ChildResponse, PaginatedResponseDTO } from "@/dto";
 import { Child_status, Child_statusToThai } from "@/types";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
 import {
   ArrowUpDown,
-  Search,
   ChevronLeft,
   ChevronRight,
   CheckCircle2,
@@ -39,22 +31,17 @@ import {
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
 import { formatBE } from "@/lib/date-utils";
+import { ChildListFilters } from "@/components/features/mobile/ChildListFilters";
 
 interface ChildrenTableProps {
   rawData: PaginatedResponseDTO<ChildResponse>;
+  locationMap?: Record<number, string>;
 }
 
-export function ChildrenTable({ rawData }: ChildrenTableProps) {
+export function ChildrenTable({ rawData, locationMap = {} }: ChildrenTableProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-
-  const [searchQuery, setSearchQuery] = useState(
-    searchParams.get("q") || "",
-  );
-  const [statusFilter, setStatusFilter] = useState(
-    searchParams.get("status") || "all",
-  );
 
   const updateURLParams = (updates: Record<string, string | null>) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -66,16 +53,6 @@ export function ChildrenTable({ rawData }: ChildrenTableProps) {
       }
     });
     router.push(`${pathname}?${params.toString()}`);
-  };
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    updateURLParams({ q: searchQuery || null, page: "1" });
-  };
-
-  const handleStatusChange = (val: string) => {
-    setStatusFilter(val);
-    updateURLParams({ status: val === "all" ? null : val, page: "1" });
   };
 
   const handleSort = (columnKey: keyof ChildResponse) => {
@@ -118,6 +95,22 @@ export function ChildrenTable({ rawData }: ChildrenTableProps) {
       ),
     },
     {
+      accessorKey: "sex",
+      header: () => (
+        <Button
+          variant="ghost"
+          onClick={() => handleSort("sex")}
+          className="-ml-4 h-8 data-[state=open]:bg-accent"
+        >
+          เพศ
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      ),
+      cell: ({ row }) => {
+        return row.original.sex === "MALE" ? "ชาย" : "หญิง";
+      },
+    },
+    {
       accessorKey: "birthDate",
       header: () => (
         <Button
@@ -137,9 +130,8 @@ export function ChildrenTable({ rawData }: ChildrenTableProps) {
       accessorKey: "locationId",
       header: "สถานที่",
       cell: ({ row }) => {
-        // TODO: Resolve location name via LocationAction.getLocationById when caching is in place
         const id = row.original.locationId;
-        return `เขต ${id}`;
+        return locationMap[id] || `เขต ${id}`;
       },
     },
     {
@@ -204,49 +196,7 @@ export function ChildrenTable({ rawData }: ChildrenTableProps) {
   return (
     <div className="space-y-4">
       {/* Controls Container */}
-      <div className="flex flex-wrap gap-3 justify-between">
-        <form
-          onSubmit={handleSearch}
-          className="flex flex-1 items-center max-w-sm"
-        >
-          <div className="relative w-full">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="text"
-              placeholder="ค้นหาตามชื่อ/นามสกุล..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-8"
-            />
-          </div>
-          <Button type="submit" variant="secondary" className="ml-2 shrink-0">
-            ค้นหา
-          </Button>
-        </form>
-
-        <div className="flex items-center gap-2">
-          <Select value={statusFilter} onValueChange={handleStatusChange}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="ทุกสถานะ" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">ทุกเกณฑ์</SelectItem>
-              <SelectItem value={Child_status.IN_AREA}>
-                {Child_statusToThai[Child_status.IN_AREA]}
-              </SelectItem>
-              <SelectItem value={Child_status.OUT_AREA}>
-                {Child_statusToThai[Child_status.OUT_AREA]}
-              </SelectItem>
-              <SelectItem value={Child_status.UNKNOWN}>
-                {Child_statusToThai[Child_status.UNKNOWN]}
-              </SelectItem>
-              <SelectItem value={Child_status.DIED}>
-                {Child_statusToThai[Child_status.DIED]}
-              </SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
+      <ChildListFilters />
 
       <div className="rounded-md border overflow-hidden">
         <div className="overflow-x-auto">

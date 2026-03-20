@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { ChildAction } from "@/actions/ChildAction";
+import { LocationAction } from "@/actions/LocationAction";
 import {
   Card,
   CardContent,
@@ -81,14 +82,45 @@ async function ChildrenDataWrapper({
       ? parsedLimit
       : EnvConfig.NEXT_PUBLIC_PAGINATION_LIMIT_DESKTOP_SIZE;
   const q = sp?.q;
+  const status = sp?.status;
+  const minAgeYears = sp?.minAgeYears;
+  const maxAgeYears = sp?.maxAgeYears;
+  const minAge = sp?.minAge;
+  const maxAge = sp?.maxAge;
+  const heightDev = sp?.heightDev;
+  const weightDev = sp?.weightDev;
+  const locationId = sp?.locationId;
+  const sex = sp?.sex;
   let data = null;
+  let locationMap: Record<number, string> = {};
 
   try {
-    data = await ChildAction.getChildren({
-      ...(page ? { page } : {}),
-      ...(limit ? { limit } : {}),
-      q,
-    });
+    const [childrenData, locationsData] = await Promise.all([
+      ChildAction.getChildren({
+        ...(page ? { page } : {}),
+        ...(limit ? { limit } : {}),
+        q,
+        status,
+        minAgeYears,
+        maxAgeYears,
+        minAge,
+        maxAge,
+        heightDev,
+        weightDev,
+        locationId: locationId ? Number(locationId) : undefined,
+        sex,
+      }),
+      LocationAction.getLocations({ page: 1, limit: 1000, deleted: false }),
+    ]);
+    
+    data = childrenData;
+    
+    if (locationsData?.data) {
+      locationMap = locationsData.data.reduce((acc, loc) => {
+        acc[loc.id] = loc.name;
+        return acc;
+      }, {} as Record<number, string>);
+    }
   } catch (error) {
     console.error("Failed to load children", error);
   }
@@ -101,5 +133,5 @@ async function ChildrenDataWrapper({
     );
   }
 
-  return <ChildrenTable rawData={data} />;
+  return <ChildrenTable rawData={data} locationMap={locationMap} />;
 }
