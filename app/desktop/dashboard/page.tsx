@@ -5,11 +5,9 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-import { DateRangePicker } from "@/components/features/desktop/date-range-picker";
+import { DashboardFilters } from "@/components/features/desktop/DashboardFilters";
 import {
-  ChildHealthStatusChart,
   ChildHealthTrendChart,
-  DashboardStatusItem,
   DashboardTrendItem,
 } from "@/components/features/desktop/dashboard-charts";
 import { ChildAction } from "@/actions/ChildAction";
@@ -17,6 +15,7 @@ import { UserAction } from "@/actions/UserAction";
 import { LocationCreateRequestAction } from "@/actions/LocationCreateRequestAction";
 import { LocationAction } from "@/actions/LocationAction";
 import { ChildDataAction } from "@/actions/ChildDataAction";
+import { AdminDashboardAction } from "@/actions/AdminDashboardAction";
 import { Baby, Users, MapPin, Activity } from "lucide-react";
 import { Suspense } from "react";
 
@@ -72,14 +71,7 @@ export default function DashboardPage({
           </Suspense>
         </div>
 
-        {/* Date Filter */}
-        <Suspense
-          fallback={
-            <div className="h-10 w-[300px] bg-muted animate-pulse rounded-md" />
-          }
-        >
-          <DateRangePicker />
-        </Suspense>
+        {/* Filters are now inside DashboardDataWrapper to access fetched locations */}
       </div>
 
       <Suspense fallback={<DashboardLoadingSkeleton />}>
@@ -108,16 +100,8 @@ function DashboardLoadingSkeleton() {
         ))}
       </div>
 
-      <div className="grid gap-4 grid-cols-1 lg:grid-cols-7 mt-2">
-        <Card className="col-span-1 lg:col-span-4 shadow-sm border-slate-200/60">
-          <CardHeader>
-            <div className="w-48 h-6 bg-muted rounded mb-2" />
-            <div className="w-64 h-4 bg-muted rounded" />
-          </CardHeader>
-          <CardContent className="h-[300px] bg-slate-50 rounded-md mx-6 mb-6" />
-        </Card>
-
-        <Card className="col-span-1 lg:col-span-3 shadow-sm border-slate-200/60">
+      <div className="mt-4">
+        <Card className="shadow-sm border-slate-200/60">
           <CardHeader>
             <div className="w-48 h-6 bg-muted rounded mb-2" />
             <div className="w-64 h-4 bg-muted rounded" />
@@ -134,36 +118,7 @@ async function DashboardDataWrapper({
 }: {
   searchParams: SearchParams;
 }) {
-  // Await searchParams before destructuring just in case it's used
-  await searchParams;
-
-  const normalizeGrowthStatus = (
-    status: string | undefined,
-  ): "normal" | "above" | "below" => {
-    if (!status) return "normal";
-    const s = status.toLowerCase().trim();
-
-    if (
-      s.includes("ตามเกณฑ์") ||
-      s.includes("ปกติ") ||
-      s.includes("normal") ||
-      s.includes("สมส่วน")
-    ) {
-      return "normal";
-    }
-
-    if (
-      s.includes("มาก") ||
-      s.includes("สูง") ||
-      s.includes("over") ||
-      s.includes("above") ||
-      s.includes("เกิน")
-    ) {
-      return "above";
-    }
-
-    return "below";
-  };
+  const params = await searchParams;
 
   const monthLabel = (date: Date): string =>
     date.toLocaleDateString("th-TH", { month: "short" });
@@ -177,15 +132,21 @@ async function DashboardDataWrapper({
     });
   };
 
-  // Fetch real metrics from API — gracefully handle failures
-  const [childrenRes, usersRes, locationsRes, requestsRes, waitingRequestsRes, childDataRes] =
+  const [childrenRes, usersRes, locationsRes, requestsRes, waitingRequestsRes, chartRes] =
     await Promise.allSettled([
       ChildAction.getChildren(),
       UserAction.getUsers({ page: 1, limit: 5000, deleteStatus: false }),
       LocationAction.getLocations({ page: 1, limit: 5000, deleted: false }),
       LocationCreateRequestAction.getRequests(),
       LocationCreateRequestAction.getRequests({ requestStatus: "WAITING" }),
-      ChildDataAction.getChildDataList({ page: 1, limit: 5000, deleteStatus: false }),
+      AdminDashboardAction.getDashboardChartData({
+        startDate: typeof params.from === "string" ? params.from : undefined,
+        endDate: typeof params.to === "string" ? params.to : undefined,
+        locationId: typeof params.locationId === "string" ? params.locationId : undefined,
+        minAge: typeof params.minAge === "string" ? params.minAge : undefined,
+        maxAge: typeof params.maxAge === "string" ? params.maxAge : undefined,
+        sex: typeof params.sex === "string" ? params.sex : undefined,
+      }),
     ]);
 
   const totalChildren =
@@ -201,8 +162,8 @@ async function DashboardDataWrapper({
       ? waitingRequestsRes.value.meta.total
       : 0;
 
-  const rawChildData =
-    childDataRes.status === "fulfilled" ? childDataRes.value : [];
+  const locations =
+    locationsRes.status === "fulfilled" ? locationsRes.value.data : [];
 
   const months = getRecentMonths();
   const monthIndex = new Map(
@@ -222,71 +183,31 @@ async function DashboardDataWrapper({
     below: 0,
   }));
 
-  rawChildData.forEach((record) => {
-    const date = new Date(record.heightDate);
+  const rawChartData = chartRes.status === "fulfilled" ? chartRes.value : [];
+
+  rawChartData.forEach((record) => {
+    const date = new Date(record.date);
     if (Number.isNaN(date.getTime())) return;
 
     const key = `${date.getFullYear()}-${date.getMonth()}`;
     const idx = months.findIndex((m) => m.key === key);
     if (idx === -1) return;
 
-    const weightStatus = normalizeGrowthStatus(record.weightDevelopment?.status);
-    const heightStatus = normalizeGrowthStatus(record.heightDevelopment?.status);
+    trendDataWeight[idx].above += record.weightAbove;
+    trendDataWeight[idx].normal += record.weightNormal;
+    trendDataWeight[idx].below += record.weightBelow;
 
-    trendDataWeight[idx][weightStatus] += 1;
-    trendDataHeight[idx][heightStatus] += 1;
+    trendDataHeight[idx].above += record.heightAbove;
+    trendDataHeight[idx].normal += record.heightNormal;
+    trendDataHeight[idx].below += record.heightBelow;
   });
-
-  const latestPerChild = new Map<number, (typeof rawChildData)[number]>();
-  rawChildData.forEach((record) => {
-    const current = latestPerChild.get(record.childId);
-    if (!current) {
-      latestPerChild.set(record.childId, record);
-      return;
-    }
-    if (
-      new Date(record.heightDate).getTime() >
-      new Date(current.heightDate).getTime()
-    ) {
-      latestPerChild.set(record.childId, record);
-    }
-  });
-
-  const statusCounter = { above: 0, normal: 0, below: 0 };
-  latestPerChild.forEach((record) => {
-    const normalized = normalizeGrowthStatus(record.weightDevelopment?.status);
-    statusCounter[normalized] += 1;
-  });
-
-  const statusData: DashboardStatusItem[] = [
-    {
-      status: "above",
-      label: "สูงกว่าเกณฑ์",
-      count: statusCounter.above,
-      fill: "var(--color-above)",
-      color: "#eab308",
-      desc: "น้ำหนัก/ส่วนสูงสูงกว่าค่ามาตรฐาน",
-    },
-    {
-      status: "normal",
-      label: "สมส่วน",
-      count: statusCounter.normal,
-      fill: "var(--color-normal)",
-      color: "#22c55e",
-      desc: "น้ำหนัก/ส่วนสูงอยู่ในเกณฑ์ปกติ",
-    },
-    {
-      status: "below",
-      label: "ต่ำกว่าเกณฑ์",
-      count: statusCounter.below,
-      fill: "var(--color-below)",
-      color: "#ef4444",
-      desc: "น้ำหนัก/ส่วนสูงต่ำกว่าค่ามาตรฐาน — ต้องติดตาม",
-    },
-  ];
 
   return (
     <>
+      <div className="w-full flex justify-end mb-4">
+        <DashboardFilters locations={locations} />
+      </div>
+
       {/* KPI Cards Layer */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card className="shadow-sm border-slate-200/60">
@@ -371,31 +292,34 @@ async function DashboardDataWrapper({
       </div>
 
       {/* Charts Layer */}
-      <div className="grid gap-4 grid-cols-1 lg:grid-cols-7 mt-2">
-        <Card className="lg:col-span-4 shadow-sm border-slate-200/60 flex flex-col">
+      <div className="grid gap-4 grid-cols-1 lg:grid-cols-2 mt-2">
+        <Card className="shadow-sm border-slate-200/60 flex flex-col">
           <CardHeader>
-            <CardTitle>แนวโน้มภาวะโภชนาการ (6 เดือนล่าสุด)</CardTitle>
+            <CardTitle>แนวโน้มน้ำหนัก (6 เดือนล่าสุด)</CardTitle>
             <CardDescription>
-              จำนวนเด็กจำแนกตามเกณฑ์น้ำหนักและส่วนสูง
+              จำนวนเด็กจำแนกตามเกณฑ์น้ำหนัก
             </CardDescription>
           </CardHeader>
           <CardContent className="flex-1 w-full flex items-center justify-center -ml-4 pr-6">
             <ChildHealthTrendChart
-              trendDataWeight={trendDataWeight}
-              trendDataHeight={trendDataHeight}
+              data={trendDataWeight}
+              metric="weight"
             />
           </CardContent>
         </Card>
 
-        <Card className="lg:col-span-3 shadow-sm border-slate-200/60 flex flex-col">
+        <Card className="shadow-sm border-slate-200/60 flex flex-col">
           <CardHeader>
-            <CardTitle>สถานะการเจริญเติบโต</CardTitle>
+            <CardTitle>แนวโน้มส่วนสูง (6 เดือนล่าสุด)</CardTitle>
             <CardDescription>
-              จำนวนเด็กจำแนกตามเกณฑ์การเจริญเติบโตในปัจจุบัน
+              จำนวนเด็กจำแนกตามเกณฑ์ส่วนสูง
             </CardDescription>
           </CardHeader>
-          <CardContent className="flex-1 w-full flex items-center justify-center">
-            <ChildHealthStatusChart statusData={statusData} />
+          <CardContent className="flex-1 w-full flex items-center justify-center -ml-4 pr-6">
+            <ChildHealthTrendChart
+              data={trendDataHeight}
+              metric="height"
+            />
           </CardContent>
         </Card>
       </div>

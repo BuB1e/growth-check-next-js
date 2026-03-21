@@ -38,14 +38,31 @@ export default function DesktopCreateChildPage() {
 
   const [measurements, setMeasurements] = useState([
     {
-      id: Math.random().toString(36).substring(7),
-      dateDay: new Date().getDate().toString().padStart(2, "0"),
-      dateMonth: (new Date().getMonth() + 1).toString().padStart(2, "0"),
-      dateYear: (new Date().getFullYear() + 543).toString(),
+      id: "1",
+      dateDay: "",
+      dateMonth: "",
+      dateYear: "",
       weight: "",
       height: "",
     },
   ]);
+
+  useEffect(() => {
+    setMeasurements((prev) => {
+      // Only set initial date if it hasn't been modified yet
+      if (prev.length === 1 && prev[0].dateDay === "") {
+        return [
+          {
+            ...prev[0],
+            dateDay: new Date().getDate().toString().padStart(2, "0"),
+            dateMonth: (new Date().getMonth() + 1).toString().padStart(2, "0"),
+            dateYear: (new Date().getFullYear() + 543).toString(),
+          },
+        ];
+      }
+      return prev;
+    });
+  }, []);
 
   const addMeasurement = () => {
     setMeasurements([

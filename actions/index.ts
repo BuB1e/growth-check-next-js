@@ -10,5 +10,6 @@ export * from "./UserAction";
 export * from "./SessionAction";
 export * from "./AccountAction";
 export * from "./VerificationAction";
+export * from "./AdminDashboardAction";
 export * from "./UserCreateStatusAction";
 export * from "./ProfileAction";

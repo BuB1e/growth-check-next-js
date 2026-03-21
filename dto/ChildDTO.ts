@@ -41,4 +41,8 @@ export interface OptionsGetChildrenDTO {
 	locationId?: number;
 	createdByUser?: string;
 	deleteStatus?: boolean;
+	minAge?: number | string;
+	maxAge?: number | string;
+	haStatus?: string;
+	waStatus?: string;
 }

@@ -29,10 +29,10 @@ async function ChildListWrapper({
     typeof searchParams?.minAge === "string" ? searchParams.minAge : "";
   const maxAge =
     typeof searchParams?.maxAge === "string" ? searchParams.maxAge : "";
-  const heightDev =
-    typeof searchParams?.heightDev === "string" ? searchParams.heightDev : "";
-  const weightDev =
-    typeof searchParams?.weightDev === "string" ? searchParams.weightDev : "";
+  const haStatus =
+    typeof searchParams?.haStatus === "string" ? searchParams.haStatus : "";
+  const waStatus =
+    typeof searchParams?.waStatus === "string" ? searchParams.waStatus : "";
   const locationId =
     typeof searchParams?.locationId === "string" ? searchParams.locationId : "";
   const sex =
@@ -59,8 +59,8 @@ async function ChildListWrapper({
       maxAgeYears={maxAgeYears}
       minAge={minAge}
       maxAge={maxAge}
-      heightDev={heightDev}
-      weightDev={weightDev}
+      haStatus={haStatus}
+      waStatus={waStatus}
       locationId={locationId}
       sex={sex}
       limit={limit}

@@ -25,3 +25,7 @@ trigger: always_on
 - Chart axis y start from 0, and show value on sub grid like 1, 2, 3, 4, 5 not like old one 1, 5, 10
 - Chart start with 0 but end with max+30.
 - Chart show floating number only 2 point.
+- Range อายุแบ่งเป็น 3 ช่วง
+    - 0-1 ปี ⇒ ทารก
+    - (1 ปีอยู่เกณฑ์นี้) 1-3 ปี ⇒ Toddler
+    - (3 ปีอยู่เกณฑ์นี้) 3-5 ปี ⇒ วัยก่อนเรียน

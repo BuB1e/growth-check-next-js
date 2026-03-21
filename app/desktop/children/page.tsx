@@ -87,8 +87,8 @@ async function ChildrenDataWrapper({
   const maxAgeYears = sp?.maxAgeYears;
   const minAge = sp?.minAge;
   const maxAge = sp?.maxAge;
-  const heightDev = sp?.heightDev;
-  const weightDev = sp?.weightDev;
+  const haStatus = sp?.haStatus;
+  const waStatus = sp?.waStatus;
   const locationId = sp?.locationId;
   const sex = sp?.sex;
   let data = null;
@@ -105,8 +105,8 @@ async function ChildrenDataWrapper({
         maxAgeYears,
         minAge,
         maxAge,
-        heightDev,
-        weightDev,
+        haStatus,
+        waStatus,
         locationId: locationId ? Number(locationId) : undefined,
         sex,
       }),

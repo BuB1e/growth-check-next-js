@@ -11,13 +11,9 @@ import type {
 type GetChildrenParams = OptionsGetChildrenDTO & {
   page?: number;
   limit?: number;
-  minAge?: number | string;
-  maxAge?: number | string;
   minAgeYears?: number | string;
   maxAgeYears?: number | string;
   status?: string;
-  heightDev?: string;
-  weightDev?: string;
   sex?: string;
 };
 
@@ -101,15 +97,6 @@ const applyClientFilters = (
     // Filter by sex (server-side fallback)
     if (isNonEmptyString(params.sex) && child.sex !== params.sex) {
       return false;
-    }
-
-    // TODO: Remove client-side filters when backend filtering is fully stable in all environments.
-    if (isDefined(minAge) || isDefined(maxAge)) {
-      const ageInMonths = getAgeInMonths(child.birthDate);
-      if (ageInMonths !== null) {
-        if (isDefined(minAge) && ageInMonths < minAge) return false;
-        if (isDefined(maxAge) && ageInMonths > maxAge) return false;
-      }
     }
 
     return true;
@@ -196,14 +183,21 @@ export class ChildAction {
       isNonEmptyString(keyword) &&
       !isNonEmptyString(params.firstName) &&
       !isNonEmptyString(params.lastName);
+    const minAgeMonths = toOptionalNumber(params.minAge);
+    const maxAgeMonths = toOptionalNumber(params.maxAge);
+    const minAgeYears = toOptionalNumber(params.minAgeYears);
+    const maxAgeYears = toOptionalNumber(params.maxAgeYears);
+    
+    const computedMinAge = isDefined(minAgeMonths) || isDefined(minAgeYears)
+      ? (minAgeYears ?? 0) * 12 + (minAgeMonths ?? 0)
+      : undefined;
+      
+    const computedMaxAge = isDefined(maxAgeMonths) || isDefined(maxAgeYears)
+      ? (maxAgeYears ?? 0) * 12 + (maxAgeMonths ?? 0)
+      : undefined;
+
     const hasClientOnlyFilters =
-      isDefined(toOptionalNumber(params.minAge)) ||
-      isDefined(toOptionalNumber(params.maxAge)) ||
-      isDefined(toOptionalNumber(params.minAgeYears)) ||
-      isDefined(toOptionalNumber(params.maxAgeYears)) ||
       isNonEmptyString(params.status) ||
-      isNonEmptyString(params.heightDev) ||
-      isNonEmptyString(params.weightDev) ||
       isNonEmptyString(params.sex);
 
     const commonParams: OptionsGetChildrenDTO & { sex?: string } = {
@@ -216,6 +210,10 @@ export class ChildAction {
         ? params.createdByUser.trim()
         : undefined,
       sex: isNonEmptyString(params.sex) ? params.sex : undefined,
+      minAge: computedMinAge,
+      maxAge: computedMaxAge,
+      haStatus: isNonEmptyString(params.haStatus) ? params.haStatus : undefined,
+      waStatus: isNonEmptyString(params.waStatus) ? params.waStatus : undefined,
     };
 
     const fetchLimit = Math.max(limit, 50);

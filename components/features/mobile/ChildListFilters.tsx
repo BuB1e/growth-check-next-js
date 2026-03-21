@@ -20,11 +20,11 @@ export function ChildListFilters() {
   );
   const [minAge, setMinAge] = useState(searchParams.get("minAge") || "");
   const [maxAge, setMaxAge] = useState(searchParams.get("maxAge") || "");
-  const [heightDev, setHeightDev] = useState(
-    searchParams.get("heightDev") || "",
+  const [haStatus, setHaStatus] = useState(
+    searchParams.get("haStatus") || "",
   );
-  const [weightDev, setWeightDev] = useState(
-    searchParams.get("weightDev") || "",
+  const [waStatus, setWaStatus] = useState(
+    searchParams.get("waStatus") || "",
   );
   const [locationId, setLocationId] = useState(
     searchParams.get("locationId") || "",
@@ -67,8 +67,8 @@ export function ChildListFilters() {
       const num = parseInt(value, 10);
       setMaxAge(value === "" ? "" : String(Math.min(Math.max(num || 0, 0), 11)));
     }
-    if (key === "heightDev") setHeightDev(value);
-    if (key === "weightDev") setWeightDev(value);
+    if (key === "haStatus") setHaStatus(value);
+    if (key === "waStatus") setWaStatus(value);
     if (key === "locationId") setLocationId(value);
     if (key === "sex") setSex(value);
   };
@@ -80,8 +80,8 @@ export function ChildListFilters() {
       maxAgeYears,
       minAge,
       maxAge,
-      heightDev,
-      weightDev,
+      haStatus,
+      waStatus,
       locationId,
       sex,
     });
@@ -94,8 +94,8 @@ export function ChildListFilters() {
     setMaxAgeYears("");
     setMinAge("");
     setMaxAge("");
-    setHeightDev("");
-    setWeightDev("");
+    setHaStatus("");
+    setWaStatus("");
     setLocationId("");
     setSex("");
     applyFilters({
@@ -104,8 +104,8 @@ export function ChildListFilters() {
       maxAgeYears: "",
       minAge: "",
       maxAge: "",
-      heightDev: "",
-      weightDev: "",
+      haStatus: "",
+      waStatus: "",
       locationId: "",
       sex: "",
     });
@@ -114,8 +114,8 @@ export function ChildListFilters() {
   const activeFiltersCount = [
     status,
     minAgeYears || maxAgeYears || minAge || maxAge,
-    heightDev,
-    weightDev,
+    haStatus,
+    waStatus,
     locationId,
     sex,
   ].filter(Boolean).length;
@@ -278,43 +278,37 @@ export function ChildListFilters() {
             </div>
           </div>
 
-          {/* Child Height Growth Status filter, which is not necessary. AND NOT BEING USE NOW IN BUSINESS LOGIC*/}
-          {/* <div className="space-y-1">
+          <div className="space-y-1">
             <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
               พัฒนาการด้านส่วนสูง (HA)
             </label>
             <select
-              value={heightDev}
-              onChange={(e) => handleFilterChange("heightDev", e.target.value)}
+              value={haStatus}
+              onChange={(e) => handleFilterChange("haStatus", e.target.value)}
               className="block w-full rounded-xl border-0 py-3 px-3.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-200 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6 bg-white outline-none"
             >
               <option value="">ทั้งหมด</option>
-              <option value="สูง">สูง</option>
-              <option value="ค่อนข้างสูง">ค่อนข้างสูง</option>
-              <option value="ส่วนสูงตามเกณฑ์">ส่วนสูงตามเกณฑ์</option>
-              <option value="ค่อนข้างเตี้ย">ค่อนข้างเตี้ย</option>
-              <option value="เตี้ย">เตี้ย</option>
+              <option value="สูงกว่าเกณฑ์">สูงกว่าเกณฑ์</option>
+              <option value="ปกติ">ปกติ (ส่วนสูงตามเกณฑ์)</option>
+              <option value="ต่ำกว่าเกณฑ์">ต่ำกว่าเกณฑ์</option>
             </select>
-          </div> */}
+          </div>
 
-          {/* Child Height Growth Status filter, which is not necessary. AND NOT BEING USE NOW IN BUSINESS LOGIC*/}
-          {/* <div className="space-y-1">
+          <div className="space-y-1">
             <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
               พัฒนาการด้านน้ำหนัก (WA)
             </label>
             <select
-              value={weightDev}
-              onChange={(e) => handleFilterChange("weightDev", e.target.value)}
+              value={waStatus}
+              onChange={(e) => handleFilterChange("waStatus", e.target.value)}
               className="block w-full rounded-xl border-0 py-3 px-3.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-200 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6 bg-white outline-none"
             >
               <option value="">ทั้งหมด</option>
-              <option value="น้ำหนักมากเกินเกณฑ์">น้ำหนักมากเกินเกณฑ์</option>
-              <option value="น้ำหนักค่อนข้างมาก">น้ำหนักค่อนข้างมาก</option>
-              <option value="น้ำหนักตามเกณฑ์">น้ำหนักตามเกณฑ์</option>
-              <option value="ค่อนข้างน้อย">ค่อนข้างน้อย</option>
-              <option value="น้ำหนักน้อยกว่าเกณฑ์">น้ำหนักน้อยกว่าเกณฑ์</option>
+              <option value="สูงกว่าเกณฑ์">สูงกว่าเกณฑ์</option>
+              <option value="ปกติ">ปกติ (น้ำหนักตามเกณฑ์)</option>
+              <option value="ต่ำกว่าเกณฑ์">ต่ำกว่าเกณฑ์</option>
             </select>
-          </div> */}
+          </div>
 
           <div className="flex gap-2 pt-2">
             <button

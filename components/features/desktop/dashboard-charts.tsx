@@ -106,14 +106,12 @@ function MetricChip({
 
 // ─── Trend chart ─────────────────────────────────────────────────────────────
 export function ChildHealthTrendChart({
-  trendDataWeight = [],
-  trendDataHeight = [],
+  data = [],
+  metric = "weight",
 }: {
-  trendDataWeight?: DashboardTrendItem[];
-  trendDataHeight?: DashboardTrendItem[];
+  data?: DashboardTrendItem[];
+  metric?: "weight" | "height";
 }) {
-  const [metric, setMetric] = useState<"weight" | "height">("weight");
-  const data = metric === "weight" ? trendDataWeight : trendDataHeight;
 
   if (!data.length) {
     return (
@@ -141,22 +139,6 @@ export function ChildHealthTrendChart({
           {metric === "weight" ? "เกณฑ์น้ำหนัก" : "เกณฑ์ส่วนสูง"} —
           จำนวนเด็กรายเดือน (6 เดือนล่าสุด)
         </p>
-        <div className="flex gap-2">
-          <Button
-            variant={metric === "weight" ? "default" : "outline"}
-            size="sm"
-            onClick={() => setMetric("weight")}
-          >
-            น้ำหนัก
-          </Button>
-          <Button
-            variant={metric === "height" ? "default" : "outline"}
-            size="sm"
-            onClick={() => setMetric("height")}
-          >
-            ส่วนสูง
-          </Button>
-        </div>
       </div>
 
       {/* Metric summary row (latest month) */}
