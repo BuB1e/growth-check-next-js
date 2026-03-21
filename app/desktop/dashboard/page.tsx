@@ -121,7 +121,7 @@ async function DashboardDataWrapper({
   const params = await searchParams;
 
   const monthLabel = (date: Date): string =>
-    date.toLocaleDateString("th-TH", { month: "short" });
+    date.toLocaleDateString("th-TH", { month: "short", year: "2-digit" });
 
   const getRecentMonths = (): { key: string; label: string }[] => {
     const now = new Date();
@@ -193,13 +193,15 @@ async function DashboardDataWrapper({
     const idx = months.findIndex((m) => m.key === key);
     if (idx === -1) return;
 
-    trendDataWeight[idx].above += record.weightAbove;
-    trendDataWeight[idx].normal += record.weightNormal;
-    trendDataWeight[idx].below += record.weightBelow;
+    // The backend returns daily snapshot counts. To avoid double-counting children across multiple days
+    // in the same month, we simply overwrite the month's data with the latest record in that month.
+    trendDataWeight[idx].above = record.weightAbove;
+    trendDataWeight[idx].normal = record.weightNormal;
+    trendDataWeight[idx].below = record.weightBelow;
 
-    trendDataHeight[idx].above += record.heightAbove;
-    trendDataHeight[idx].normal += record.heightNormal;
-    trendDataHeight[idx].below += record.heightBelow;
+    trendDataHeight[idx].above = record.heightAbove;
+    trendDataHeight[idx].normal = record.heightNormal;
+    trendDataHeight[idx].below = record.heightBelow;
   });
 
   return (

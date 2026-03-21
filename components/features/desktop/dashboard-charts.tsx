@@ -137,7 +137,7 @@ export function ChildHealthTrendChart({
       <div className="flex flex-wrap items-center justify-between gap-3 px-4 mt-2">
         <p className="text-sm text-muted-foreground">
           {metric === "weight" ? "เกณฑ์น้ำหนัก" : "เกณฑ์ส่วนสูง"} —
-          จำนวนเด็กรายเดือน (6 เดือนล่าสุด)
+          ข้อมูลเดือนล่าสุด ({latest.month})
         </p>
       </div>
 
