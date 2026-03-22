@@ -1,12 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import { UserCreateStatusAction } from "@/actions/UserCreateStatusAction";
-import { Request_status } from "@/types";
+import { Request_status, Role } from "@/types";
+
+interface Session {
+  user: {
+    id: string;
+    email: string;
+    role: Role;
+    teamId?: string | number;
+  };
+}
 
 // Structured Logger for Proxy
 const log = {
-  info: (msg: string, ctx?: any) => console.log(`[Proxy:INFO] ${msg}`, ctx ? JSON.stringify(ctx) : ""),
-  error: (msg: string, ctx?: any) => console.error(`[Proxy:ERROR] ${msg}`, ctx || ""),
-  auth: (outcome: string, user?: string, path?: string) => 
+  info: (msg: string, ctx?: Record<string, unknown>) => console.log(`[Proxy:INFO] ${msg}`, ctx ? JSON.stringify(ctx) : ""),
+  error: (msg: string, ctx?: unknown) => console.error(`[Proxy:ERROR] ${msg}`, ctx || ""),
+  auth: (outcome: string, user?: string, path?: string) =>
     console.log(`[Proxy:AUTH] [${outcome}] user=${user || 'guest'} path=${path}`),
 };
 
@@ -29,7 +38,7 @@ export async function proxy(request: NextRequest) {
       backendPath = pathname.replace(/^\/api/, "");
     }
     const targetUrl = new URL(backendPath + search, backendUrl);
-    
+
     // Minimal log for standard API calls to reduce noise
     // Hide full backend endpoint to adhere to security rules
     if (!pathname.startsWith("/api/auth/get-session")) {
@@ -55,7 +64,7 @@ export async function proxy(request: NextRequest) {
 
   if (!isAuthRoute && !isPendingPageRoute && !isPublicAsset && !pathname.startsWith("/api/")) {
     const backendUrl = process.env.BACKEND_ENDPOINT;
-    let session: any = null;
+    let session: Session | null = null;
     try {
       const sessionRes = await fetch(`${backendUrl}/api/auth/get-session`, {
         headers: {
@@ -77,7 +86,7 @@ export async function proxy(request: NextRequest) {
     }
 
     const user = session.user as { id: string; email: string; role: string; teamId?: string | number };
-    
+
     // Check approval status FIRST
     try {
       const statusData = await UserCreateStatusAction.getStatuses({
@@ -91,7 +100,7 @@ export async function proxy(request: NextRequest) {
 
       if (userStatus) {
         const currentStatus = userStatus.requestStatus as string;
-        
+
         if (currentStatus !== Request_status.APPROVED && currentStatus !== "APPROVE") {
           log.auth("Pending Approval", user.email, pathname);
           return NextResponse.redirect(new URL("/pending-approval", request.url));
@@ -102,21 +111,19 @@ export async function proxy(request: NextRequest) {
       }
 
       // 1.6. Role-Based Access Control (RBAC) Enforcement
-      // Rule: Staff -> Mobile, Admin/Head -> Desktop
+      // Rule: User/Staff -> Mobile, Admin/Head -> Desktop
       const isDesktopPlatform = pathname.startsWith("/desktop");
       const isMobilePlatform = pathname.startsWith("/mobile");
 
-      if (user.role === 'STAFF') {
+      if (user.role === Role.USER) {
         if (isDesktopPlatform) {
           log.auth("RBAC Restriction: Staff restricted to Mobile. Redirecting to shared path.", user.email, pathname);
-          // Redirect to the shared equivalent (e.g., /desktop/dashboard -> /dashboard)
           const sharedPath = pathname.replace("/desktop", "") || "/dashboard";
           return NextResponse.redirect(new URL(sharedPath, request.url));
         }
-      } else if (user.role === 'ADMIN' || user.role === 'HEAD') {
+      } else if (user.role === Role.ADMIN || user.role === Role.HEAD) {
         if (isMobilePlatform) {
           log.auth("RBAC Restriction: Admin/Head restricted to Desktop. Redirecting to shared path.", user.email, pathname);
-          // Redirect to the shared equivalent (e.g., /mobile/dashboard -> /dashboard)
           const sharedPath = pathname.replace("/mobile", "") || "/dashboard";
           return NextResponse.redirect(new URL(sharedPath, request.url));
         }
@@ -130,7 +137,7 @@ export async function proxy(request: NextRequest) {
     }
   }
 
-  // 2. Original proxy.ts logic for route groups (desktop/mobile)
+  // 2. Role-based routing for platform (desktop/mobile)
 
   // Skip internal Next.js paths or static assets
   if (
@@ -158,25 +165,44 @@ export async function proxy(request: NextRequest) {
     headRoutes.some((route) => pathname.startsWith(route));
 
   if (isSharedOrHeadRoute) {
-    const ua = request.headers.get("user-agent")?.toLowerCase() || "";
-    const isMobileDevice = /iphone|ipad|ipod|android|mobile/.test(ua);
-    const isMobileView = isMobileDevice;
+    // Session is already fetched in Step 1.5 above
+    const backendUrl = process.env.BACKEND_ENDPOINT;
+    let session: Session | null = null;
+    try {
+      const sessionRes = await fetch(`${backendUrl}/api/auth/get-session`, {
+        headers: {
+          cookie: request.headers.get("cookie") || "",
+          "user-agent": request.headers.get("user-agent") || "",
+          "x-forwarded-host": request.nextUrl.host,
+        },
+      });
+      if (sessionRes.ok) {
+        session = await sessionRes.json();
+      }
+    } catch (e) {
+      log.error("Session Re-fetch Error", e);
+    }
+
+    if (!session || !session.user) {
+      return NextResponse.redirect(new URL("/login", request.url));
+    }
+
+    const role = session.user.role as string;
+    const isDesktopRole = role == Role.ADMIN || role == Role.HEAD;
+    const platform = isDesktopRole ? "desktop" : "mobile";
 
     const url = request.nextUrl.clone();
 
+    // Special case for location (often desktop-only or shared)
     if (pathname.startsWith("/location")) {
       url.pathname = `/desktop${pathname}`;
-      console.log(`[Proxy] ROUTE: ${pathname} -> (Static Desktop) ${url.pathname}`);
+      log.info(`ROUTE: ${pathname} -> (Forced Desktop) ${url.pathname}`);
       return NextResponse.rewrite(url);
     }
 
-    if (isMobileView) {
-      url.pathname = `/mobile${pathname}`;
-    } else {
-      url.pathname = `/desktop${pathname}`;
-    }
+    url.pathname = `/${platform}${pathname}`;
 
-    console.log(`[Proxy] ROUTE: ${pathname} -> (${isMobileView ? "Mobile" : "Desktop"}) ${url.pathname}`);
+    log.info(`ROUTE: ${pathname} -> (Role: ${role}) ${url.pathname}`);
     return NextResponse.rewrite(url, {
       request: {
         headers,

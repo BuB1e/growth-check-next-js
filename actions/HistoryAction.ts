@@ -18,6 +18,13 @@ import type {
 export class HistoryAction {
   static BACKEND_ENDPOINT = EnvConfig.BACKEND_ENDPOINT || "";
   static PAGE_LIMIT = typeof window === 'undefined' ? EnvConfig.PAGINATION_LIMIT_DESKTOP_SIZE : 10;
+  
+  // Constants for magic numbers and strings
+  private static readonly TRANSFER_ID_OFFSET = 10000;
+  private static readonly LOCATION_ID_OFFSET = 20000;
+  private static readonly TYPE_TRANSFER = "TRANSFER" as HistoryType;
+  private static readonly TYPE_LOCATION_APPROVE = "LOCATION_APPROVE" as HistoryType;
+  private static readonly TYPE_LOCATION_REJECT = "LOCATION_REJECT" as HistoryType;
 
   private static async fetchAllTransferRequests(): Promise<
     ChildTransferRequestResponse[]
@@ -90,10 +97,10 @@ export class HistoryAction {
     if (transfersRes.status === "fulfilled") {
       transfersRes.value.forEach((t: ChildTransferRequestResponse) => {
         entries.push({
-          id: t.id + 10000, // Offset to avoid ID collisions
-          type: "TRANSFER",
+          id: t.id + this.TRANSFER_ID_OFFSET,
+          type: this.TYPE_TRANSFER,
           title: `ขอย้ายเด็ก (ID: ${t.childId}) จากเขต ${t.fromLocation} ไปเขต ${t.toLocation}`,
-          actor: { role: Role.STAFF, name: t.userId },
+          actor: { role: Role.USER, name: t.userId },
           status: t.handledBy ? Request_status.APPROVED : Request_status.WAITING,
           createdAt: t.createdAt,
           updatedAt: t.updatedAt,
@@ -108,10 +115,10 @@ export class HistoryAction {
       locationRequestsRes.value.forEach((r: LocationCreateRequestResponse) => {
         const historyType: HistoryType =
           r.requestStatus === Request_status.REJECTED
-            ? "LOCATION_REJECT"
-            : "LOCATION_APPROVE";
+            ? this.TYPE_LOCATION_REJECT
+            : this.TYPE_LOCATION_APPROVE;
         entries.push({
-          id: r.id + 20000, // Offset to avoid ID collisions
+          id: r.id + this.LOCATION_ID_OFFSET,
           type: historyType,
           title:
             r.requestStatus === Request_status.APPROVED
@@ -120,7 +127,7 @@ export class HistoryAction {
                 ? `ปฏิเสธคำร้องสร้าง ${r.locationName}`
                 : `คำร้องขอสร้าง ${r.locationName} (รอดำเนินการ)`,
           actor: {
-            role: r.handledBy ? Role.ADMIN : Role.STAFF,
+            role: r.handledBy ? Role.ADMIN : Role.USER,
             name: r.handledBy || r.userId,
           },
           status: r.requestStatus,

@@ -9,6 +9,7 @@ import {
   updateProfileAction,
   changePasswordAction,
 } from "@/actions/profileServerActions";
+import { SignOutButton } from "@/components/features/shared/SignOutButton";
 
 /**
  * RSC wrapper that fetches profile data server-side.
@@ -40,6 +41,9 @@ async function ProfileContent() {
         onSubmit={updateProfileAction}
       />
       <ChangePasswordForm onSubmit={changePasswordAction} />
+      <div className="pt-4">
+        <SignOutButton variant="destructive" className="w-full h-14 text-lg" />
+      </div>
     </div>
   );
 }

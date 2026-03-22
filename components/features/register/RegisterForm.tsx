@@ -18,6 +18,7 @@ import { ShieldCheck, UserCircle, Users, ArrowRight, Search, Mail, Lock, AlertCi
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { TeamResponse } from "@/dto";
 import { authClient } from "@/lib/auth/auth-client";
+import { TermsAndPrivacyModal } from "./TermsAndPrivacyModal";
 
 interface RegisterFormProps {
   teams: TeamResponse[];
@@ -41,6 +42,7 @@ export function RegisterForm({ teams }: RegisterFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentUser, setCurrentUser] = useState<any>(null);
+  const [showPolicyModal, setShowPolicyModal] = useState(true);
 
   // For social logins, we might already have some user data from BetterAuth
   useEffect(() => {
@@ -136,6 +138,11 @@ export function RegisterForm({ teams }: RegisterFormProps) {
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-linear-to-br from-blue-50 via-white to-blue-50/50 p-4 md:p-8">
+      <TermsAndPrivacyModal 
+        isOpen={showPolicyModal}
+        onAccept={() => setShowPolicyModal(false)}
+        onDecline={() => router.push("/login")}
+      />
       <div className="w-full max-w-xl space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
         <div className="text-center space-y-2">
           <div className="inline-flex items-center justify-center p-3 rounded-2xl bg-primary/10 text-primary mb-4">

@@ -1,22 +1,19 @@
 export const Role = {
   ADMIN: 'ADMIN',
-  USER: 'USER',
+  USER: 'STAFF',
   HEAD: 'HEAD',
-  STAFF: 'STAFF'
 } as const
 
 export const RoleTH = {
   ADMIN: 'แอดมิน',
-  USER: 'ผู้ใช้งานทั่วไป',
+  USER: 'เจ้าหน้าที่',
   HEAD: 'หัวหน้า',
-  STAFF: 'พนักงาน'
 } as const
 
 export const RoleToThai: Record<Role, string> = {
   [Role.ADMIN]: RoleTH.ADMIN,
   [Role.USER]: RoleTH.USER,
   [Role.HEAD]: RoleTH.HEAD,
-  [Role.STAFF]: RoleTH.STAFF,
 }
 
 export type Role = (typeof Role)[keyof typeof Role]

@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import React, { useState, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -19,13 +19,35 @@ import { SiLine } from "react-icons/si";
 import { FcGoogle } from "react-icons/fc";
 import { authClient } from "@/lib/auth/auth-client";
 
-export default function LoginPage() {
+function LoginContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
+
+  // Check for errors in URL (e.g., from social login redirects)
+  useEffect(() => {
+    const errorCode = searchParams.get("error");
+    if (errorCode) {
+      console.error("[Login] Error from URL:", errorCode);
+      switch (errorCode) {
+        case "ACCOUNT_ALREADY_LINKED":
+          setError("อีเมลนี้ถูกใช้งานแล้วด้วยวิธีอื่น กรุณาลองเข้าสู่ระบบด้วยวิธีเดิมที่เคยสมัครไว้");
+          break;
+        case "SOCIAL_PROVIDER_NOT_CONNECTED":
+          setError("เกิดข้อผิดพลาดในการเชื่อมต่อกับผู้ให้บริการ กรุณาลองใหม่อีกครั้ง");
+          break;
+        case "INVALID_EMAIL":
+          setError("อีเมลไม่ถูกต้องหรือไม่ได้รับอนุญาต");
+          break;
+        default:
+          setError("เกิดข้อผิดพลาดในการเข้าสู่ระบบหรืออาจมีบัญชีผู้ใช้อยู่แล้วในการลงทะเบียนแบบอื่น กรุณาลองเข้าสู่ระบบด้วยวิธีอื่น");
+      }
+    }
+  }, [searchParams]);
 
   const handleLogin = async (method: string) => {
     if (method === "NATIVE") {
@@ -51,15 +73,18 @@ export default function LoginPage() {
       router.push("/mobile/staff/home");
 
     } else {
-      // Logic for Social Login via BetterAuth
-      // NOTE: BetterAuth automatically creates a user if it's their first time signing in via OAuth.
-      // If the backend prevents automatic account creation, we might be redirected back with an error.
-      // We will supply the callback URL.
       setIsLoading(true);
-      await authClient.signIn.social({
-        provider: method.toLowerCase() as "google" | "line",
-        callbackURL: window.location.origin + "/mobile/staff/home",
-      });
+      try {
+        await authClient.signIn.social({
+          provider: method.toLowerCase() as "google" | "line",
+          callbackURL: window.location.origin + "/mobile/staff/home",
+          errorCallbackURL: window.location.origin + "/login",
+        });
+      } catch (err) {
+        console.error("[Login] Social SignIn Error:", err);
+        setError("ไม่สามารถเริ่มการเชื่อมต่อได้ กรุณาลองใหม่อีกครั้ง");
+        setIsLoading(false);
+      }
     }
   };
 
@@ -98,7 +123,13 @@ export default function LoginPage() {
             )}
 
             {/* Native Login Section */}
-            <div className="space-y-4">
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleLogin("NATIVE");
+              }}
+              className="space-y-4"
+            >
               <div className="space-y-3">
                 <Label htmlFor="email" className="text-lg font-semibold text-gray-700 ml-1">
                   อีเมล (Email)
@@ -142,14 +173,14 @@ export default function LoginPage() {
               </div>
 
               <Button
-                onClick={() => handleLogin("NATIVE")}
+                type="submit"
                 disabled={isLoading}
                 className="w-full h-14 text-xl font-bold rounded-2xl shadow-lg shadow-primary/20 hover:scale-[1.01] transition-all active:scale-[0.98]"
               >
                 {isLoading ? "กำลังเข้าสู่ระบบ..." : "เข้าสู่ระบบ"}
                 {!isLoading && <ArrowRight className="ml-2 w-6 h-6" />}
               </Button>
-            </div>
+            </form>
 
             <div className="relative py-4">
               <div className="absolute inset-0 flex items-center">
@@ -199,5 +230,13 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-blue-50/50">กำลังโหลด...</div>}>
+      <LoginContent />
+    </Suspense>
   );
 }
