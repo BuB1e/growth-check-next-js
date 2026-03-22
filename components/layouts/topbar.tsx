@@ -8,16 +8,16 @@ import Link from "next/link";
 
 // Optional helper to get current page title from pathname
 function getPageTitle(pathname: string) {
-  if (pathname.startsWith("/profile")) return "โปรไฟล์";
-  if (pathname.startsWith("/dashboard"))
+  if (pathname.startsWith("/desktop/profile")) return "โปรไฟล์";
+  if (pathname.startsWith("/desktop/dashboard"))
     return ESidebarToThai[ESidebar.DASHBOARD];
-  if (pathname.startsWith("/location"))
+  if (pathname.startsWith("/desktop/location"))
     return ESidebarToThai[ESidebar.LOCATION];
-  if (pathname.startsWith("/staff")) return ESidebarToThai[ESidebar.STAFF];
-  if (pathname.startsWith("/children")) return ESidebarToThai[ESidebar.CHILD];
-  if (pathname.startsWith("/requests"))
+  if (pathname.startsWith("/desktop/staff")) return ESidebarToThai[ESidebar.STAFF];
+  if (pathname.startsWith("/desktop/children")) return ESidebarToThai[ESidebar.CHILD];
+  if (pathname.startsWith("/desktop/requests"))
     return ESidebarToThai[ESidebar.REQUEST];
-  if (pathname.startsWith("/history"))
+  if (pathname.startsWith("/desktop/history"))
     return ESidebarToThai[ESidebar.HISTORY];
   return "ระบบจัดการส่วนกลาง";
 }
@@ -34,7 +34,7 @@ export default function TopbarDesktop() {
       </div>
       <div className="flex items-center gap-4">
         <Link
-          href="/profile"
+          href="/desktop/profile"
           className="flex items-center gap-2 hover:bg-slate-50 p-2 rounded-md transition-colors"
         >
           <div className="w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center">

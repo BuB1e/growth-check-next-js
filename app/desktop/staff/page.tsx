@@ -12,6 +12,7 @@ import { UserResponse } from "@/dto";
 import { DataTable } from "@/components/features/desktop/data-table";
 import { columns } from "@/components/features/desktop/columns";
 import StaffFilters from "@/components/features/desktop/StaffFilters";
+import { Role } from "@/types";
 import { EnvConfig } from "@/configs/BackendConfig";
 
 export const metadata = {
@@ -85,8 +86,8 @@ async function StaffDataWrapper({
       : undefined;
   const roleRaw = typeof params.role === "string" ? params.role : undefined;
   const role =
-    roleRaw === "ADMIN" || roleRaw === "USER" || roleRaw === "HEAD"
-      ? roleRaw
+    roleRaw === Role.ADMIN || roleRaw === Role.USER || roleRaw === Role.HEAD
+      ? (roleRaw as Role)
       : undefined;
 
   let users: UserResponse[] = [];

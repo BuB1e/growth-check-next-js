@@ -4,11 +4,11 @@ import { z } from "zod";
 import { ChildAction } from "@/actions/ChildAction";
 import { DevelopmentAction } from "@/actions/DevelopmentAction";
 import { LocationAction } from "@/actions/LocationAction";
-import { EnvConfig } from "@/configs/BackendConfig";
 import { redirect } from "next/navigation";
+import { getCurrentUserId } from "@/lib/auth/auth-guard";
 
 import { ChildDataAction } from "@/actions/ChildDataAction";
-import { Sex } from "@/types";
+import { Sex, Metric_type } from "@/types";
 
 // Utility to pad and clamp day/month
 function normalizeDay(day: string | FormDataEntryValue | null): string {
@@ -167,7 +167,7 @@ export async function createChildServerAction(
   }
 
   try {
-    const resolvedUserId = EnvConfig.MOCK_USER_ID ?? "current-user";
+    const resolvedUserId = await getCurrentUserId();
 
     // 1. Create Child
     const childResponse = await ChildAction.createChild({
@@ -176,7 +176,6 @@ export async function createChildServerAction(
       sex,
       birthDate,
       locationId: parseInt(locationId),
-      // TODO: Replace with actual user ID from authenticated session.
       createdByUser: resolvedUserId,
       updatedByUser: resolvedUserId,
     });
@@ -186,8 +185,8 @@ export async function createChildServerAction(
     }
 
     const [heightDevRes, weightDevRes] = await Promise.all([
-      DevelopmentAction.getDevelopments({ metric: "HA", deleteStatus: false, page: 1, limit: 1 }),
-      DevelopmentAction.getDevelopments({ metric: "WA", deleteStatus: false, page: 1, limit: 1 }),
+      DevelopmentAction.getDevelopments({ metric: Metric_type.HA, deleteStatus: false, page: 1, limit: 1 }),
+      DevelopmentAction.getDevelopments({ metric: Metric_type.WA, deleteStatus: false, page: 1, limit: 1 }),
     ]);
     const fallbackHeightDevId = heightDevRes.data[0]?.id ?? 0;
     const fallbackWeightDevId = weightDevRes.data[0]?.id ?? 0;

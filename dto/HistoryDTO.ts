@@ -5,7 +5,7 @@ export type HistoryType =
   | "LOCATION_APPROVE" 
   | "LOCATION_REJECT";
 
-export type HistoryActorRole = Role | "Staff" | "Admin";
+export type HistoryActorRole = Role;
 
 export type HistoryStatus = Request_status | "WAITING";
 

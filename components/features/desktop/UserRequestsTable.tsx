@@ -18,6 +18,7 @@ import {
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { UserCreateStatusResponse } from "@/dto";
 import type { PaginatedResponseDTO, TeamResponse } from "@/dto";
+import { Request_status, Role, RoleTH } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -47,21 +48,21 @@ interface UserRequestsTableProps {
 
 function StatusBadge({ status }: { status: string }) {
   switch (status) {
-    case "APPROVED":
+    case Request_status.APPROVED:
       return (
         <div className="flex items-center gap-1.5 text-green-600 font-medium">
           <CheckCircle2 className="h-4 w-4" />
           อนุมัติแล้ว
         </div>
       );
-    case "REJECTED":
+    case Request_status.REJECTED:
       return (
         <div className="flex items-center gap-1.5 text-red-500 font-medium">
           <XCircle className="h-4 w-4" />
           ปฏิเสธ
         </div>
       );
-    case "WAITING":
+    case Request_status.WAITING:
     default:
       return (
         <div className="flex items-center gap-1.5 text-yellow-500 font-medium">
@@ -78,7 +79,7 @@ export function UserRequestsTable({ rawData, teams }: UserRequestsTableProps) {
   const searchParams = useSearchParams();
 
   const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
-  const [statusFilter, setStatusFilter] = useState(searchParams.get("status") || "WAITING");
+  const [statusFilter, setStatusFilter] = useState(searchParams.get("status") || Request_status.WAITING);
   const [roleFilter, setRoleFilter] = useState(searchParams.get("role") || "all");
 
   const [selectedRequest, setSelectedRequest] = useState<UserCreateStatusResponse | null>(null);
@@ -190,9 +191,9 @@ export function UserRequestsTable({ rawData, teams }: UserRequestsTableProps) {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">ทุกสถานะ</SelectItem>
-              <SelectItem value="WAITING">รอดำเนินการ</SelectItem>
-              <SelectItem value="APPROVED">อนุมัติแล้ว</SelectItem>
-              <SelectItem value="REJECTED">ปฏิเสธ</SelectItem>
+              <SelectItem value={Request_status.WAITING}>รอดำเนินการ</SelectItem>
+              <SelectItem value={Request_status.APPROVED}>อนุมัติแล้ว</SelectItem>
+              <SelectItem value={Request_status.REJECTED}>ปฏิเสธ</SelectItem>
             </SelectContent>
           </Select>
 
@@ -202,8 +203,8 @@ export function UserRequestsTable({ rawData, teams }: UserRequestsTableProps) {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">ทุกตำแหน่ง</SelectItem>
-              <SelectItem value="HEAD">หัวหน้า (Head)</SelectItem>
-              <SelectItem value="USER">พนักงาน (Staff)</SelectItem>
+              <SelectItem value={Role.HEAD}>{RoleTH.HEAD} (Head)</SelectItem>
+              <SelectItem value={Role.USER}>{RoleTH.USER} (Staff)</SelectItem>
             </SelectContent>
           </Select>
         </div>

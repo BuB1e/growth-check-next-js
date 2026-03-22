@@ -8,6 +8,7 @@ import type {
   UpdateUserDto,
   OptionsGetAllUserDTO,
 } from "@/dto";
+import { getForwardHeaders } from "@/lib/auth/auth-guard";
 
 type GetUsersParams = OptionsGetAllUserDTO & {
   page?: number;
@@ -45,7 +46,9 @@ export class UserAction {
 
   static async getUsers(
     params: GetUsersParams = {},
+    headers?: any,
   ): Promise<UserResponse[]> {
+    const activeHeaders = headers || (typeof window === 'undefined' ? await getForwardHeaders() : undefined);
     const defaultParams = {
       page: 1,
       limit: EnvConfig.PAGINATION_LIMIT_DESKTOP_SIZE,
@@ -53,6 +56,7 @@ export class UserAction {
     };
     const response = await axios.get<UsersPayload>(`${this.ACTION_ENDPOINT}/`, {
       params: defaultParams,
+      headers: activeHeaders,
     });
     return normalizeUsersList(response.data);
   }
@@ -60,7 +64,9 @@ export class UserAction {
   static async getUsersByTeam(
     teamId: number,
     params: GetUsersByTeamParams = {},
+    headers?: any,
   ): Promise<UserResponse[]> {
+    const activeHeaders = headers || (typeof window === 'undefined' ? await getForwardHeaders() : undefined);
     const defaultParams = {
       page: 1,
       limit: EnvConfig.PAGINATION_LIMIT_DESKTOP_SIZE,
@@ -68,21 +74,28 @@ export class UserAction {
     };
     const response = await axios.get<UsersPayload>(
       `${this.ACTION_ENDPOINT}/teams/${teamId}/users`,
-      { params: defaultParams },
+      { 
+        params: defaultParams,
+        headers: activeHeaders 
+      },
     );
     return normalizeUsersList(response.data);
   }
 
-  static async getUserById(id: string): Promise<UserResponse> {
+  static async getUserById(id: string, headers?: any): Promise<UserResponse> {
+    const activeHeaders = headers || (typeof window === 'undefined' ? await getForwardHeaders() : undefined);
     const response = await axios.get(
       `${this.ACTION_ENDPOINT}/getById/${id}`,
+      { headers: activeHeaders }
     );
     return response.data;
   }
 
-  static async getUserByEmail(email: string): Promise<UserResponse> {
+  static async getUserByEmail(email: string, headers?: any): Promise<UserResponse> {
+    const activeHeaders = headers || (typeof window === 'undefined' ? await getForwardHeaders() : undefined);
     const response = await axios.get(
       `${this.ACTION_ENDPOINT}/getByEmail/${email}`,
+      { headers: activeHeaders }
     );
     return response.data;
   }

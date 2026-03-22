@@ -7,6 +7,7 @@ import { DevelopmentAction } from "@/actions/DevelopmentAction";
 import { EnvConfig } from "@/configs/BackendConfig";
 import { revalidatePath } from "next/cache";
 import type { AiPredictionResponse, CreateChildDataDTO } from "@/dto";
+import { Metric_type } from "@/types";
 
 export type PredictionModel = "lstm";
 
@@ -65,14 +66,13 @@ export async function updateChildAction(
 
 export async function createChildDataAction(data: CreateChildDataDTO) {
   try {
-    // TODO: Remove MOCK_USER_ID fallback when real authenticated user session is available.
-    const resolvedUserId =
-      EnvConfig.MOCK_USER_ID ?? data.userCreated ?? data.userUpdated;
+    const { getCurrentUserId } = await import("@/lib/auth/auth-guard");
+    const resolvedUserId = await getCurrentUserId();
 
     if (!resolvedUserId) {
       return {
         success: false,
-        error: "ไม่พบผู้ใช้สำหรับบันทึกข้อมูล กรุณาตั้งค่า MOCK_USER_ID ใน .env",
+        error: "ไม่พบผู้ใช้สำหรับบันทึกข้อมูล กรุณาเข้าสู่ระบบ",
       };
     }
 
@@ -91,13 +91,13 @@ export async function createChildDataAction(data: CreateChildDataDTO) {
 
     const [heightDevRes, weightDevRes] = await Promise.all([
       DevelopmentAction.getDevelopments({
-        metric: "HA",
+        metric: Metric_type.HA,
         deleteStatus: false,
         page: 1,
         limit: 1,
       }),
       DevelopmentAction.getDevelopments({
-        metric: "WA",
+        metric: Metric_type.WA,
         deleteStatus: false,
         page: 1,
         limit: 1,

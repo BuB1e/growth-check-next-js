@@ -9,6 +9,7 @@ import {
 import { Loader2 } from "lucide-react";
 import { UserCreateStatusAction } from "@/actions/UserCreateStatusAction";
 import type { UserCreateStatusResponse, PaginatedResponseDTO } from "@/dto";
+import { Request_status } from "@/types/Enums";
 import { UserRequestsTable } from "@/components/features/desktop/UserRequestsTable";
 
 export const metadata = {
@@ -74,7 +75,7 @@ async function RequestsDataWrapper({
   const q = typeof sp?.q === "string" ? sp.q : undefined;
 
   // Use WAITING as default status if not "all"
-  const requestStatus = sp?.status === "all" ? undefined : (sp?.status || "WAITING");
+  const requestStatus = sp?.status === "all" ? undefined : (sp?.status || Request_status.WAITING);
   const role = sp?.role && sp?.role !== "all" ? sp.role : undefined;
 
   let data: PaginatedResponseDTO<UserCreateStatusResponse> | null = null;

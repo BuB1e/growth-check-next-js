@@ -5,7 +5,8 @@ trigger: always_on
 - This project designed using RBAC which role is 1 role in Mobile is Staff. And 2 Roles in Desktop 1.Admin 2.Head.
 - Using Better-Auth as Authentication.
 - Target user age around 30-55 years old, so make text size large and good readability.
-- Using NextJS modern best practice.
+- Using NextJS v.16 modern best practice.
+- NextJS v.16 does not use middleware.ts anymore, it is migrate to proxy.ts with same logic.
 - Use Axios on ALL fetch.
 - Use Pnpm.
 - And I want to use RemixJS style on action in server-side.
@@ -13,8 +14,9 @@ trigger: always_on
 - Use re-use components and always prefer ShadCN component.
 - Use Zustand for stores.
 - Follow these structure Components for re-use components, Actions for call API, using DTO and TYPES.
+- Using existed types in types/
 - Use Suspense for component loading and create Loading function/component for fallback.
-- Doing Type Validation, Check lints and Check for errors everytime before finish task.
+- Doing Type Validation, Check lints and Check for errors everytime before finish task (pnpm run lint || and others).
 - Make responsive components and page so they compatible full size and readability on any resolution on each devices.
 - Optimize UX/UI.
 - Optimize best performance and don't leak API, ENV, Endpoint.

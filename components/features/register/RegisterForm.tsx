@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState, Suspense } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { completeRegistrationAction } from "@/app/register/actions";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -13,7 +14,8 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ShieldCheck, UserCircle, Users, ArrowRight, Search, Mail, Lock } from "lucide-react";
+import { ShieldCheck, UserCircle, Users, ArrowRight, Search, Mail, Lock, AlertCircle, Eye, EyeOff } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { TeamResponse } from "@/dto";
 import { authClient } from "@/lib/auth/auth-client";
 
@@ -28,54 +30,107 @@ export function RegisterForm({ teams }: RegisterFormProps) {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [selectedTeam, setSelectedTeam] = useState<number | null>(null);
   const [searchTeam, setSearchTeam] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [currentUser, setCurrentUser] = useState<any>(null);
+
+  // For social logins, we might already have some user data from BetterAuth
+  useEffect(() => {
+    const checkSession = async () => {
+      const session = await authClient.getSession();
+      if (session && session.data?.user) {
+        const user = session.data.user;
+        setCurrentUser(user);
+        // Pre-fill if social
+        if (authMethod !== "NATIVE") {
+          const names = (user.name || "").split(" ");
+          if (names.length > 0) setFirstName(names[0]);
+          if (names.length > 1) setLastName(names.slice(1).join(" "));
+          setEmail(user.email);
+        }
+      }
+    };
+    checkSession();
+  }, [authMethod]);
 
   const filteredTeams = teams.filter((team) =>
     team.name.toLowerCase().includes(searchTeam.toLowerCase())
   );
 
   const handleRegister = async (method: string) => {
-    // Validate inputs for Native
-    if (method === "NATIVE") {
-      if (!firstName || !selectedTeam || !email || !password) {
-        alert("กรุณากรอกข้อมูลให้ครบถ้วน");
-        return;
+    if (!firstName || !selectedTeam || (method === "NATIVE" && (!email || !password || !confirmPassword))) {
+      setError("กรุณากรอกข้อมูลให้ครบถ้วน");
+      return;
+    }
+
+    if (method === "NATIVE" && password !== confirmPassword) {
+      setError("รหัสผ่านไม่ตรงกัน");
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+    try {
+      let userId: string;
+
+      if (method === "NATIVE") {
+        const { data, error } = await authClient.signUp.email({
+          email,
+          password,
+          name: `${firstName} ${lastName}`.trim(),
+        });
+
+        if (error || !data?.user) {
+          throw new Error(error?.message || "ลงทะเบียนไม่สำเร็จ");
+        }
+        userId = data.user.id;
+      } else {
+        // SOCIAL logic: update existing user
+        if (!currentUser) {
+          throw new Error("ไม่พบข้อมูลผู้ใช้งานที่เข้าสู่ระบบด้วยโซเชียล");
+        }
+        userId = currentUser.id;
       }
-      setIsLoading(true);
-      const { data, error } = await authClient.signUp.email({
-        email,
-        password,
-        name: `${firstName} ${lastName}`.trim(),
-        // TODO: After signup, call the user-profile update API to store firstName, lastName, teamId
-      });
+
+      // 1. Update User Profile (teamId, firstName, lastName)
+      // 2. Create UserCreateStatus (WAITING status)
+      // We do this via a Server Action to avoid exposing server-only EnvConfig to the client
+      const result = await completeRegistrationAction(userId, {
+        firstName,
+        lastName,
+        teamId: selectedTeam,
+        email: method === "NATIVE" ? email : currentUser?.email || email,
+      } as any);
+
+      if (!result.success) {
+        throw new Error(result.error);
+      }
+
+      setError(null);
+      
+      // Clear all fields on success as requested
+      setEmail("");
+      setPassword("");
+      setConfirmPassword("");
+      setFirstName("");
+      setLastName("");
+      setSelectedTeam(null);
+      setSearchTeam("");
+      
+      router.push("/pending-approval");
+
+    } catch (err: any) {
+      setError(err.message || "เกิดข้อผิดพลาดในการลงทะเบียน");
+    } finally {
       setIsLoading(false);
-
-      if (error) {
-        alert("ลงทะเบียนไม่สำเร็จ: " + (error.message || "โปรดลองอีกครั้ง"));
-        return;
-      }
-      alert("ลงทะเบียนสำเร็จ! โปรดรอผู้ดูแลระบบอนุมัติบัญชี หรือเข้าสู่ระบบ");
-      router.push("/login");
-
-    } else {
-      // For social registration placeholder
-      if (!firstName || !selectedTeam) {
-        alert("กรุณากรอกข้อมูลให้ครบถ้วน");
-        return;
-      }
-
-      // Normally with Better Auth, social login happens first, then profile is completed later.
-      // So this is just a placeholder if we were trying to capture data before OAuth redirect.
-      setIsLoading(true);
-      await authClient.signIn.social({
-        provider: method.toLowerCase() as "google" | "line",
-        callbackURL: "/mobile/staff/home",
-      });
     }
   };
 
@@ -103,6 +158,15 @@ export function RegisterForm({ teams }: RegisterFormProps) {
           </CardHeader>
 
           <CardContent className="space-y-6 pb-8 px-6 md:px-10">
+            {error && (
+              <Alert variant="destructive" className="rounded-2xl border-red-200 bg-red-50 animate-in fade-in zoom-in-95 duration-300">
+                <AlertCircle className="h-5 w-5" />
+                <AlertTitle className="text-lg font-bold">เกิดข้อผิดพลาด</AlertTitle>
+                <AlertDescription className="text-base font-medium">
+                  {error == "Password too short" ? "รหัสผ่านต้องมีความยาวอย่างน้อย 8 ตัวอักษร" : error}
+                </AlertDescription>
+              </Alert>
+            )}
             <div className="space-y-5">
 
               {authMethod === "NATIVE" && (
@@ -132,13 +196,45 @@ export function RegisterForm({ teams }: RegisterFormProps) {
                       <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-6 h-6 text-gray-400 group-focus-within:text-primary transition-colors" />
                       <Input
                         id="password"
-                        type="password"
+                        type={showPassword ? "text" : "password"}
                         title="password"
                         placeholder="••••••••"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="h-14 pl-16 text-lg rounded-2xl border-gray-200 focus:ring-4 focus:ring-primary/10 transition-all"
+                        className="h-14 pl-16 pr-12 text-lg rounded-2xl border-gray-200 focus:ring-4 focus:ring-primary/10 transition-all"
                       />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-primary transition-colors"
+                      >
+                        {showPassword ? <EyeOff className="w-6 h-6" /> : <Eye className="w-6 h-6" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <Label htmlFor="confirmPassword" title="confirmPassword" className="text-lg font-semibold text-gray-700 ml-1">
+                      ยืนยันรหัสผ่าน (Confirm Password) <span className="text-red-500">*</span>
+                    </Label>
+                    <div className="relative group">
+                      <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-6 h-6 text-gray-400 group-focus-within:text-primary transition-colors" />
+                      <Input
+                        id="confirmPassword"
+                        type={showConfirmPassword ? "text" : "password"}
+                        title="confirmPassword"
+                        placeholder="••••••••"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        className="h-14 pl-16 pr-12 text-lg rounded-2xl border-gray-200 focus:ring-4 focus:ring-primary/10 transition-all"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-primary transition-colors"
+                      >
+                        {showConfirmPassword ? <EyeOff className="w-6 h-6" /> : <Eye className="w-6 h-6" />}
+                      </button>
                     </div>
                   </div>
                 </div>

@@ -18,6 +18,7 @@ import {
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { LocationCreateRequestResponse } from "@/dto";
 import type { PaginatedResponseDTO } from "@/dto";
+import { Request_status } from "@/types/Enums";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -44,6 +45,7 @@ interface RequestsTableProps {
 
 function StatusBadge({ status }: { status: string }) {
   switch (status) {
+    case Request_status.APPROVED:
     case "APPROVE":
       return (
         <div className="flex items-center gap-1.5 text-green-600 font-medium">
@@ -51,6 +53,7 @@ function StatusBadge({ status }: { status: string }) {
           อนุมัติแล้ว
         </div>
       );
+    case Request_status.REJECTED:
     case "REJECT":
       return (
         <div className="flex items-center gap-1.5 text-red-500 font-medium">
@@ -58,6 +61,7 @@ function StatusBadge({ status }: { status: string }) {
           ปฏิเสธ
         </div>
       );
+    case Request_status.WAITING:
     default:
       return (
         <div className="flex items-center gap-1.5 text-yellow-500 font-medium">
@@ -198,9 +202,9 @@ export function RequestsTable({ rawData }: RequestsTableProps) {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">ทุกสถานะ</SelectItem>
-            <SelectItem value="WAITING">รอดำเนินการ</SelectItem>
-            <SelectItem value="APPROVE">อนุมัติแล้ว</SelectItem>
-            <SelectItem value="REJECT">ปฏิเสธ</SelectItem>
+            <SelectItem value={Request_status.WAITING}>รอดำเนินการ</SelectItem>
+            <SelectItem value={Request_status.APPROVED}>อนุมัติแล้ว</SelectItem>
+            <SelectItem value={Request_status.REJECTED}>ปฏิเสธ</SelectItem>
           </SelectContent>
         </Select>
       </div>

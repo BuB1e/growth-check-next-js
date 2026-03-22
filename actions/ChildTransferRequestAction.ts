@@ -9,6 +9,7 @@ import type {
   OptionsGetChildTransferRequestsDTO,
   PaginatedResponseDTO,
 } from "@/dto";
+import { getForwardHeaders } from "@/lib/auth/auth-guard";
 
 type GetChildTransferRequestsParams = OptionsGetChildTransferRequestsDTO & {
   page?: number;
@@ -29,14 +30,21 @@ export class ChildTransferRequestAction {
       limit: EnvConfig.PAGINATION_LIMIT_DESKTOP_SIZE,
       ...params,
     };
-    const response = await axios.get(`${this.ACTION_ENDPOINT}/`, { params: defaultParams });
+    const activeHeaders = typeof window === 'undefined' ? await getForwardHeaders() : undefined;
+    const response = await axios.get(`${this.ACTION_ENDPOINT}/`, { 
+      params: defaultParams,
+      headers: activeHeaders
+    });
     return response.data;
   }
 
   static async getRequestById(
     id: string,
   ): Promise<ChildTransferRequestResponse> {
-    const response = await axios.get(`${this.ACTION_ENDPOINT}/${id}`);
+    const activeHeaders = typeof window === 'undefined' ? await getForwardHeaders() : undefined;
+    const response = await axios.get(`${this.ACTION_ENDPOINT}/${id}`, {
+      headers: activeHeaders
+    });
     return response.data;
   }
 

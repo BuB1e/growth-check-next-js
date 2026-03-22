@@ -1,20 +1,16 @@
 
 
-import axios from "axios";
-import { EnvConfig } from "@/configs/BackendConfig";
-import type {
+import {
   ChildTransferRequestResponse,
   LocationCreateRequestResponse,
 } from "@/dto";
-import { ChildDataAction } from "./ChildDataAction";
+import { EnvConfig } from "@/configs/BackendConfig";
 import { ChildTransferRequestAction } from "./ChildTransferRequestAction";
 import { LocationCreateRequestAction } from "./LocationCreateRequestAction";
+import { Request_status, Role } from "@/types";
 
 import type {
   HistoryType,
-  HistoryActorRole,
-  HistoryStatus,
-  HistoryActor,
   HistoryEntry,
   PaginatedHistoryResponse,
 } from "@/dto";
@@ -97,8 +93,8 @@ export class HistoryAction {
           id: t.id + 10000, // Offset to avoid ID collisions
           type: "TRANSFER",
           title: `ขอย้ายเด็ก (ID: ${t.childId}) จากเขต ${t.fromLocation} ไปเขต ${t.toLocation}`,
-          actor: { role: "Staff", name: t.userId },
-          status: t.handledBy ? "APPROVED" : "WAITING",
+          actor: { role: Role.STAFF, name: t.userId },
+          status: t.handledBy ? Request_status.APPROVED : Request_status.WAITING,
           createdAt: t.createdAt,
           updatedAt: t.updatedAt,
           fromLocation: t.fromLocation.toString(),
@@ -111,20 +107,20 @@ export class HistoryAction {
     if (locationRequestsRes.status === "fulfilled") {
       locationRequestsRes.value.forEach((r: LocationCreateRequestResponse) => {
         const historyType: HistoryType =
-          r.requestStatus === "REJECTED"
+          r.requestStatus === Request_status.REJECTED
             ? "LOCATION_REJECT"
             : "LOCATION_APPROVE";
         entries.push({
           id: r.id + 20000, // Offset to avoid ID collisions
           type: historyType,
           title:
-            r.requestStatus === "APPROVED"
+            r.requestStatus === Request_status.APPROVED
               ? `อนุมัติสร้าง ${r.locationName}`
-              : r.requestStatus === "REJECTED"
+              : r.requestStatus === Request_status.REJECTED
                 ? `ปฏิเสธคำร้องสร้าง ${r.locationName}`
                 : `คำร้องขอสร้าง ${r.locationName} (รอดำเนินการ)`,
           actor: {
-            role: r.handledBy ? "Admin" : "Staff",
+            role: r.handledBy ? Role.ADMIN : Role.STAFF,
             name: r.handledBy || r.userId,
           },
           status: r.requestStatus,

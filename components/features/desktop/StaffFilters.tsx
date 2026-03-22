@@ -12,6 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Search } from "lucide-react";
+import { Role, RoleTH } from "@/types";
 
 export default function StaffFilters() {
   const router = useRouter();
@@ -81,9 +82,9 @@ export default function StaffFilters() {
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="ALL">ทั้งหมด</SelectItem>
-          <SelectItem value="ADMIN">แอดมิน</SelectItem>
-          <SelectItem value="HEAD">หัวหน้า</SelectItem>
-          <SelectItem value="USER">ผู้ใช้งาน</SelectItem>
+          <SelectItem value={Role.ADMIN}>{RoleTH.ADMIN}</SelectItem>
+          <SelectItem value={Role.HEAD}>{RoleTH.HEAD}</SelectItem>
+          <SelectItem value={Role.USER}>{RoleTH.USER}</SelectItem>
         </SelectContent>
       </Select>
     </div>

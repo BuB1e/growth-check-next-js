@@ -13,7 +13,8 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Mail, ArrowRight, ShieldCheck, Lock } from "lucide-react";
+import { Mail, ArrowRight, ShieldCheck, Lock, AlertCircle, Eye, EyeOff } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { SiLine } from "react-icons/si";
 import { FcGoogle } from "react-icons/fc";
 import { authClient } from "@/lib/auth/auth-client";
@@ -23,22 +24,30 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = async (method: string) => {
     if (method === "NATIVE") {
-      if (!email || !password) return alert("กรุณากรอกอีเมลและรหัสผ่าน");
+      if (!email || !password) {
+        setError("กรุณากรอกอีเมลและรหัสผ่าน");
+        return;
+      }
 
       setIsLoading(true);
-      const { data, error } = await authClient.signIn.email({
+      setError(null);
+      const { data, error: loginError } = await authClient.signIn.email({
         email,
         password,
       });
       setIsLoading(false);
 
-      if (error) {
-        alert("เข้าสู่ระบบไม่สำเร็จ: " + (error.message || "โปรดลองอีกครั้ง"));
+      if (loginError) {
+        console.error("[Login] Native SignIn Error:", loginError);
+        setError("อีเมลหรือรหัสผ่านไม่ถูกต้อง");
         return;
       }
+      console.log("[Login] Native SignIn Success, redirecting to /mobile/staff/home");
       router.push("/mobile/staff/home");
 
     } else {
@@ -78,6 +87,16 @@ export default function LoginPage() {
           </CardHeader>
 
           <CardContent className="space-y-6 pb-8 px-6 md:px-10">
+            {error && (
+              <Alert variant="destructive" className="rounded-2xl border-red-200 bg-red-50 animate-in fade-in zoom-in-95 duration-300">
+                <AlertCircle className="h-5 w-5" />
+                <AlertTitle className="text-lg font-bold">เกิดข้อผิดพลาด</AlertTitle>
+                <AlertDescription className="text-base font-medium">
+                  {error}
+                </AlertDescription>
+              </Alert>
+            )}
+
             {/* Native Login Section */}
             <div className="space-y-4">
               <div className="space-y-3">
@@ -105,13 +124,20 @@ export default function LoginPage() {
                   <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-6 h-6 text-gray-400 group-focus-within:text-primary transition-colors" />
                   <Input
                     id="password"
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     title="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="h-14 pl-16 text-lg rounded-2xl border-gray-200 focus:ring-4 focus:ring-primary/10 transition-all"
+                    className="h-14 pl-16 pr-12 text-lg rounded-2xl border-gray-200 focus:ring-4 focus:ring-primary/10 transition-all"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-primary transition-colors"
+                  >
+                    {showPassword ? <EyeOff className="w-6 h-6" /> : <Eye className="w-6 h-6" />}
+                  </button>
                 </div>
               </div>
 

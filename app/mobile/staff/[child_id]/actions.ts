@@ -3,19 +3,15 @@
 import { ChildAction } from "@/actions/ChildAction";
 import { ChildDataAction } from "@/actions/ChildDataAction";
 import { DevelopmentAction } from "@/actions/DevelopmentAction";
-import { EnvConfig } from "@/configs/BackendConfig";
 import type { CreateChildDataDTO } from "@/dto";
+import { Metric_type } from "@/types";
+
+import { getCurrentUserId } from "@/lib/auth/auth-guard";
 
 export async function createChildDataAction(
   data: CreateChildDataDTO,
 ) {
-  // TODO: Remove MOCK_USER_ID fallback when real authenticated user session is available.
-  const resolvedUserId =
-    EnvConfig.MOCK_USER_ID ?? data.userCreated ?? data.userUpdated;
-
-  if (!resolvedUserId) {
-    throw new Error("Missing MOCK_USER_ID in .env for development mode");
-  }
+  const resolvedUserId = await getCurrentUserId();
 
   const latestRecords = await ChildDataAction.getChildDataList({
     childId: data.childId,
@@ -32,13 +28,13 @@ export async function createChildDataAction(
 
   const [heightDevRes, weightDevRes] = await Promise.all([
     DevelopmentAction.getDevelopments({
-      metric: "HA",
+      metric: Metric_type.HA,
       deleteStatus: false,
       page: 1,
       limit: 1,
     }),
     DevelopmentAction.getDevelopments({
-      metric: "WA",
+      metric: Metric_type.WA,
       deleteStatus: false,
       page: 1,
       limit: 1,

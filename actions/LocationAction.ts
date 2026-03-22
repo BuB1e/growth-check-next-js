@@ -9,6 +9,7 @@ import type {
   OptionsGetAllLocationDTO,
   PaginatedResponseDTO,
 } from "@/dto";
+import { getForwardHeaders } from "@/lib/auth/auth-guard";
 
 type GetLocationsParams = OptionsGetAllLocationDTO & {
   page?: number;
@@ -80,14 +81,19 @@ export class LocationAction {
       limit,
       ...params,
     };
+    const activeHeaders = typeof window === 'undefined' ? await getForwardHeaders() : undefined;
     const response = await axios.get<LocationsPayload>(`${this.ACTION_ENDPOINT}/`, {
       params: defaultParams,
+      headers: activeHeaders,
     });
     return normalizeLocationsResponse(response.data, page, limit);
   }
 
   static async getLocationById(id: string): Promise<LocationResponse> {
-    const response = await axios.get(`${this.ACTION_ENDPOINT}/${id}`);
+    const activeHeaders = typeof window === 'undefined' ? await getForwardHeaders() : undefined;
+    const response = await axios.get(`${this.ACTION_ENDPOINT}/${id}`, {
+      headers: activeHeaders
+    });
     return response.data;
   }
 

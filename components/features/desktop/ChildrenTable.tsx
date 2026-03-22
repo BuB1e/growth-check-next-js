@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/table";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ChildResponse, PaginatedResponseDTO } from "@/dto";
-import { Child_status, Child_statusToThai } from "@/types";
+import { Child_status, Child_statusToThai, Sex, SexToThai } from "@/types";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -107,7 +107,8 @@ export function ChildrenTable({ rawData, locationMap = {} }: ChildrenTableProps)
         </Button>
       ),
       cell: ({ row }) => {
-        return row.original.sex === "MALE" ? "ชาย" : "หญิง";
+        const sex = row.original.sex as Sex;
+        return SexToThai[sex] ?? sex;
       },
     },
     {

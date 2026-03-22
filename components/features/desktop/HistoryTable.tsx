@@ -7,6 +7,7 @@ import {
   HistoryActor,
   PaginatedHistoryResponse,
 } from "@/dto";
+import { Request_status, Role, RoleToThai } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -33,19 +34,21 @@ interface HistoryTableProps {
 }
 
 function ActorLabel({ actor }: { actor: HistoryActor }) {
-  if (actor.role === "Admin") return <span>{actor.role}</span>;
+  const role = actor.role as Role;
+  const roleLabel = RoleToThai[role] ?? actor.role;
   return (
     <span className="text-muted-foreground text-sm truncate max-w-55 block">
-      {actor.role} - {actor.name}
+      {roleLabel} - {actor.name}
       {actor.locationName ? ` - ${actor.locationName}` : ""}
     </span>
   );
 }
 
 function StatusIcon({ status }: { status: string }) {
-  if (status === "APPROVE")
+  if (status === Request_status.APPROVED || status === "APPROVE")
     return <CheckCircle2 className="h-4 w-4 text-green-500" />;
-  if (status === "REJECT") return <XCircle className="h-4 w-4 text-red-500" />;
+  if (status === Request_status.REJECTED || status === "REJECT")
+    return <XCircle className="h-4 w-4 text-red-500" />;
   return <Clock className="h-4 w-4 text-yellow-500" />;
 }
 

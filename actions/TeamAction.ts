@@ -9,6 +9,7 @@ import type {
   OptionsGetTeamsDTO,
   PaginatedResponseDTO,
 } from "@/dto";
+import { getForwardHeaders } from "@/lib/auth/auth-guard";
 
 type GetTeamsParams = OptionsGetTeamsDTO & {
   page?: number;
@@ -23,13 +24,29 @@ export class TeamAction {
 
   static async getTeams(
     params: GetTeamsParams = {},
+    headers?: any,
   ): Promise<PaginatedResponseDTO<TeamResponse>> {
+    const activeHeaders = headers || (typeof window === 'undefined' ? await getForwardHeaders() : undefined);
     const defaultParams = {
       page: 1,
       limit: EnvConfig.PAGINATION_LIMIT_DESKTOP_SIZE,
       ...params,
     };
-    const response = await axios.get(`${this.ACTION_ENDPOINT}/`, { params: defaultParams });
+    const response = await axios.get(`${this.ACTION_ENDPOINT}/`, { 
+      params: defaultParams,
+      headers: activeHeaders
+    });
+    return response.data;
+  }
+
+  static async getTeamById(id: number | string, headers?: any): Promise<TeamResponse> {
+    if (!id || id === 'undefined' || id === 'null') {
+      throw new Error("Invalid team ID");
+    }
+    const activeHeaders = headers || (typeof window === 'undefined' ? await getForwardHeaders() : undefined);
+    const response = await axios.get(`${this.ACTION_ENDPOINT}/${id}`, {
+      headers: activeHeaders
+    });
     return response.data;
   }
 

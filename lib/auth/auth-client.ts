@@ -1,3 +1,5 @@
+// Client-side BetterAuth
+
 import { EnvConfig } from "@/configs/BackendConfig";
 import { createAuthClient } from "better-auth/react";
 

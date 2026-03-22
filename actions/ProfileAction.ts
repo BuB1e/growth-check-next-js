@@ -1,6 +1,7 @@
 import axios from "axios";
 import { EnvConfig } from "@/configs/BackendConfig";
 import type { UserResponse, UpdateUserDto } from "@/dto";
+import { getCurrentUserId, getForwardHeaders } from "@/lib/auth/auth-guard";
 
 // TODO: Replace ChangePasswordDto with BetterAuth's built-in type when auth is activated
 export interface ChangePasswordDto {
@@ -20,26 +21,14 @@ export class ProfileAction {
   }
 
   /**
-   * Get the current authenticated user's ID.
-   * TODO: Replace with BetterAuth session lookup when auth is activated.
-   */
-  private static getCurrentUserId(): string {
-    const mockUserId = EnvConfig.MOCK_USER_ID;
-    if (!mockUserId) {
-      throw new Error(
-        "No authenticated user found. MOCK_USER_ID is not set and BetterAuth session is not active.",
-      );
-    }
-    return mockUserId;
-  }
-
-  /**
    * Fetch the current user's profile data.
    */
   static async getCurrentUser(): Promise<UserResponse> {
-    const userId = this.getCurrentUserId();
+    const userId = await getCurrentUserId();
+    const headers = await getForwardHeaders();
     const response = await axios.get(
       `${this.getBaseUrl()}/users/getById/${userId}`,
+      { headers: headers }
     );
     return response.data as UserResponse;
   }
@@ -50,10 +39,12 @@ export class ProfileAction {
   static async updateCurrentUser(
     data: UpdateUserDto,
   ): Promise<UserResponse> {
-    const userId = this.getCurrentUserId();
+    const userId = await getCurrentUserId();
+    const headers = await getForwardHeaders();
     const response = await axios.patch(
       `${this.getBaseUrl()}/users/${userId}`,
       data,
+      { headers: headers }
     );
     return response.data as UserResponse;
   }

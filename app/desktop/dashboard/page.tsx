@@ -17,6 +17,7 @@ import { LocationAction } from "@/actions/LocationAction";
 import { ChildDataAction } from "@/actions/ChildDataAction";
 import { AdminDashboardAction } from "@/actions/AdminDashboardAction";
 import { Baby, Users, MapPin, Activity } from "lucide-react";
+import { Request_status } from "@/types/Enums";
 import { Suspense } from "react";
 
 export const metadata = {
@@ -138,7 +139,7 @@ async function DashboardDataWrapper({
       UserAction.getUsers({ page: 1, limit: 5000, deleteStatus: false }),
       LocationAction.getLocations({ page: 1, limit: 5000, deleted: false }),
       LocationCreateRequestAction.getRequests(),
-      LocationCreateRequestAction.getRequests({ requestStatus: "WAITING" }),
+      LocationCreateRequestAction.getRequests({ requestStatus: Request_status.WAITING }),
       AdminDashboardAction.getDashboardChartData({
         startDate: typeof params.from === "string" ? params.from : undefined,
         endDate: typeof params.to === "string" ? params.to : undefined,

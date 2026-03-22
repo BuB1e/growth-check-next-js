@@ -4,6 +4,7 @@ import type {
   DashboardChartRequestDTO,
   DashboardChartResponseDTO,
 } from "@/dto";
+import { getForwardHeaders } from "@/lib/auth/auth-guard";
 
 export class AdminDashboardAction {
   static BACKEND_ENDPOINT = EnvConfig.BACKEND_ENDPOINT || "";
@@ -14,9 +15,11 @@ export class AdminDashboardAction {
   static async getDashboardChartData(
     params: DashboardChartRequestDTO = {},
   ): Promise<DashboardChartResponseDTO[]> {
+    const activeHeaders = typeof window === 'undefined' ? await getForwardHeaders() : undefined;
     const response = await axios.get<DashboardChartResponseDTO[]>(
       this.ACTION_ENDPOINT,
       {
+        headers: activeHeaders,
         params: {
           ...params,
           ...(params.startDate && { startDate: params.startDate }),

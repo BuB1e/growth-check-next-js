@@ -1,4 +1,0 @@
-app/desktop/user-requests/page.tsx(88,7): error TS2353: Object literal may only specify known properties, and 'requestStatus' does not exist in type 'GetUserCreateStatusParams'.
-components/features/desktop/UserRequestDetailsModal.tsx(138,20): error TS2367: This comparison appears to be unintentional because the types '"APPROVE" | "REJECT"' and '"APPROVED"' have no overlap.
-components/features/desktop/UserRequestDetailsModal.tsx(289,13): error TS2367: This comparison appears to be unintentional because the types 'Request_status' and '"APPROVED"' have no overlap.
-components/features/desktop/UserRequestDetailsModal.tsx(289,53): error TS2367: This comparison appears to be unintentional because the types 'Request_status' and '"REJECTED"' have no overlap.

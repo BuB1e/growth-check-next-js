@@ -7,6 +7,7 @@ import type {
   OptionsGetChildrenDTO,
   PaginatedResponseDTO,
 } from "@/dto";
+import { getForwardHeaders } from "@/lib/auth/auth-guard";
 
 type GetChildrenParams = OptionsGetChildrenDTO & {
   page?: number;
@@ -172,6 +173,7 @@ export class ChildAction {
   static async getChildren(
     params: GetChildrenParams = {},
   ): Promise<PaginatedResponseDTO<ChildResponse>> {
+    const activeHeaders = typeof window === 'undefined' ? await getForwardHeaders() : undefined;
     const page =
       typeof params.page === "number" && params.page > 0 ? params.page : 1;
     const limit =
@@ -317,6 +319,7 @@ export class ChildAction {
       `${this.ACTION_ENDPOINT}/`,
       {
         params: requestParams,
+        headers: activeHeaders,
       },
     );
 
@@ -328,7 +331,10 @@ export class ChildAction {
   }
 
   static async getChildById(id: string): Promise<ChildResponse> {
-    const response = await axios.get(`${this.ACTION_ENDPOINT}/${id}`);
+    const activeHeaders = typeof window === 'undefined' ? await getForwardHeaders() : undefined;
+    const response = await axios.get(`${this.ACTION_ENDPOINT}/getById/${id}`, {
+      headers: activeHeaders
+    });
     return response.data;
   }
 

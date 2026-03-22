@@ -9,6 +9,7 @@ import type {
   OptionsLocationCreateRequestDTO,
   PaginatedResponseDTO,
 } from "@/dto";
+import { getForwardHeaders } from "@/lib/auth/auth-guard";
 
 type GetLocationCreateRequestsParams = OptionsLocationCreateRequestDTO & {
   page?: number;
@@ -29,14 +30,21 @@ export class LocationCreateRequestAction {
       limit: EnvConfig.PAGINATION_LIMIT_DESKTOP_SIZE,
       ...params,
     };
-    const response = await axios.get(`${this.ACTION_ENDPOINT}/`, { params: defaultParams });
+    const activeHeaders = typeof window === 'undefined' ? await getForwardHeaders() : undefined;
+    const response = await axios.get(`${this.ACTION_ENDPOINT}/`, { 
+      params: defaultParams,
+      headers: activeHeaders
+    });
     return response.data;
   }
 
   static async getRequestById(
     id: number,
   ): Promise<LocationCreateRequestResponse> {
-    const response = await axios.get(`${this.ACTION_ENDPOINT}/${id}`);
+    const activeHeaders = typeof window === 'undefined' ? await getForwardHeaders() : undefined;
+    const response = await axios.get(`${this.ACTION_ENDPOINT}/${id}`, {
+      headers: activeHeaders
+    });
     return response.data;
   }
 
@@ -49,9 +57,13 @@ export class LocationCreateRequestAction {
       limit: EnvConfig.PAGINATION_LIMIT_DESKTOP_SIZE,
       ...params,
     };
+    const activeHeaders = typeof window === 'undefined' ? await getForwardHeaders() : undefined;
     const response = await axios.get(
       `${this.ACTION_ENDPOINT}/user/${userId}`,
-      { params: defaultParams },
+      { 
+        params: defaultParams,
+        headers: activeHeaders
+      },
     );
     return response.data;
   }

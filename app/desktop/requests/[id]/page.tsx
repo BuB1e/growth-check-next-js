@@ -11,6 +11,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { LocationCreateRequestAction } from "@/actions/LocationCreateRequestAction";
+import { Request_status } from "@/types";
 
 export const metadata = {
   title: "รายละเอียดคำร้องขอ",
@@ -57,15 +58,19 @@ function DetailSkeleton() {
 }
 
 const STATUS_LABEL: Record<string, string> = {
-  WAITING: "รอดำเนินการ",
-  APPROVE: "อนุมัติแล้ว",
-  REJECT: "ปฏิเสธ",
+  [Request_status.WAITING]: "รอดำเนินการ",
+  [Request_status.APPROVED]: "อนุมัติแล้ว",
+  "APPROVE": "อนุมัติแล้ว",
+  [Request_status.REJECTED]: "ปฏิเสธ",
+  "REJECT": "ปฏิเสธ",
 };
 
 const STATUS_CLASS: Record<string, string> = {
-  WAITING: "bg-yellow-100 text-yellow-700 border-yellow-300",
-  APPROVE: "bg-green-100 text-green-700 border-green-300",
-  REJECT: "bg-red-100 text-red-600 border-red-300",
+  [Request_status.WAITING]: "bg-yellow-100 text-yellow-700 border-yellow-300",
+  [Request_status.APPROVED]: "bg-green-100 text-green-700 border-green-300",
+  "APPROVE": "bg-green-100 text-green-700 border-green-300",
+  [Request_status.REJECTED]: "bg-red-100 text-red-600 border-red-300",
+  "REJECT": "bg-red-100 text-red-600 border-red-300",
 };
 
 async function RequestDetailContent({
@@ -132,7 +137,7 @@ async function RequestDetailContent({
           </CardHeader>
           <CardContent className="space-y-4">
             <div
-              className={`inline-flex items-center px-3 py-1.5 rounded-full border text-sm font-semibold ${STATUS_CLASS[request.requestStatus] ?? STATUS_CLASS["WAITING"]}`}
+              className={`inline-flex items-center px-3 py-1.5 rounded-full border text-sm font-semibold ${STATUS_CLASS[request.requestStatus] ?? STATUS_CLASS[Request_status.WAITING]}`}
             >
               {STATUS_LABEL[request.requestStatus] ?? request.requestStatus}
             </div>

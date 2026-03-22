@@ -16,6 +16,7 @@ import { Label } from "@/components/ui/label";
 import { formatBE } from "@/lib/date-utils";
 import { UserCreateStatusAction } from "@/actions/UserCreateStatusAction";
 import { Loader2, X, MapPin, Calendar, Clock } from "lucide-react";
+import { Request_status, Role, RoleTH } from "@/types";
 
 interface ModalProps {
   request: UserCreateStatusResponse;
@@ -29,7 +30,7 @@ export function UserRequestDetailsModal({ request, teams, onClose, onSuccess }: 
   const [actionType, setActionType] = useState<"NONE" | "APPROVE" | "REJECT">("NONE");
   
   // Approve states
-  const [role, setRole] = useState("USER"); // Default: Staff
+  const [role, setRole] = useState<string>(Role.USER); // Default: Staff
   const [selectedTeam, setSelectedTeam] = useState<string>("");
   const [searchTeam, setSearchTeam] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -55,7 +56,7 @@ export function UserRequestDetailsModal({ request, teams, onClose, onSuccess }: 
       setIsSubmitting(true);
       
       const payload: any = {
-        requestStatus: "APPROVED",
+        requestStatus: Request_status.APPROVED,
         role: role,
         // Since the prompt doesn't strictly specify updatedBy from session here, 
         // we omit it or assume standard auth behavior if not provided.
@@ -84,7 +85,7 @@ export function UserRequestDetailsModal({ request, teams, onClose, onSuccess }: 
     try {
       setIsSubmitting(true);
       const payload: any = {
-        requestStatus: "REJECTED",
+        requestStatus: Request_status.REJECTED,
         rejectReason: rejectReason,
       };
 
@@ -134,8 +135,8 @@ export function UserRequestDetailsModal({ request, teams, onClose, onSuccess }: 
                 <Label className="text-gray-500">สถานะ / Status</Label>
                 <div className="flex items-center text-gray-900 mt-1 font-medium">
                   <Clock className="w-4 h-4 mr-2 text-primary" />
-                  {request.requestStatus === "WAITING" ? "รอดำเนินการ" : 
-                   request.requestStatus === "APPROVED" ? "อนุมัติแล้ว" : "ปฏิเสธ"}
+                  {request.requestStatus === Request_status.WAITING ? "รอดำเนินการ" : 
+                   request.requestStatus === Request_status.APPROVED || request.requestStatus === ("APPROVE" as any) ? "อนุมัติแล้ว" : "ปฏิเสธ"}
                 </div>
               </div>
             </div>
@@ -150,7 +151,7 @@ export function UserRequestDetailsModal({ request, teams, onClose, onSuccess }: 
           </div>
 
           {/* Action Areas based on choice */}
-          {request.requestStatus === "WAITING" && actionType === "NONE" && (
+          {request.requestStatus === Request_status.WAITING && actionType === "NONE" && (
             <div className="pt-4 flex gap-3">
               <Button 
                 onClick={() => setActionType("REJECT")}
@@ -179,9 +180,9 @@ export function UserRequestDetailsModal({ request, teams, onClose, onSuccess }: 
                     <SelectValue placeholder="เลือกบทบาท" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="USER">พนักงาน (Staff)</SelectItem>
-                    <SelectItem value="HEAD">หัวหน้า (Head)</SelectItem>
-                    <SelectItem value="ADMIN">แอดมิน (Admin)</SelectItem>
+                    <SelectItem value={Role.USER}>{RoleTH.USER} (Staff)</SelectItem>
+                    <SelectItem value={Role.HEAD}>{RoleTH.HEAD} (Head)</SelectItem>
+                    <SelectItem value={Role.ADMIN}>{RoleTH.ADMIN} (Admin)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -286,7 +287,7 @@ export function UserRequestDetailsModal({ request, teams, onClose, onSuccess }: 
             </div>
           )}
           
-          {(request.requestStatus === "APPROVED" || request.requestStatus === "REJECTED") && (
+          {(request.requestStatus === Request_status.APPROVED || request.requestStatus === Request_status.REJECTED) && (
             <div className="pt-2 flex">
                <Button onClick={onClose} variant="outline" className="w-full">ปิดหน้าต่าง</Button>
             </div>

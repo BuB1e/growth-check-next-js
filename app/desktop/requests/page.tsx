@@ -9,6 +9,7 @@ import {
 import { Loader2 } from "lucide-react";
 import { LocationCreateRequestAction } from "@/actions/LocationCreateRequestAction";
 import type { LocationCreateRequestResponse, PaginatedResponseDTO } from "@/dto";
+import { Request_status } from "@/types/Enums";
 import { RequestsTable } from "@/components/features/desktop/RequestsTable";
 
 export const metadata = {
@@ -73,7 +74,7 @@ async function RequestsDataWrapper({
       : EnvConfig.PAGINATION_LIMIT_DESKTOP_SIZE;
   const q = typeof sp?.q === "string" ? sp.q : undefined;
   const requestStatus =
-    sp?.status === "WAITING" || sp?.status === "APPROVED" || sp?.status === "REJECTED"
+    sp?.status === Request_status.WAITING || sp?.status === Request_status.APPROVED || sp?.status === Request_status.REJECTED
       ? sp.status as any
       : undefined;
 

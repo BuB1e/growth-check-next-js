@@ -3,6 +3,7 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { UserResponse } from "@/dto";
 import { ArrowUpDown } from "lucide-react";
+import { Role, RoleToThai } from "@/types";
 import { Button } from "@/components/ui/button";
 
 export const columns: ColumnDef<UserResponse>[] = [
@@ -51,10 +52,8 @@ export const columns: ColumnDef<UserResponse>[] = [
       );
     },
     cell: ({ row }) => {
-      const role = row.getValue("role") as string;
-      const roleText =
-        role === "ADMIN" ? "แอดมิน" : role === "HEAD" ? "หัวหน้า" : "ผู้ใช้งาน";
-      return <div>{roleText}</div>;
+      const role = row.getValue("role") as Role;
+      return <div>{RoleToThai[role] ?? role}</div>;
     },
   },
   {
