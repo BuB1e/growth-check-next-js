@@ -1,0 +1,257 @@
+"use client";
+
+import React, { useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { ShieldCheck, UserCircle, Users, ArrowRight, Search, Mail, Lock } from "lucide-react";
+import { TeamResponse } from "@/dto";
+import { authClient } from "@/lib/auth/auth-client";
+
+interface RegisterFormProps {
+  teams: TeamResponse[];
+}
+
+export function RegisterForm({ teams }: RegisterFormProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const authMethod = searchParams.get("method") || "NATIVE"; // 'NATIVE', 'LINE', 'GOOGLE'
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [selectedTeam, setSelectedTeam] = useState<number | null>(null);
+  const [searchTeam, setSearchTeam] = useState("");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const filteredTeams = teams.filter((team) =>
+    team.name.toLowerCase().includes(searchTeam.toLowerCase())
+  );
+
+  const handleRegister = async (method: string) => {
+    // Validate inputs for Native
+    if (method === "NATIVE") {
+      if (!firstName || !selectedTeam || !email || !password) {
+        alert("กรุณากรอกข้อมูลให้ครบถ้วน");
+        return;
+      }
+      setIsLoading(true);
+      const { data, error } = await authClient.signUp.email({
+        email,
+        password,
+        name: `${firstName} ${lastName}`.trim(),
+        // TODO: After signup, call the user-profile update API to store firstName, lastName, teamId
+      });
+      setIsLoading(false);
+
+      if (error) {
+        alert("ลงทะเบียนไม่สำเร็จ: " + (error.message || "โปรดลองอีกครั้ง"));
+        return;
+      }
+      alert("ลงทะเบียนสำเร็จ! โปรดรอผู้ดูแลระบบอนุมัติบัญชี หรือเข้าสู่ระบบ");
+      router.push("/login");
+
+    } else {
+      // For social registration placeholder
+      if (!firstName || !selectedTeam) {
+        alert("กรุณากรอกข้อมูลให้ครบถ้วน");
+        return;
+      }
+
+      // Normally with Better Auth, social login happens first, then profile is completed later.
+      // So this is just a placeholder if we were trying to capture data before OAuth redirect.
+      setIsLoading(true);
+      await authClient.signIn.social({
+        provider: method.toLowerCase() as "google" | "line",
+        callbackURL: "/mobile/staff/home",
+      });
+    }
+  };
+
+  return (
+    <div className="min-h-screen w-full flex items-center justify-center bg-linear-to-br from-blue-50 via-white to-blue-50/50 p-4 md:p-8">
+      <div className="w-full max-w-xl space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <div className="text-center space-y-2">
+          <div className="inline-flex items-center justify-center p-3 rounded-2xl bg-primary/10 text-primary mb-4">
+            <ShieldCheck className="w-10 h-10" />
+          </div>
+          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-gray-900">
+            Growth Check
+          </h1>
+          <p className="text-xl md:text-2xl text-gray-600 font-medium">
+            ลงทะเบียนผู้ใช้งานใหม่ {authMethod !== "NATIVE" ? `(ผ่าน ${authMethod})` : ""}
+          </p>
+        </div>
+
+        <Card className="border-none shadow-2xl shadow-blue-500/10 rounded-3xl overflow-hidden bg-white/80 backdrop-blur-xl ring-1 ring-black/5">
+          <CardHeader className="pt-10 pb-6 text-center space-y-2">
+            <CardTitle className="text-2xl font-bold text-gray-900 px-2">ข้อมูลส่วนตัว</CardTitle>
+            <CardDescription className="text-lg text-gray-500 px-4">
+              กรุณากรอกข้อมูลเพื่อใช้ในการอนุมัติบัญชี
+            </CardDescription>
+          </CardHeader>
+
+          <CardContent className="space-y-6 pb-8 px-6 md:px-10">
+            <div className="space-y-5">
+
+              {authMethod === "NATIVE" && (
+                <div className="space-y-4 mb-2">
+                  <div className="space-y-3">
+                    <Label htmlFor="email" className="text-lg font-semibold text-gray-700 ml-1">
+                      อีเมล (Email) <span className="text-red-500">*</span>
+                    </Label>
+                    <div className="relative group">
+                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-6 h-6 text-gray-400 group-focus-within:text-primary transition-colors" />
+                      <Input
+                        id="email"
+                        type="email"
+                        placeholder="example@mail.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="h-14 pl-16 text-lg rounded-2xl border-gray-200 focus:ring-4 focus:ring-primary/10 transition-all"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <Label htmlFor="password" title="password" className="text-lg font-semibold text-gray-700 ml-1">
+                      รหัสผ่าน (Password) <span className="text-red-500">*</span>
+                    </Label>
+                    <div className="relative group">
+                      <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-6 h-6 text-gray-400 group-focus-within:text-primary transition-colors" />
+                      <Input
+                        id="password"
+                        type="password"
+                        title="password"
+                        placeholder="••••••••"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="h-14 pl-16 text-lg rounded-2xl border-gray-200 focus:ring-4 focus:ring-primary/10 transition-all"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-3">
+                  <Label htmlFor="firstName" className="text-lg font-semibold text-gray-700 ml-1">
+                    ชื่อจริง <span className="text-red-500">*</span>
+                  </Label>
+                  <div className="relative group">
+                    <UserCircle className="absolute left-4 top-1/2 -translate-y-1/2 w-6 h-6 text-gray-400 group-focus-within:text-primary transition-colors" />
+                    <Input
+                      id="firstName"
+                      placeholder="สมชาย"
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      className="h-14 pl-16 text-lg rounded-2xl border-gray-200 focus:ring-4 focus:ring-primary/10 transition-all"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <Label htmlFor="lastName" className="text-lg font-semibold text-gray-700 ml-1">
+                    นามสกุล
+                  </Label>
+                  <div className="relative group">
+                    <UserCircle className="absolute left-4 top-1/2 -translate-y-1/2 w-6 h-6 text-gray-400 group-focus-within:text-primary transition-colors" />
+                    <Input
+                      id="lastName"
+                      placeholder="ใจดี"
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      className="h-14 pl-12 text-lg rounded-2xl border-gray-200 focus:ring-4 focus:ring-primary/10 transition-all"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-3 relative">
+                <Label className="text-lg font-semibold text-gray-700 ml-1">
+                  เขตที่จะทำงาน <span className="text-red-500">*</span>
+                </Label>
+                <div className="relative group">
+                  <Users className="absolute left-4 top-1/2 -translate-y-1/2 w-6 h-6 text-gray-400 group-focus-within:text-primary transition-colors z-10" />
+                  <Input
+                    placeholder="ค้นหาเขต/ทีมที่ต้องการทำงาน..."
+                    value={isDropdownOpen ? searchTeam : (teams.find(t => t.id === selectedTeam)?.name || "")}
+                    onFocus={() => {
+                      setIsDropdownOpen(true);
+                      setSearchTeam("");
+                    }}
+                    onBlur={() => {
+                      // Slight delay to allow clicking on dropdown items
+                      setTimeout(() => setIsDropdownOpen(false), 200);
+                    }}
+                    onChange={(e) => {
+                      setSearchTeam(e.target.value);
+                      setIsDropdownOpen(true);
+                    }}
+                    className="h-14 pl-16 text-lg rounded-2xl border-gray-200 focus:ring-4 focus:ring-primary/10 transition-all cursor-text"
+                  />
+
+                  {isDropdownOpen && (
+                    <div className="absolute top-full left-0 w-full mt-2 bg-white rounded-xl shadow-xl border border-gray-100 max-h-60 overflow-y-auto z-50">
+                      {filteredTeams.length > 0 ? (
+                        filteredTeams.map((team) => (
+                          <div
+                            key={team.id}
+                            className="px-4 py-3 hover:bg-blue-50 cursor-pointer text-lg text-gray-800 transition-colors"
+                            onClick={() => {
+                              setSelectedTeam(team.id);
+                              setSearchTeam(team.name);
+                              setIsDropdownOpen(false);
+                            }}
+                          >
+                            {team.name}
+                          </div>
+                        ))
+                      ) : (
+                        <div className="px-4 py-3 text-lg text-gray-500 text-center">
+                          ไม่พบเขตที่ค้นหา
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <Button
+                onClick={() => handleRegister(authMethod)}
+                disabled={isLoading}
+                className="w-full h-14 mt-4 text-xl font-bold rounded-2xl shadow-lg shadow-primary/20 hover:scale-[1.01] transition-all active:scale-[0.98]"
+              >
+                {isLoading ? "กำลังดำเนินการ..." : "ยืนยันเพื่อลงทะเบียน"}
+                {!isLoading && <ArrowRight className="ml-2 w-6 h-6" />}
+              </Button>
+            </div>
+          </CardContent>
+
+          <CardFooter className="bg-gray-50/50 justify-center py-6 border-t border-gray-100">
+            <p className="text-lg text-gray-500">
+              มีบัญชีอยู่แล้ว?{" "}
+              <span
+                onClick={() => router.push("/login")}
+                className="text-primary font-bold cursor-pointer hover:underline underline-offset-4 tracking-tight"
+              >
+                เข้าสู่ระบบ
+              </span>
+            </p>
+          </CardFooter>
+        </Card>
+      </div>
+    </div>
+  );
+}

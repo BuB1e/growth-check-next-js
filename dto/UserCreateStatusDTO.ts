@@ -15,13 +15,17 @@ export interface CreateUserCreateStatusDto {
 }
 
 export interface UpdateUserCreateStatusDto {
-  requestStatus?: Request_status;
+  requestStatus?: Request_status | string;
   rejectReason?: string;
   updatedBy?: string;
+  role?: string;
+  teamId?: number;
 }
 
 export interface OptionsGetUserCreateStatusDTO {
   q?: string;
+  status?: string;
+  role?: string;
   deleted?: boolean;
 }
 

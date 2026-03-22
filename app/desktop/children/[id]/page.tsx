@@ -97,7 +97,7 @@ async function ChildDetailContent({
   try {
     const res = await ChildDataAction.getChildDataList({
       childId,
-      limit: EnvConfig.NEXT_PUBLIC_PAGINATION_LIMIT_DESKTOP_SIZE,
+      limit: EnvConfig.PAGINATION_LIMIT_DESKTOP_SIZE,
     });
     childData = res;
   } catch (error) {

@@ -11,11 +11,11 @@ export const EnvConfig = createEnv({
         AI_PREDICTION_POLL_TIMEOUT_MS: z.coerce.number().int().positive(),
         AI_PREDICTION_POLL_HIDDEN_MIN_MS: z.coerce.number().int().positive(),
         AI_PREDICTION_POLL_JITTER_RATIO: z.coerce.number().min(0).max(1),
+        PAGINATION_LIMIT_MOBILE_SIZE: z.coerce.number(),
+        PAGINATION_LIMIT_DESKTOP_SIZE: z.coerce.number(),
     },
     client: {
-        NEXT_PUBLIC_BETTER_AUTH_ENDPOINT: z.url(),
-        NEXT_PUBLIC_PAGINATION_LIMIT_MOBILE_SIZE: z.coerce.number(),
-        NEXT_PUBLIC_PAGINATION_LIMIT_DESKTOP_SIZE: z.coerce.number(),
+        // No sensitive backend URLs or pagination limits here
     },
     runtimeEnv: {
         BACKEND_ENDPOINT: process.env.BACKEND_ENDPOINT,
@@ -26,8 +26,7 @@ export const EnvConfig = createEnv({
         AI_PREDICTION_POLL_TIMEOUT_MS: process.env.AI_PREDICTION_POLL_TIMEOUT_MS,
         AI_PREDICTION_POLL_HIDDEN_MIN_MS: process.env.AI_PREDICTION_POLL_HIDDEN_MIN_MS,
         AI_PREDICTION_POLL_JITTER_RATIO: process.env.AI_PREDICTION_POLL_JITTER_RATIO,
-        NEXT_PUBLIC_BETTER_AUTH_ENDPOINT: process.env.NEXT_PUBLIC_BETTER_AUTH_ENDPOINT,
-        NEXT_PUBLIC_PAGINATION_LIMIT_MOBILE_SIZE: process.env.NEXT_PUBLIC_PAGINATION_LIMIT_MOBILE_SIZE,
-        NEXT_PUBLIC_PAGINATION_LIMIT_DESKTOP_SIZE: process.env.NEXT_PUBLIC_PAGINATION_LIMIT_DESKTOP_SIZE,
+        PAGINATION_LIMIT_MOBILE_SIZE: process.env.PAGINATION_LIMIT_MOBILE_SIZE,
+        PAGINATION_LIMIT_DESKTOP_SIZE: process.env.PAGINATION_LIMIT_DESKTOP_SIZE,
     }
 });

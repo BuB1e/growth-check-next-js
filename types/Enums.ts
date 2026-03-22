@@ -107,8 +107,8 @@ export type Metric_type = (typeof Metric_type)[keyof typeof Metric_type]
 
 
 export const Request_status = {
-  APPROVE: 'APPROVE',
-  REJECT: 'REJECT',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED',
   WAITING: 'WAITING'
 } as const
 

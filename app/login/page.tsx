@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,18 +13,45 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Mail, ArrowRight, ShieldCheck } from "lucide-react";
+import { Mail, ArrowRight, ShieldCheck, Lock } from "lucide-react";
 import { SiLine } from "react-icons/si";
 import { FcGoogle } from "react-icons/fc";
+import { authClient } from "@/lib/auth/auth-client";
 
 export default function LoginPage() {
   const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogin = (method: string) => {
-    console.log(`Logging in with ${method}`);
-    // TODO: Implement real BetterAuth auth logic here later
-    // For now, redirect to /mobile/staff/home as requested
-    router.push("/mobile/staff/home");
+  const handleLogin = async (method: string) => {
+    if (method === "NATIVE") {
+      if (!email || !password) return alert("กรุณากรอกอีเมลและรหัสผ่าน");
+
+      setIsLoading(true);
+      const { data, error } = await authClient.signIn.email({
+        email,
+        password,
+      });
+      setIsLoading(false);
+
+      if (error) {
+        alert("เข้าสู่ระบบไม่สำเร็จ: " + (error.message || "โปรดลองอีกครั้ง"));
+        return;
+      }
+      router.push("/mobile/staff/home");
+
+    } else {
+      // Logic for Social Login via BetterAuth
+      // NOTE: BetterAuth automatically creates a user if it's their first time signing in via OAuth.
+      // If the backend prevents automatic account creation, we might be redirected back with an error.
+      // We will supply the callback URL.
+      setIsLoading(true);
+      await authClient.signIn.social({
+        provider: method.toLowerCase() as "google" | "line",
+        callbackURL: window.location.origin + "/mobile/staff/home",
+      });
+    }
   };
 
   return (
@@ -49,7 +76,7 @@ export default function LoginPage() {
               เลือกวิธีเข้าสู่ระบบเพื่อเริ่มต้นใช้งาน
             </CardDescription>
           </CardHeader>
-          
+
           <CardContent className="space-y-6 pb-8 px-6 md:px-10">
             {/* Native Login Section */}
             <div className="space-y-4">
@@ -59,34 +86,42 @@ export default function LoginPage() {
                 </Label>
                 <div className="relative group">
                   <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-6 h-6 text-gray-400 group-focus-within:text-primary transition-colors" />
-                  <Input 
-                    id="email" 
-                    type="email" 
-                    placeholder="example@mail.com" 
-                    className="h-14 pl-12 text-lg rounded-2xl border-gray-200 focus:ring-4 focus:ring-primary/10 transition-all"
+                  <Input
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="example@mail.com"
+                    className="h-14 pl-16 text-lg rounded-2xl border-gray-200 focus:ring-4 focus:ring-primary/10 transition-all"
                   />
                 </div>
               </div>
-              
+
               <div className="space-y-3">
                 <Label htmlFor="password" title="password" className="text-lg font-semibold text-gray-700 ml-1">
                   รหัสผ่าน (Password)
                 </Label>
-                <Input 
-                  id="password" 
-                  type="password" 
-                  title="password"
-                  placeholder="••••••••" 
-                  className="h-14 px-5 text-lg rounded-2xl border-gray-200 focus:ring-4 focus:ring-primary/10 transition-all"
-                />
+                <div className="relative group">
+                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-6 h-6 text-gray-400 group-focus-within:text-primary transition-colors" />
+                  <Input
+                    id="password"
+                    type="password"
+                    title="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="h-14 pl-16 text-lg rounded-2xl border-gray-200 focus:ring-4 focus:ring-primary/10 transition-all"
+                  />
+                </div>
               </div>
 
-              <Button 
-                onClick={() => handleLogin("Native")}
+              <Button
+                onClick={() => handleLogin("NATIVE")}
+                disabled={isLoading}
                 className="w-full h-14 text-xl font-bold rounded-2xl shadow-lg shadow-primary/20 hover:scale-[1.01] transition-all active:scale-[0.98]"
               >
-                เข้าสู่ระบบ
-                <ArrowRight className="ml-2 w-6 h-6" />
+                {isLoading ? "กำลังเข้าสู่ระบบ..." : "เข้าสู่ระบบ"}
+                {!isLoading && <ArrowRight className="ml-2 w-6 h-6" />}
               </Button>
             </div>
 
@@ -104,6 +139,7 @@ export default function LoginPage() {
               <Button
                 variant="outline"
                 onClick={() => handleLogin("LINE")}
+                disabled={isLoading}
                 className="h-14 text-lg font-bold border-2 border-[#06C755]/10 bg-white hover:bg-[#06C755]/5 text-[#06C755] rounded-2xl transition-all group"
               >
                 <SiLine className="mr-3 w-6 h-6" />
@@ -113,6 +149,7 @@ export default function LoginPage() {
               <Button
                 variant="outline"
                 onClick={() => handleLogin("GOOGLE")}
+                disabled={isLoading}
                 className="h-14 text-lg font-bold border-2 border-gray-100 bg-white hover:bg-gray-50 text-gray-700 rounded-2xl transition-all"
               >
                 <FcGoogle className="mr-3 w-6 h-6" />
@@ -120,10 +157,10 @@ export default function LoginPage() {
               </Button>
             </div>
           </CardContent>
-          
+
           <CardFooter className="bg-gray-50/50 justify-center py-6 border-t border-gray-100">
             <p className="text-lg text-gray-500">
-              ยังไม่มีบัญชี? <span className="text-primary font-bold cursor-pointer hover:underline underline-offset-4 tracking-tight">ลงทะเบียนใหม่</span>
+              ยังไม่มีบัญชี? <span onClick={() => router.push("/register")} className="text-primary font-bold cursor-pointer hover:underline underline-offset-4 tracking-tight">ลงทะเบียนใหม่</span>
             </p>
           </CardFooter>
         </Card>

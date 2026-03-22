@@ -70,7 +70,7 @@ async function LocationDataWrapper({
   const limit =
     Number.isFinite(parsedLimit) && parsedLimit > 0
       ? parsedLimit
-      : EnvConfig.NEXT_PUBLIC_PAGINATION_LIMIT_DESKTOP_SIZE;
+      : EnvConfig.PAGINATION_LIMIT_DESKTOP_SIZE;
   const q = sp?.q;
 
   let data: PaginatedResponseDTO<LocationResponse> | null = null;

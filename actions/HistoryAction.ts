@@ -20,8 +20,8 @@ import type {
 } from "@/dto";
 
 export class HistoryAction {
-  static BACKEND_ENDPOINT = EnvConfig.BACKEND_ENDPOINT;
-  static PAGE_LIMIT = EnvConfig.NEXT_PUBLIC_PAGINATION_LIMIT_DESKTOP_SIZE;
+  static BACKEND_ENDPOINT = EnvConfig.BACKEND_ENDPOINT || "";
+  static PAGE_LIMIT = typeof window === 'undefined' ? EnvConfig.PAGINATION_LIMIT_DESKTOP_SIZE : 10;
 
   private static async fetchAllTransferRequests(): Promise<
     ChildTransferRequestResponse[]
@@ -98,7 +98,7 @@ export class HistoryAction {
           type: "TRANSFER",
           title: `ขอย้ายเด็ก (ID: ${t.childId}) จากเขต ${t.fromLocation} ไปเขต ${t.toLocation}`,
           actor: { role: "Staff", name: t.userId },
-          status: t.handledBy ? "APPROVE" : "WAITING",
+          status: t.handledBy ? "APPROVED" : "WAITING",
           createdAt: t.createdAt,
           updatedAt: t.updatedAt,
           fromLocation: t.fromLocation.toString(),
@@ -111,16 +111,16 @@ export class HistoryAction {
     if (locationRequestsRes.status === "fulfilled") {
       locationRequestsRes.value.forEach((r: LocationCreateRequestResponse) => {
         const historyType: HistoryType =
-          r.requestStatus === "REJECT"
+          r.requestStatus === "REJECTED"
             ? "LOCATION_REJECT"
             : "LOCATION_APPROVE";
         entries.push({
           id: r.id + 20000, // Offset to avoid ID collisions
           type: historyType,
           title:
-            r.requestStatus === "APPROVE"
+            r.requestStatus === "APPROVED"
               ? `อนุมัติสร้าง ${r.locationName}`
-              : r.requestStatus === "REJECT"
+              : r.requestStatus === "REJECTED"
                 ? `ปฏิเสธคำร้องสร้าง ${r.locationName}`
                 : `คำร้องขอสร้าง ${r.locationName} (รอดำเนินการ)`,
           actor: {

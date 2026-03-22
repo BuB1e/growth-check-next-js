@@ -7,15 +7,15 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
-import { LocationCreateRequestAction } from "@/actions/LocationCreateRequestAction";
-import type { LocationCreateRequestResponse, PaginatedResponseDTO } from "@/dto";
-import { RequestsTable } from "@/components/features/desktop/RequestsTable";
+import { UserCreateStatusAction } from "@/actions/UserCreateStatusAction";
+import type { UserCreateStatusResponse, PaginatedResponseDTO } from "@/dto";
+import { UserRequestsTable } from "@/components/features/desktop/UserRequestsTable";
 
 export const metadata = {
-  title: "คำร้องขอสร้างสถานที่",
+  title: "คำร้องขอเปิดบัญชีผู้ใช้งาน",
 };
 
-export default function RequestsPage({
+export default function UserRequestsPage({
   searchParams,
 }: {
   searchParams: Promise<{ [key: string]: string | undefined }>;
@@ -24,9 +24,9 @@ export default function RequestsPage({
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
       <div className="flex items-center justify-between space-y-2">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">คำร้องขอ</h2>
+          <h2 className="text-3xl font-bold tracking-tight">คำร้องเปิดบัญชี</h2>
           <p className="text-muted-foreground mt-1">
-            รายการคำร้องขอสร้างสถานที่ใหม่จากเจ้าหน้าที่
+            รายการคำร้องขอเปิดบัญชีผู้ใช้งานใหม่จากพนักงานและเจ้าหน้าที่
           </p>
         </div>
       </div>
@@ -35,7 +35,7 @@ export default function RequestsPage({
         <CardHeader>
           <CardTitle>รายการคำร้องขอ</CardTitle>
           <CardDescription>
-            คลิกที่รายการเพื่อดูรายละเอียดคำร้องขอ
+            คลิกที่ปุ่มจัดการเพื่อดูรายละเอียดและอนุมัติคำร้อง
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -72,20 +72,30 @@ async function RequestsDataWrapper({
       ? parsedLimit
       : EnvConfig.PAGINATION_LIMIT_DESKTOP_SIZE;
   const q = typeof sp?.q === "string" ? sp.q : undefined;
-  const requestStatus =
-    sp?.status === "WAITING" || sp?.status === "APPROVED" || sp?.status === "REJECTED"
-      ? sp.status as any
-      : undefined;
 
-  let data: PaginatedResponseDTO<LocationCreateRequestResponse> | null = null;
+  // Use WAITING as default status if not "all"
+  const requestStatus = sp?.status === "all" ? undefined : (sp?.status || "WAITING");
+  const role = sp?.role && sp?.role !== "all" ? sp.role : undefined;
+
+  let data: PaginatedResponseDTO<UserCreateStatusResponse> | null = null;
+  let teams: any[] = [];
 
   try {
-    data = await LocationCreateRequestAction.getRequests({
+    data = await UserCreateStatusAction.getStatuses({
       page,
       limit,
       q,
-      requestStatus,
+      status: requestStatus as any, // Passed to API
+      // @ts-ignore
+      role: role
     });
+
+    // Also fetch teams for the modal dropdown
+    const { TeamAction } = await import("@/actions/TeamAction");
+    const teamsRes = await TeamAction.getTeams({ limit: 1000, page: 1 });
+    if (teamsRes && teamsRes.data) {
+      teams = teamsRes.data;
+    }
   } catch (error) {
     console.error("Failed to load requests:", error);
   }
@@ -98,5 +108,6 @@ async function RequestsDataWrapper({
     );
   }
 
-  return <RequestsTable rawData={data} />;
+  // Pass teams to the table so the modal can use them
+  return <UserRequestsTable rawData={data} teams={teams} />;
 }

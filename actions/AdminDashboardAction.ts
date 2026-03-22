@@ -6,9 +6,10 @@ import type {
 } from "@/dto";
 
 export class AdminDashboardAction {
-  static BACKEND_ENDPOINT = EnvConfig.BACKEND_ENDPOINT;
+  static BACKEND_ENDPOINT = EnvConfig.BACKEND_ENDPOINT || "";
   static API_ENDPOINT = "/admin/dashboard/chart";
-  static ACTION_ENDPOINT = this.BACKEND_ENDPOINT + this.API_ENDPOINT;
+  // If we're on the client, EnvConfig.BACKEND_ENDPOINT is undefined, so we use "/api" prefix for proxying
+  static ACTION_ENDPOINT = typeof window === 'undefined' ? (this.BACKEND_ENDPOINT + this.API_ENDPOINT) : ("/api" + this.API_ENDPOINT);
 
   static async getDashboardChartData(
     params: DashboardChartRequestDTO = {},

@@ -48,7 +48,7 @@ async function ChildListWrapper({
   const limit =
     Number.isFinite(parsedLimit) && parsedLimit > 0
       ? parsedLimit
-      : EnvConfig.NEXT_PUBLIC_PAGINATION_LIMIT_MOBILE_SIZE;
+      : EnvConfig.PAGINATION_LIMIT_MOBILE_SIZE;
 
   return (
     <MobileChildList

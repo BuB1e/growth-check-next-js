@@ -22,7 +22,7 @@ interface MobileChildListProps {
 
 export async function MobileChildList({
   page = 1,
-  limit = EnvConfig.NEXT_PUBLIC_PAGINATION_LIMIT_MOBILE_SIZE,
+  limit = EnvConfig.PAGINATION_LIMIT_MOBILE_SIZE,
   search = "",
   status = "",
   minAgeYears = "",

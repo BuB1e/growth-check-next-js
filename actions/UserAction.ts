@@ -38,16 +38,17 @@ const normalizeUsersList = (payload: UsersPayload): UserResponse[] => {
 };
 
 export class UserAction {
-  static BACKEND_ENDPOINT = EnvConfig.BACKEND_ENDPOINT;
+  static BACKEND_ENDPOINT = EnvConfig.BACKEND_ENDPOINT || "";
   static API_ENDPOINT = "/users";
-  static ACTION_ENDPOINT = this.BACKEND_ENDPOINT + this.API_ENDPOINT;
+  // If we're on the client, EnvConfig.BACKEND_ENDPOINT is undefined, so we use "/api" prefix for proxying
+  static ACTION_ENDPOINT = typeof window === 'undefined' ? (this.BACKEND_ENDPOINT + this.API_ENDPOINT) : ("/api" + this.API_ENDPOINT);
 
   static async getUsers(
     params: GetUsersParams = {},
   ): Promise<UserResponse[]> {
     const defaultParams = {
       page: 1,
-      limit: EnvConfig.NEXT_PUBLIC_PAGINATION_LIMIT_DESKTOP_SIZE,
+      limit: EnvConfig.PAGINATION_LIMIT_DESKTOP_SIZE,
       ...params,
     };
     const response = await axios.get<UsersPayload>(`${this.ACTION_ENDPOINT}/`, {
@@ -62,7 +63,7 @@ export class UserAction {
   ): Promise<UserResponse[]> {
     const defaultParams = {
       page: 1,
-      limit: EnvConfig.NEXT_PUBLIC_PAGINATION_LIMIT_DESKTOP_SIZE,
+      limit: EnvConfig.PAGINATION_LIMIT_DESKTOP_SIZE,
       ...params,
     };
     const response = await axios.get<UsersPayload>(

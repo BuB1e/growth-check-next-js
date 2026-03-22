@@ -4,6 +4,7 @@ export enum ESidebar {
     STAFF = "Staff",
     CHILD = "Children",
     REQUEST = "Request",
+    USER_REQUEST = "UserRequest",
     HISTORY = "History",
 }
 
@@ -13,6 +14,7 @@ export enum ESidebarThai {
     STAFF = "ข้อมูลเจ้าหน้าที่",
     CHILD = "ข้อมูลเด็ก",
     REQUEST = "คำร้องขอ",
+    USER_REQUEST = "คำร้องเปิดบัญชี",
     HISTORY = "ประวัติ",
 }
 
@@ -22,5 +24,6 @@ export const ESidebarToThai: Record<ESidebar, string> = {
   [ESidebar.STAFF]: ESidebarThai.STAFF,
   [ESidebar.CHILD]: ESidebarThai.CHILD,
   [ESidebar.REQUEST]: ESidebarThai.REQUEST,
+  [ESidebar.USER_REQUEST]: ESidebarThai.USER_REQUEST,
   [ESidebar.HISTORY]: ESidebarThai.HISTORY,
 };

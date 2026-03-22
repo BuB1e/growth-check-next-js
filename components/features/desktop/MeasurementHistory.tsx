@@ -23,7 +23,7 @@ export async function MeasurementHistory({ childId }: MeasurementHistoryProps) {
   try {
     const res = await ChildDataAction.getChildDataList({
       childId,
-      limit: EnvConfig.NEXT_PUBLIC_PAGINATION_LIMIT_DESKTOP_SIZE,
+      limit: EnvConfig.PAGINATION_LIMIT_DESKTOP_SIZE,
     });
     records = res;
   } catch (error) {

@@ -16,16 +16,17 @@ type GetUserCreateStatusParams = OptionsGetUserCreateStatusDTO & {
 };
 
 export class UserCreateStatusAction {
-  static BACKEND_ENDPOINT = EnvConfig.BACKEND_ENDPOINT;
+  static BACKEND_ENDPOINT = EnvConfig.BACKEND_ENDPOINT || "";
   static API_ENDPOINT = "/user-create-status";
-  static ACTION_ENDPOINT = this.BACKEND_ENDPOINT + this.API_ENDPOINT;
+  // If we're on the client, EnvConfig.BACKEND_ENDPOINT is undefined, so we use "/api" prefix for proxying
+  static ACTION_ENDPOINT = typeof window === 'undefined' ? (this.BACKEND_ENDPOINT + this.API_ENDPOINT) : ("/api" + this.API_ENDPOINT);
 
   static async getStatuses(
     params: GetUserCreateStatusParams = {},
   ): Promise<PaginatedResponseDTO<UserCreateStatusResponse>> {
     const defaultParams = {
       page: 1,
-      limit: EnvConfig.NEXT_PUBLIC_PAGINATION_LIMIT_DESKTOP_SIZE,
+      limit: EnvConfig.PAGINATION_LIMIT_DESKTOP_SIZE,
       ...params,
     };
     const response = await axios.get(`${this.ACTION_ENDPOINT}/`, { params: defaultParams });

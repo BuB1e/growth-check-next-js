@@ -1,12 +1,45 @@
 import { NextRequest, NextResponse } from "next/server";
 
 export function proxy(request: NextRequest) {
-  const { pathname } = request.nextUrl;
+  const { pathname, search } = request.nextUrl;
+  const method = request.method;
 
-  // 1. Skip rewrites for API, internal Next.js paths, or static assets
+  // 1. Proxy /api requests to backend
+  // This handles both /api/auth (BetterAuth) and other generic /api/... calls
+  if (pathname.startsWith("/api/")) {
+    const backendUrl = process.env.BACKEND_ENDPOINT;
+    if (!backendUrl) {
+      console.error(`[Proxy] ERROR: No BACKEND_ENDPOINT configured for ${pathname}`);
+      return NextResponse.json({ error: "Backend URL not configured" }, { status: 500 });
+    }
+
+    // BetterAuth expects /api/auth. Other routes might not have /api prefix on backend.
+    // If it's NOT /api/auth, we strip the /api prefix for the backend call.
+    let backendPath = pathname;
+    if (!pathname.startsWith("/api/auth")) {
+      backendPath = pathname.replace(/^\/api/, "");
+    }
+    const targetUrl = new URL(backendPath + search, backendUrl);
+    console.log(`[Proxy] API: ${method} ${pathname} -> ${targetUrl.toString()}`);
+
+    // Standard proxy headers to help backend handle redirects correctly
+    const headers = new Headers(request.headers);
+    headers.set("X-Forwarded-Host", request.nextUrl.host);
+    headers.set("X-Forwarded-Port", request.nextUrl.port || (request.nextUrl.protocol === "https:" ? "443" : "80"));
+    headers.set("X-Forwarded-Proto", request.nextUrl.protocol.replace(":", ""));
+
+    return NextResponse.rewrite(targetUrl, {
+      request: {
+        headers,
+      },
+    });
+  }
+
+  // 2. Original proxy.ts logic for route groups (desktop/mobile)
+  
+  // Skip internal Next.js paths or static assets
   if (
     pathname.startsWith("/_next") ||
-    pathname.includes("/api/") ||
     /\.(.*)$/.test(pathname)
   ) {
     return NextResponse.next();
@@ -23,62 +56,46 @@ export function proxy(request: NextRequest) {
     "/profile",
   ];
 
-  // Head-only routes
-  const headRoutes = ["/head"]; // captures /head/history, /head/requests, etc.
+  const headRoutes = ["/head"];
 
-  // Check if current path starts with any of our known route prefixes
   const isSharedOrHeadRoute =
     sharedRoutes.some((route) => pathname.startsWith(route)) ||
     headRoutes.some((route) => pathname.startsWith(route));
 
-  // If this is one of our app routes (not the root `/` or an unhandled path)
   if (isSharedOrHeadRoute) {
     const ua = request.headers.get("user-agent")?.toLowerCase() || "";
-    // Simple mobile device check (can be expanded)
     const isMobileDevice = /iphone|ipad|ipod|android|mobile/.test(ua);
-
-    // You mentioned: Desktop = Admin/Head, Mobile = Staff.
-    // Ideally, this is determined by a Session Cookie/JWT (e.g. `role=STAFF`),
-    // but without seeing your auth implementation, checking the User-Agent
-    // serves as the device bridge while you implement backend auth.
-    //
-    // TODO: If you have a role cookie, do this instead:
-    // const role = request.cookies.get("role")?.value;
-    // const isMobileView = role === "STAFF";
     const isMobileView = isMobileDevice;
 
     const url = request.nextUrl.clone();
 
-    // Location management is desktop-only for admin/head currently.
     if (pathname.startsWith("/location")) {
       url.pathname = `/desktop${pathname}`;
+      console.log(`[Proxy] ROUTE: ${pathname} -> (Static Desktop) ${url.pathname}`);
       return NextResponse.rewrite(url);
     }
 
     if (isMobileView) {
-      // Rewrite transparently to /mobile/...
       url.pathname = `/mobile${pathname}`;
     } else {
-      // Rewrite transparently to /desktop/...
       url.pathname = `/desktop${pathname}`;
     }
 
+    console.log(`[Proxy] ROUTE: ${pathname} -> (${isMobileView ? "Mobile" : "Desktop"}) ${url.pathname}`);
     return NextResponse.rewrite(url);
   }
 
   return NextResponse.next();
 }
 
-// Config to run proxy only on specific paths
 export const config = {
   matcher: [
     /*
      * Match all request paths except for the ones starting with:
-     * - api (API routes)
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      */
-    "/((?!api|_next/static|_next/image|favicon.ico).*)",
+    "/((?!_next/static|_next/image|favicon.ico).*)",
   ],
 };

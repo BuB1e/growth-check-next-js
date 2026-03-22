@@ -18,6 +18,7 @@ import {
   Baby,
   FileText,
   History,
+  UserPlus,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -52,6 +53,12 @@ const sidebarNavItems = [
     url: "/requests",
     icon: FileText,
     type: ESidebar.REQUEST,
+  },
+  {
+    title: ESidebarToThai[ESidebar.USER_REQUEST],
+    url: "/user-requests",
+    icon: UserPlus,
+    type: ESidebar.USER_REQUEST,
   },
   {
     title: ESidebarToThai[ESidebar.HISTORY],

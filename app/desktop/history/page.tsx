@@ -62,7 +62,7 @@ async function HistoryDataWrapper({
   const sp = await searchParams;
   const { EnvConfig } = await import("@/configs/BackendConfig");
   const page = Number(sp?.page) || 1;
-  const limit = Number(sp?.limit) || EnvConfig.NEXT_PUBLIC_PAGINATION_LIMIT_DESKTOP_SIZE;
+  const limit = Number(sp?.limit) || EnvConfig.PAGINATION_LIMIT_DESKTOP_SIZE;
   const search = sp?.search;
   const type = sp?.type;
   const orderBy = (sp?.orderBy as keyof HistoryEntry) || "createdAt";

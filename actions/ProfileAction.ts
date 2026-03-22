@@ -13,8 +13,11 @@ export interface ChangePasswordDto {
  * Uses MOCK_USER_ID for development; ready for BetterAuth session when activated.
  */
 export class ProfileAction {
-  static BACKEND_ENDPOINT = EnvConfig.BACKEND_ENDPOINT;
-  static AUTH_ENDPOINT = EnvConfig.NEXT_PUBLIC_BETTER_AUTH_ENDPOINT;
+  static BACKEND_ENDPOINT = EnvConfig.BACKEND_ENDPOINT || "";
+  // Helper to get the base URL for API calls
+  private static getBaseUrl(): string {
+    return typeof window === 'undefined' ? this.BACKEND_ENDPOINT : "/api";
+  }
 
   /**
    * Get the current authenticated user's ID.
@@ -36,7 +39,7 @@ export class ProfileAction {
   static async getCurrentUser(): Promise<UserResponse> {
     const userId = this.getCurrentUserId();
     const response = await axios.get(
-      `${this.BACKEND_ENDPOINT}/users/getById/${userId}`,
+      `${this.getBaseUrl()}/users/getById/${userId}`,
     );
     return response.data as UserResponse;
   }
@@ -49,7 +52,7 @@ export class ProfileAction {
   ): Promise<UserResponse> {
     const userId = this.getCurrentUserId();
     const response = await axios.patch(
-      `${this.BACKEND_ENDPOINT}/users/${userId}`,
+      `${this.getBaseUrl()}/users/${userId}`,
       data,
     );
     return response.data as UserResponse;

@@ -1,0 +1,25 @@
+GET/users/
+{
+      "id": "0c295963-7706-4279-a2d1-89788b7d5992",
+      "email": "head.chiangmai.01@growthcheck.th",
+      "teamId": 1,
+      "firstName": "หัวหน้า",
+      "lastName": "เขตเชียงใหม่",
+      "image": null,
+      "role": "HEAD",
+      "emailVerified": true,
+      "deleteStatus": false,
+      "createdAt": "2026-03-20T12:02:28.691Z",
+      "updatedAt": "2026-03-20T12:02:28.691Z"
+},
+
+/GET/user-create-status/
+{
+      "id": 1,
+      "userId": "0c295963-7706-4279-a2d1-89788b7d5992",
+      "requestStatus": "APPROVE",
+      "rejectReason": null,
+      "updatedBy": null,
+      "createdAt": "2026-01-02T00:00:00.000Z",
+      "updatedAt": "2026-01-03T00:00:00.000Z"
+},

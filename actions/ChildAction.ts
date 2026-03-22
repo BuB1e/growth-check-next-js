@@ -163,10 +163,11 @@ const normalizePaginatedResponse = (
 };
 
 export class ChildAction {
-  static BACKEND_ENDPOINT = EnvConfig.BACKEND_ENDPOINT;
+  static BACKEND_ENDPOINT = EnvConfig.BACKEND_ENDPOINT || "";
   static API_ENDPOINT = "/children";
-  static ACTION_ENDPOINT = this.BACKEND_ENDPOINT + this.API_ENDPOINT;
-  static PAGE_LIMIT = EnvConfig.NEXT_PUBLIC_PAGINATION_LIMIT_DESKTOP_SIZE;
+  // If we're on the client, EnvConfig.BACKEND_ENDPOINT is undefined, so we use "/api" prefix for proxying
+  static ACTION_ENDPOINT = typeof window === 'undefined' ? (this.BACKEND_ENDPOINT + this.API_ENDPOINT) : ("/api" + this.API_ENDPOINT);
+  static PAGE_LIMIT = typeof window === 'undefined' ? EnvConfig.PAGINATION_LIMIT_DESKTOP_SIZE : 10;
 
   static async getChildren(
     params: GetChildrenParams = {},

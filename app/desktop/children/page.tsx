@@ -80,7 +80,7 @@ async function ChildrenDataWrapper({
   const limit =
     Number.isFinite(parsedLimit) && parsedLimit > 0
       ? parsedLimit
-      : EnvConfig.NEXT_PUBLIC_PAGINATION_LIMIT_DESKTOP_SIZE;
+      : EnvConfig.PAGINATION_LIMIT_DESKTOP_SIZE;
   const q = sp?.q;
   const status = sp?.status;
   const minAgeYears = sp?.minAgeYears;

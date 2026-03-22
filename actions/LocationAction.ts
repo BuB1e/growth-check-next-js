@@ -61,9 +61,10 @@ const normalizeLocationsResponse = (
 };
 
 export class LocationAction {
-  static BACKEND_ENDPOINT = EnvConfig.BACKEND_ENDPOINT;
+  static BACKEND_ENDPOINT = EnvConfig.BACKEND_ENDPOINT || "";
   static API_ENDPOINT = "/locations";
-  static ACTION_ENDPOINT = this.BACKEND_ENDPOINT + this.API_ENDPOINT;
+  // If we're on the client, EnvConfig.BACKEND_ENDPOINT is undefined, so we use "/api" prefix for proxying
+  static ACTION_ENDPOINT = typeof window === 'undefined' ? (this.BACKEND_ENDPOINT + this.API_ENDPOINT) : ("/api" + this.API_ENDPOINT);
 
   static async getLocations(
     params: GetLocationsParams = {},
@@ -73,7 +74,7 @@ export class LocationAction {
     const limit =
       typeof params.limit === "number" && params.limit > 0
         ? params.limit
-        : EnvConfig.NEXT_PUBLIC_PAGINATION_LIMIT_DESKTOP_SIZE;
+        : EnvConfig.PAGINATION_LIMIT_DESKTOP_SIZE;
     const defaultParams = {
       page,
       limit,
