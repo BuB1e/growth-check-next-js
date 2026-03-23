@@ -46,7 +46,6 @@ interface RequestsTableProps {
 function StatusBadge({ status }: { status: string }) {
   switch (status) {
     case Request_status.APPROVED:
-    case "APPROVE":
       return (
         <div className="flex items-center gap-1.5 text-green-600 font-medium">
           <CheckCircle2 className="h-4 w-4" />
@@ -54,7 +53,6 @@ function StatusBadge({ status }: { status: string }) {
         </div>
       );
     case Request_status.REJECTED:
-    case "REJECT":
       return (
         <div className="flex items-center gap-1.5 text-red-500 font-medium">
           <XCircle className="h-4 w-4" />

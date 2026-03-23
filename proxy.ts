@@ -101,7 +101,7 @@ export async function proxy(request: NextRequest) {
       if (userStatus) {
         const currentStatus = userStatus.requestStatus as string;
 
-        if (currentStatus !== Request_status.APPROVED && currentStatus !== "APPROVE") {
+        if (currentStatus !== Request_status.APPROVED) {
           log.auth("Pending Approval", user.email, pathname);
           return NextResponse.redirect(new URL("/pending-approval", request.url));
         }

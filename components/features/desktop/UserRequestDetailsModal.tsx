@@ -27,14 +27,14 @@ interface ModalProps {
 
 export function UserRequestDetailsModal({ request, teams, onClose, onSuccess }: ModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [actionType, setActionType] = useState<"NONE" | "APPROVE" | "REJECT">("NONE");
-  
+  const [actionType, setActionType] = useState<Request_status>(Request_status.WAITING);
+
   // Approve states
   const [role, setRole] = useState<string>(Role.USER); // Default: Staff
   const [selectedTeam, setSelectedTeam] = useState<string>("");
   const [searchTeam, setSearchTeam] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  
+
   // Reject state
   const [rejectReason, setRejectReason] = useState("");
 
@@ -43,22 +43,22 @@ export function UserRequestDetailsModal({ request, teams, onClose, onSuccess }: 
   );
 
   const reqObj: any = request;
-  const fullName = reqObj.user?.firstName 
+  const fullName = reqObj.user?.firstName
     ? `${reqObj.user.firstName} ${reqObj.user.lastName || ""}`
-    : reqObj.firstName 
-      ? `${reqObj.firstName} ${reqObj.lastName || ""}` 
+    : reqObj.firstName
+      ? `${reqObj.firstName} ${reqObj.lastName || ""}`
       : "ไม่ระบุชื่อ";
-  
+
   const originalTeamName = reqObj.team?.name || reqObj.teamId?.toString() || "ไม่ระบุเขต";
 
   const handleApprove = async () => {
     try {
       setIsSubmitting(true);
-      
+
       const payload: any = {
         requestStatus: Request_status.APPROVED,
         role: role,
-        // Since the prompt doesn't strictly specify updatedBy from session here, 
+        // Since the prompt doesn't strictly specify updatedBy from session here,
         // we omit it or assume standard auth behavior if not provided.
         // We'll pass updatedBy as empty or undefined to let backend handle it from session
       };
@@ -105,7 +105,7 @@ export function UserRequestDetailsModal({ request, teams, onClose, onSuccess }: 
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b">
           <h2 className="text-2xl font-bold text-gray-900">รายละเอียดคำร้อง</h2>
-          <button 
+          <button
             onClick={onClose}
             className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
           >
@@ -121,7 +121,7 @@ export function UserRequestDetailsModal({ request, teams, onClose, onSuccess }: 
               <div className="text-lg font-semibold text-gray-900 mt-1">{fullName}</div>
               {request.userId && <div className="text-sm text-gray-400">ID: {request.userId}</div>}
             </div>
-            
+
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label className="text-gray-500">วันที่ส่งคำร้อง / Date</Label>
@@ -130,12 +130,12 @@ export function UserRequestDetailsModal({ request, teams, onClose, onSuccess }: 
                   {formatBE(request.createdAt, "d MMM yyyy")}
                 </div>
               </div>
-              
+
               <div>
                 <Label className="text-gray-500">สถานะ / Status</Label>
                 <div className="flex items-center text-gray-900 mt-1 font-medium">
                   <Clock className="w-4 h-4 mr-2 text-primary" />
-                  {request.requestStatus === Request_status.WAITING ? "รอดำเนินการ" : 
+                  {request.requestStatus === Request_status.WAITING ? "รอดำเนินการ" :
                    request.requestStatus === Request_status.APPROVED || request.requestStatus === ("APPROVE" as any) ? "อนุมัติแล้ว" : "ปฏิเสธ"}
                 </div>
               </div>
@@ -151,17 +151,17 @@ export function UserRequestDetailsModal({ request, teams, onClose, onSuccess }: 
           </div>
 
           {/* Action Areas based on choice */}
-          {request.requestStatus === Request_status.WAITING && actionType === "NONE" && (
+          {request.requestStatus === Request_status.WAITING && actionType === Request_status.WAITING && (
             <div className="pt-4 flex gap-3">
-              <Button 
-                onClick={() => setActionType("REJECT")}
-                variant="outline" 
+              <Button
+                onClick={() => setActionType(Request_status.REJECTED)}
+                variant="outline"
                 className="flex-1 border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
               >
                 ปฏิเสธบัญชี
               </Button>
-              <Button 
-                onClick={() => setActionType("APPROVE")}
+              <Button
+                onClick={() => setActionType(Request_status.APPROVED)}
                 className="flex-1 bg-green-600 hover:bg-green-700 text-white"
               >
                 ดำเนินการอนุมัติ
@@ -169,10 +169,10 @@ export function UserRequestDetailsModal({ request, teams, onClose, onSuccess }: 
             </div>
           )}
 
-          {actionType === "APPROVE" && (
+          {actionType === Request_status.APPROVED && (
             <div className="space-y-4 pt-4 border-t animate-in slide-in-from-top-2 p-4 bg-green-50/50 rounded-xl border border-green-100">
               <h3 className="font-bold text-green-800">ข้อมูลการอนุมัติ</h3>
-              
+
               <div className="space-y-3">
                 <Label>กำหนดบทบาท (Role)</Label>
                 <Select value={role} onValueChange={setRole}>
@@ -191,8 +191,8 @@ export function UserRequestDetailsModal({ request, teams, onClose, onSuccess }: 
                 <Label>แก้ไขเขต/ทีม (Team Area) - ตัวเลือกเสริม</Label>
                 <div className="relative">
                   <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 z-10" />
-                  <Input 
-                    placeholder="พิมพ์เพื่อค้นหาเพื่อเปลี่ยนเขต..." 
+                  <Input
+                    placeholder="พิมพ์เพื่อค้นหาเพื่อเปลี่ยนเขต..."
                     value={isDropdownOpen ? searchTeam : (teams.find(t => t.id.toString() === selectedTeam)?.name || searchTeam)}
                     onFocus={() => {
                       setIsDropdownOpen(true);
@@ -205,7 +205,7 @@ export function UserRequestDetailsModal({ request, teams, onClose, onSuccess }: 
                     }}
                     className="pl-9 bg-white cursor-text"
                   />
-                  
+
                   {isDropdownOpen && (
                     <div className="absolute top-full left-0 w-full mt-1 bg-white rounded-md shadow-lg border border-gray-100 max-h-48 overflow-y-auto z-50">
                       {filteredTeams.length > 0 ? (
@@ -231,17 +231,17 @@ export function UserRequestDetailsModal({ request, teams, onClose, onSuccess }: 
               </div>
 
               <div className="pt-2 flex gap-2">
-                <Button 
-                  disabled={isSubmitting} 
-                  onClick={() => setActionType("NONE")} 
-                  variant="ghost" 
+                <Button
+                  disabled={isSubmitting}
+                  onClick={() => setActionType(Request_status.WAITING)}
+                  variant="ghost"
                   className="flex-1"
                 >
                   ยกเลิก
                 </Button>
-                <Button 
-                  disabled={isSubmitting} 
-                  onClick={handleApprove} 
+                <Button
+                  disabled={isSubmitting}
+                  onClick={handleApprove}
                   className="flex-1 bg-green-600 hover:bg-green-700 text-white"
                 >
                   {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
@@ -251,13 +251,13 @@ export function UserRequestDetailsModal({ request, teams, onClose, onSuccess }: 
             </div>
           )}
 
-          {actionType === "REJECT" && (
+          {actionType === Request_status.REJECTED && (
             <div className="space-y-4 pt-4 border-t animate-in slide-in-from-top-2 p-4 bg-red-50/50 rounded-xl border border-red-100">
               <h3 className="font-bold text-red-800">ข้อมูลการปฏิเสธ</h3>
-              
+
               <div className="space-y-3">
                 <Label className="text-red-800">เหตุผลประกอบการปฏิเสธ <span className="text-red-500">*</span></Label>
-                <textarea 
+                <textarea
                   value={rejectReason}
                   onChange={(e) => setRejectReason(e.target.value)}
                   placeholder="กรุณาระบุเหตุผลให้ผู้ใช้ทราบ เช่น ข้อมูลไม่ครบถ้วน..."
@@ -266,17 +266,17 @@ export function UserRequestDetailsModal({ request, teams, onClose, onSuccess }: 
               </div>
 
               <div className="pt-2 flex gap-2">
-                <Button 
-                  disabled={isSubmitting} 
-                  onClick={() => setActionType("NONE")} 
-                  variant="ghost" 
+                <Button
+                  disabled={isSubmitting}
+                  onClick={() => setActionType(Request_status.WAITING)}
+                  variant="ghost"
                   className="flex-1"
                 >
                   ยกเลิก
                 </Button>
-                <Button 
-                  disabled={isSubmitting || !rejectReason.trim()} 
-                  onClick={handleReject} 
+                <Button
+                  disabled={isSubmitting || !rejectReason.trim()}
+                  onClick={handleReject}
                   variant="destructive"
                   className="flex-1"
                 >
@@ -286,7 +286,7 @@ export function UserRequestDetailsModal({ request, teams, onClose, onSuccess }: 
               </div>
             </div>
           )}
-          
+
           {(request.requestStatus === Request_status.APPROVED || request.requestStatus === Request_status.REJECTED) && (
             <div className="pt-2 flex">
                <Button onClick={onClose} variant="outline" className="w-full">ปิดหน้าต่าง</Button>

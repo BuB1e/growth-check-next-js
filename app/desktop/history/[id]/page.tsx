@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { HistoryAction } from "@/actions/HistoryAction";
 import type { HistoryType } from "@/dto";
+import { Role } from "@/types";
 
 export const metadata = {
   title: "รายละเอียดประวัติ",
@@ -89,7 +90,7 @@ async function HistoryDetailContent({
   const StatusIcon = statusCfg.icon;
 
   const actorPosition =
-    entry.actor.role === "Admin"
+    entry.actor.role == Role.ADMIN
       ? "Admin"
       : `${entry.actor.role} ${entry.actor.locationName ?? ""}`.trim();
 
