@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, Suspense } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { completeRegistrationAction } from "@/app/register/actions";
 import { Button } from "@/components/ui/button";
@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ShieldCheck, UserCircle, Users, ArrowRight, Search, Mail, Lock, AlertCircle, Eye, EyeOff } from "lucide-react";
+import { ShieldCheck, UserCircle, Users, ArrowRight, Mail, Lock, AlertCircle, Eye, EyeOff } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { TeamResponse } from "@/dto";
 import { authClient } from "@/lib/auth/auth-client";
@@ -41,7 +41,7 @@ export function RegisterForm({ teams }: RegisterFormProps) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [currentUser, setCurrentUser] = useState<{ id: string; email: string; name?: string } | null>(null);
   const [showPolicyModal, setShowPolicyModal] = useState(true);
 
   // For social logins, we might already have some user data from BetterAuth
@@ -50,7 +50,11 @@ export function RegisterForm({ teams }: RegisterFormProps) {
       const session = await authClient.getSession();
       if (session && session.data?.user) {
         const user = session.data.user;
-        setCurrentUser(user);
+        setCurrentUser({
+          id: user.id,
+          email: user.email,
+          name: user.name || undefined
+        });
         // Pre-fill if social
         if (authMethod !== "NATIVE") {
           const names = (user.name || "").split(" ");
@@ -84,14 +88,14 @@ export function RegisterForm({ teams }: RegisterFormProps) {
       let userId: string;
 
       if (method === "NATIVE") {
-        const { data, error } = await authClient.signUp.email({
+        const { data, error: signUpError } = await authClient.signUp.email({
           email,
           password,
           name: `${firstName} ${lastName}`.trim(),
         });
 
-        if (error || !data?.user) {
-          throw new Error(error?.message || "ลงทะเบียนไม่สำเร็จ");
+        if (signUpError || !data?.user) {
+          throw new Error(signUpError?.message || "ลงทะเบียนไม่สำเร็จ");
         }
         userId = data.user.id;
       } else {
@@ -110,7 +114,7 @@ export function RegisterForm({ teams }: RegisterFormProps) {
         lastName,
         teamId: selectedTeam,
         email: method === "NATIVE" ? email : currentUser?.email || email,
-      } as any);
+      });
 
       if (!result.success) {
         throw new Error(result.error);
@@ -129,8 +133,9 @@ export function RegisterForm({ teams }: RegisterFormProps) {
       
       router.push("/pending-approval");
 
-    } catch (err: any) {
-      setError(err.message || "เกิดข้อผิดพลาดในการลงทะเบียน");
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "เกิดข้อผิดพลาดในการลงทะเบียน";
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }

@@ -45,14 +45,14 @@ interface RequestsTableProps {
 
 function StatusBadge({ status }: { status: string }) {
   switch (status) {
-    case Request_status.APPROVED:
+    case Request_status.APPROVE:
       return (
         <div className="flex items-center gap-1.5 text-green-600 font-medium">
           <CheckCircle2 className="h-4 w-4" />
           อนุมัติแล้ว
         </div>
       );
-    case Request_status.REJECTED:
+    case Request_status.REJECT:
       return (
         <div className="flex items-center gap-1.5 text-red-500 font-medium">
           <XCircle className="h-4 w-4" />
@@ -75,9 +75,7 @@ export function RequestsTable({ rawData }: RequestsTableProps) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const [searchQuery, setSearchQuery] = useState(
-    searchParams.get("q") || "",
-  );
+  const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
   const [statusFilter, setStatusFilter] = useState(
     searchParams.get("status") || "all",
   );
@@ -201,8 +199,8 @@ export function RequestsTable({ rawData }: RequestsTableProps) {
           <SelectContent>
             <SelectItem value="all">ทุกสถานะ</SelectItem>
             <SelectItem value={Request_status.WAITING}>รอดำเนินการ</SelectItem>
-            <SelectItem value={Request_status.APPROVED}>อนุมัติแล้ว</SelectItem>
-            <SelectItem value={Request_status.REJECTED}>ปฏิเสธ</SelectItem>
+            <SelectItem value={Request_status.APPROVE}>อนุมัติแล้ว</SelectItem>
+            <SelectItem value={Request_status.REJECT}>ปฏิเสธ</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -233,7 +231,9 @@ export function RequestsTable({ rawData }: RequestsTableProps) {
                   <TableRow
                     key={row.id}
                     className="cursor-pointer hover:bg-muted/50 transition-colors"
-                    onClick={() => router.push(`${pathname}/${row.original.id}`)}
+                    onClick={() =>
+                      router.push(`${pathname}/${row.original.id}`)
+                    }
                   >
                     {row.getVisibleCells().map((cell) => (
                       <TableCell key={cell.id} className="py-3">

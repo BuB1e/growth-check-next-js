@@ -2,24 +2,14 @@
 
 import { useState } from "react";
 import { ChildResponse } from "@/dto";
-import { Child_status, Child_statusToThai, Sex, SexToThai } from "@/types";
+import { Sex, SexToThai } from "@/types";
 import { MeasurementDrawer } from "./MeasurementDrawer";
 import { UserCircle2, Plus } from "lucide-react";
 import Link from "next/link";
 import { formatAgeThai } from "@/lib/date-utils";
 
-function getChildStatusKey(status: unknown): Child_status | null {
-  if (typeof status !== "string") return null;
-  const normalized = status.toUpperCase();
-  return (Object.values(Child_status) as string[]).includes(normalized)
-    ? (normalized as Child_status)
-    : null;
-}
-
 export function MobileChildListItem({ child }: { child: ChildResponse }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const statusKey = getChildStatusKey(child.status);
-  const statusText = statusKey ? Child_statusToThai[statusKey] : "ไม่ทราบสถานะ";
   const sexText = SexToThai[child.sex] ?? "ไม่ระบุ";
 
   return (

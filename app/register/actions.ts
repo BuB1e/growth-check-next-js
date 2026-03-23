@@ -23,7 +23,8 @@ export async function completeRegistrationAction(
 
     console.log(`[completeRegistrationAction] Completed for user ${userId}, status created: ${status.id}`);
     return { success: true, statusId: status.id };
-  } catch (error: any) {
+  } catch (err: unknown) {
+    const error = err as Error;
     console.error("[completeRegistrationAction] Error:", error);
     return { 
       success: false, 

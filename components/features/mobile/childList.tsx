@@ -58,7 +58,6 @@ export async function MobileChildList({
   }
 
   const children = listData.data;
-  const total = listData.meta.total;
   const totalPages = listData.meta.totalPages;
   const currentPage = listData.meta.page;
 

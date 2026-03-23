@@ -14,7 +14,6 @@ import { ChildAction } from "@/actions/ChildAction";
 import { UserAction } from "@/actions/UserAction";
 import { LocationCreateRequestAction } from "@/actions/LocationCreateRequestAction";
 import { LocationAction } from "@/actions/LocationAction";
-import { ChildDataAction } from "@/actions/ChildDataAction";
 import { AdminDashboardAction } from "@/actions/AdminDashboardAction";
 import { Baby, Users, MapPin, Activity } from "lucide-react";
 import { Request_status } from "@/types/Enums";
@@ -133,7 +132,7 @@ async function DashboardDataWrapper({
     });
   };
 
-  const [childrenRes, usersRes, locationsRes, requestsRes, waitingRequestsRes, chartRes] =
+  const [childrenRes, usersRes, locationsRes, , waitingRequestsRes, chartRes] =
     await Promise.allSettled([
       ChildAction.getChildren(),
       UserAction.getUsers({ page: 1, limit: 5000, deleteStatus: false }),
@@ -167,9 +166,6 @@ async function DashboardDataWrapper({
     locationsRes.status === "fulfilled" ? locationsRes.value.data : [];
 
   const months = getRecentMonths();
-  const monthIndex = new Map(
-    months.map((m) => [m.key, { month: m.label, normal: 0, above: 0, below: 0 }]),
-  );
 
   const trendDataWeight: DashboardTrendItem[] = months.map((m) => ({
     month: m.label,

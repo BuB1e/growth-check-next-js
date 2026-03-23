@@ -9,7 +9,7 @@ import type {
   OptionsGetAllLocationDTO,
   PaginatedResponseDTO,
 } from "@/dto";
-import { getForwardHeaders } from "@/lib/auth/auth-guard";
+// import { getForwardHeaders } from "@/lib/auth/auth-guard";
 
 type GetLocationsParams = OptionsGetAllLocationDTO & {
   page?: number;
@@ -81,7 +81,13 @@ export class LocationAction {
       limit,
       ...params,
     };
-    const activeHeaders = typeof window === 'undefined' ? await getForwardHeaders() : undefined;
+    
+    let activeHeaders: Record<string, string> | undefined = undefined;
+    if (typeof window === 'undefined') {
+      const { getForwardHeaders } = await import("@/lib/auth/header-utils");
+      activeHeaders = await getForwardHeaders();
+    }
+
     const response = await axios.get<LocationsPayload>(`${this.ACTION_ENDPOINT}/`, {
       params: defaultParams,
       headers: activeHeaders,
@@ -90,7 +96,11 @@ export class LocationAction {
   }
 
   static async getLocationById(id: string): Promise<LocationResponse> {
-    const activeHeaders = typeof window === 'undefined' ? await getForwardHeaders() : undefined;
+    let activeHeaders: Record<string, string> | undefined = undefined;
+    if (typeof window === 'undefined') {
+      const { getForwardHeaders } = await import("@/lib/auth/header-utils");
+      activeHeaders = await getForwardHeaders();
+    }
     const response = await axios.get(`${this.ACTION_ENDPOINT}/${id}`, {
       headers: activeHeaders
     });

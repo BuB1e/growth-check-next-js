@@ -51,12 +51,12 @@ export default function HistoryDetailPage({
 }
 
 const STATUS_CONFIG = {
-  APPROVED: {
+  APPROVE: {
     label: "อนุมัติ",
     cls: "bg-green-100 text-green-700 border-green-300",
     icon: CheckCircle2,
   },
-  REJECTED: {
+  REJECT: {
     label: "ปฏิเสธ",
     cls: "bg-red-100 text-red-600 border-red-300",
     icon: XCircle,

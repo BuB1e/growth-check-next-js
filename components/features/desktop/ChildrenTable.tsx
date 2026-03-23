@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import {
   ColumnDef,
   flexRender,
@@ -18,7 +17,6 @@ import {
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ChildResponse, PaginatedResponseDTO } from "@/dto";
 import { Child_status, Child_statusToThai, Sex, SexToThai } from "@/types";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
   ArrowUpDown,
@@ -28,8 +26,6 @@ import {
   XCircle,
   AlertCircle,
 } from "lucide-react"; // Assuming lucide-react as the source for these icons
-import { format } from "date-fns";
-import { th } from "date-fns/locale";
 import { formatBE } from "@/lib/date-utils";
 import { ChildListFilters } from "@/components/features/mobile/ChildListFilters";
 

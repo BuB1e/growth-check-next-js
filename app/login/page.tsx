@@ -33,19 +33,25 @@ function LoginContent() {
     const errorCode = searchParams.get("error");
     if (errorCode) {
       console.error("[Login] Error from URL:", errorCode);
+      let errorMessage = "เกิดข้อผิดพลาดในการเข้าสู่ระบบหรืออาจมีบัญชีผู้ใช้อยู่แล้วในการลงทะเบียนแบบอื่น กรุณาลองเข้าสู่ระบบด้วยวิธีอื่น";
+      
       switch (errorCode) {
         case "ACCOUNT_ALREADY_LINKED":
-          setError("อีเมลนี้ถูกใช้งานแล้วด้วยวิธีอื่น กรุณาลองเข้าสู่ระบบด้วยวิธีเดิมที่เคยสมัครไว้");
+          errorMessage = "อีเมลนี้ถูกใช้งานแล้วด้วยวิธีอื่น กรุณาลองเข้าสู่ระบบด้วยวิธีเดิมที่เคยสมัครไว้";
           break;
         case "SOCIAL_PROVIDER_NOT_CONNECTED":
-          setError("เกิดข้อผิดพลาดในการเชื่อมต่อกับผู้ให้บริการ กรุณาลองใหม่อีกครั้ง");
+          errorMessage = "เกิดข้อผิดพลาดในการเชื่อมต่อกับผู้ให้บริการ กรุณาลองใหม่อีกครั้ง";
           break;
         case "INVALID_EMAIL":
-          setError("อีเมลไม่ถูกต้องหรือไม่ได้รับอนุญาต");
+          errorMessage = "อีเมลไม่ถูกต้องหรือไม่ได้รับอนุญาต";
           break;
-        default:
-          setError("เกิดข้อผิดพลาดในการเข้าสู่ระบบหรืออาจมีบัญชีผู้ใช้อยู่แล้วในการลงทะเบียนแบบอื่น กรุณาลองเข้าสู่ระบบด้วยวิธีอื่น");
       }
+      
+      // Defer state update to avoid synchronous cascading render warning
+      const timer = setTimeout(() => {
+        setError(errorMessage);
+      }, 0);
+      return () => clearTimeout(timer);
     }
   }, [searchParams]);
 
@@ -58,7 +64,7 @@ function LoginContent() {
 
       setIsLoading(true);
       setError(null);
-      const { data, error: loginError } = await authClient.signIn.email({
+      const { error: loginError } = await authClient.signIn.email({
         email,
         password,
       });

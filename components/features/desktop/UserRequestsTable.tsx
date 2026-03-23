@@ -29,14 +29,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  ArrowUpDown,
   Search,
   ChevronLeft,
   ChevronRight,
   Clock,
   CheckCircle2,
   XCircle,
-  Eye
+  Eye,
 } from "lucide-react";
 import { formatBE } from "@/lib/date-utils";
 import { UserRequestDetailsModal } from "./UserRequestDetailsModal";
@@ -48,14 +47,14 @@ interface UserRequestsTableProps {
 
 function StatusBadge({ status }: { status: string }) {
   switch (status) {
-    case Request_status.APPROVED:
+    case Request_status.APPROVE:
       return (
         <div className="flex items-center gap-1.5 text-green-600 font-medium">
           <CheckCircle2 className="h-4 w-4" />
           อนุมัติแล้ว
         </div>
       );
-    case Request_status.REJECTED:
+    case Request_status.REJECT:
       return (
         <div className="flex items-center gap-1.5 text-red-500 font-medium">
           <XCircle className="h-4 w-4" />
@@ -79,10 +78,15 @@ export function UserRequestsTable({ rawData, teams }: UserRequestsTableProps) {
   const searchParams = useSearchParams();
 
   const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
-  const [statusFilter, setStatusFilter] = useState(searchParams.get("status") || Request_status.WAITING);
-  const [roleFilter, setRoleFilter] = useState(searchParams.get("role") || "all");
+  const [statusFilter, setStatusFilter] = useState(
+    searchParams.get("status") || Request_status.WAITING,
+  );
+  const [roleFilter, setRoleFilter] = useState(
+    searchParams.get("role") || "all",
+  );
 
-  const [selectedRequest, setSelectedRequest] = useState<UserCreateStatusResponse | null>(null);
+  const [selectedRequest, setSelectedRequest] =
+    useState<UserCreateStatusResponse | null>(null);
 
   const updateURLParams = (updates: Record<string, string | null>) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -117,14 +121,22 @@ export function UserRequestsTable({ rawData, teams }: UserRequestsTableProps) {
       header: "ชื่อ-นามสกุลผู้ขอเปิดบัญชี",
       cell: ({ row }) => {
         // Fallback or mapped from backend if available inside user object.
-        const req: any = row.original;
+        const req = row.original as UserCreateStatusResponse & {
+          user?: { firstName: string; lastName?: string };
+          firstName?: string;
+          lastName?: string;
+        };
         if (req.user && req.user.firstName) {
           return `${req.user.firstName} ${req.user.lastName || ""}`;
         }
         if (req.firstName) {
           return `${req.firstName} ${req.lastName || ""}`;
         }
-        return <span className="text-gray-500 italic">User ID: {row.original.userId.substring(0,8)}...</span>;
+        return (
+          <span className="text-gray-500 italic">
+            User ID: {row.original.userId.substring(0, 8)}...
+          </span>
+        );
       },
     },
     {
@@ -152,8 +164,8 @@ export function UserRequestsTable({ rawData, teams }: UserRequestsTableProps) {
             ตรวจสอบ
           </Button>
         );
-      }
-    }
+      },
+    },
   ];
 
   const table = useReactTable({
@@ -169,7 +181,10 @@ export function UserRequestsTable({ rawData, teams }: UserRequestsTableProps) {
     <div className="space-y-4">
       {/* Controls */}
       <div className="flex flex-wrap gap-3 justify-between">
-        <form onSubmit={handleSearch} className="flex items-center gap-2 flex-wrap">
+        <form
+          onSubmit={handleSearch}
+          className="flex items-center gap-2 flex-wrap"
+        >
           <div className="relative">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
@@ -191,9 +206,13 @@ export function UserRequestsTable({ rawData, teams }: UserRequestsTableProps) {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">ทุกสถานะ</SelectItem>
-              <SelectItem value={Request_status.WAITING}>รอดำเนินการ</SelectItem>
-              <SelectItem value={Request_status.APPROVED}>อนุมัติแล้ว</SelectItem>
-              <SelectItem value={Request_status.REJECTED}>ปฏิเสธ</SelectItem>
+              <SelectItem value={Request_status.WAITING}>
+                รอดำเนินการ
+              </SelectItem>
+              <SelectItem value={Request_status.APPROVE}>
+                อนุมัติแล้ว
+              </SelectItem>
+              <SelectItem value={Request_status.REJECT}>ปฏิเสธ</SelectItem>
             </SelectContent>
           </Select>
 

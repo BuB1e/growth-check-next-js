@@ -8,7 +8,10 @@ import {
 } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 import { LocationCreateRequestAction } from "@/actions/LocationCreateRequestAction";
-import type { LocationCreateRequestResponse, PaginatedResponseDTO } from "@/dto";
+import type {
+  LocationCreateRequestResponse,
+  PaginatedResponseDTO,
+} from "@/dto";
 import { Request_status } from "@/types/Enums";
 import { RequestsTable } from "@/components/features/desktop/RequestsTable";
 
@@ -74,8 +77,10 @@ async function RequestsDataWrapper({
       : EnvConfig.PAGINATION_LIMIT_DESKTOP_SIZE;
   const q = typeof sp?.q === "string" ? sp.q : undefined;
   const requestStatus =
-    sp?.status === Request_status.WAITING || sp?.status === Request_status.APPROVED || sp?.status === Request_status.REJECTED
-      ? sp.status as any
+    sp?.status === Request_status.WAITING ||
+    sp?.status === Request_status.APPROVE ||
+    sp?.status === Request_status.REJECT
+      ? (sp.status as Request_status)
       : undefined;
 
   let data: PaginatedResponseDTO<LocationCreateRequestResponse> | null = null;

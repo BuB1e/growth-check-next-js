@@ -9,7 +9,7 @@ import type {
   OptionsGetUserCreateStatusDTO,
   PaginatedResponseDTO,
 } from "@/dto";
-import { getForwardHeaders } from "@/lib/auth/auth-guard";
+// // import { getForwardHeaders } from "@/lib/auth/auth-guard";
 
 type GetUserCreateStatusParams = OptionsGetUserCreateStatusDTO & {
   page?: number;
@@ -24,14 +24,20 @@ export class UserCreateStatusAction {
 
   static async getStatuses(
     params: GetUserCreateStatusParams = {},
-    headers?: any,
+    headers?: Record<string, string>,
   ): Promise<PaginatedResponseDTO<UserCreateStatusResponse>> {
     const defaultParams = {
       page: 1,
       limit: EnvConfig.PAGINATION_LIMIT_DESKTOP_SIZE,
       ...params,
     };
-    const activeHeaders = headers || (typeof window === 'undefined' ? await getForwardHeaders() : undefined);
+    
+    let activeHeaders: Record<string, string> | undefined = headers;
+    if (!activeHeaders && typeof window === 'undefined') {
+      const { getForwardHeaders } = await import("@/lib/auth/header-utils");
+      activeHeaders = await getForwardHeaders();
+    }
+
     console.log(`[UserCreateStatusAction] Fetching statuses: ${this.ACTION_ENDPOINT}`, defaultParams);
     const response = await axios.get(`${this.ACTION_ENDPOINT}`, {
       params: defaultParams,
@@ -40,8 +46,13 @@ export class UserCreateStatusAction {
     return response.data;
   }
 
-  static async getStatusById(id: string, headers?: any): Promise<UserCreateStatusResponse> {
-    const activeHeaders = headers || (typeof window === 'undefined' ? await getForwardHeaders() : undefined);
+  static async getStatusById(id: string, headers?: Record<string, string>): Promise<UserCreateStatusResponse> {
+    let activeHeaders: Record<string, string> | undefined = headers;
+    if (!activeHeaders && typeof window === 'undefined') {
+      const { getForwardHeaders } = await import("@/lib/auth/header-utils");
+      activeHeaders = await getForwardHeaders();
+    }
+
     const response = await axios.get(`${this.ACTION_ENDPOINT}/${id}`, {
       headers: activeHeaders
     });

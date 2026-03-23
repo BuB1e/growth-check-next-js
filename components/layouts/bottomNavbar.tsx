@@ -2,7 +2,7 @@
 
 import { useMobilePageStore } from "@/stores/MobilePageStore";
 import { EMobilePage, EMobilePageToThai } from "@/types";
-import { Home, MapPin, User } from "lucide-react";
+import { Home, User } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";

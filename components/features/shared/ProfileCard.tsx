@@ -6,6 +6,8 @@ import type { UserResponse } from "@/dto";
 import { RoleToThai } from "@/types";
 import { Mail, Shield, Users, Calendar } from "lucide-react";
 
+import Image from "next/image";
+
 interface ProfileCardProps {
   user: UserResponse;
   teamName?: string;
@@ -36,11 +38,15 @@ export function ProfileCard({ user, teamName }: ProfileCardProps) {
         <div className="flex flex-col items-center -mt-14 sm:flex-row sm:items-end sm:-mt-12 sm:gap-5">
           {/* Avatar circle */}
           {user.image ? (
-            <img
-              src={user.image}
-              alt={`${user.firstName} ${user.lastName}`}
-              className="h-24 w-24 rounded-full border-4 border-white object-cover shadow-md sm:h-28 sm:w-28"
-            />
+            <div className="relative h-24 w-24 sm:h-28 sm:w-28">
+              <Image
+                src={user.image}
+                alt={`${user.firstName} ${user.lastName}`}
+                fill
+                className="rounded-full border-4 border-white object-cover shadow-md"
+                priority
+              />
+            </div>
           ) : (
             <div className="flex h-24 w-24 items-center justify-center rounded-full border-4 border-white bg-blue-100 text-2xl font-bold text-blue-700 shadow-md sm:h-28 sm:w-28 sm:text-3xl">
               {initials}

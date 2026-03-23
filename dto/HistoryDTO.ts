@@ -1,8 +1,8 @@
 import { Role, Request_status } from "@/types";
 
-export type HistoryType = 
-  | "TRANSFER" 
-  | "LOCATION_APPROVE" 
+export type HistoryType =
+  | "TRANSFER"
+  | "LOCATION_APPROVE"
   | "LOCATION_REJECT";
 
 export type HistoryActorRole = Role;

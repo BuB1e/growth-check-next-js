@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 import { UserCreateStatusAction } from "@/actions/UserCreateStatusAction";
-import type { UserCreateStatusResponse, PaginatedResponseDTO } from "@/dto";
+import type { UserCreateStatusResponse, PaginatedResponseDTO, TeamResponse } from "@/dto";
 import { Request_status } from "@/types/Enums";
 import { UserRequestsTable } from "@/components/features/desktop/UserRequestsTable";
 
@@ -75,20 +75,18 @@ async function RequestsDataWrapper({
   const q = typeof sp?.q === "string" ? sp.q : undefined;
 
   // Use WAITING as default status if not "all"
-  const requestStatus = sp?.status === "all" ? undefined : (sp?.status || Request_status.WAITING);
-  const role = sp?.role && sp?.role !== "all" ? sp.role : undefined;
+  const requestStatus = sp?.status === "all" ? undefined : (sp?.status as Request_status | undefined) || Request_status.WAITING;
 
   let data: PaginatedResponseDTO<UserCreateStatusResponse> | null = null;
-  let teams: any[] = [];
+  let teams: TeamResponse[] = [];
 
   try {
     data = await UserCreateStatusAction.getStatuses({
       page,
       limit,
       q,
-      status: requestStatus as any, // Passed to API
-      // @ts-ignore
-      role: role
+      status: requestStatus, // Passed to API
+      // role: role as any // The DTO might not have role yet, but we'll check
     });
 
     // Also fetch teams for the modal dropdown

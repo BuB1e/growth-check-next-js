@@ -59,18 +59,18 @@ function DetailSkeleton() {
 
 const STATUS_LABEL: Record<string, string> = {
   [Request_status.WAITING]: "รอดำเนินการ",
-  [Request_status.APPROVED]: "อนุมัติแล้ว",
-  "APPROVE": "อนุมัติแล้ว",
-  [Request_status.REJECTED]: "ปฏิเสธ",
-  "REJECT": "ปฏิเสธ",
+  [Request_status.APPROVE]: "อนุมัติแล้ว",
+  APPROVE: "อนุมัติแล้ว",
+  [Request_status.REJECT]: "ปฏิเสธ",
+  REJECT: "ปฏิเสธ",
 };
 
 const STATUS_CLASS: Record<string, string> = {
   [Request_status.WAITING]: "bg-yellow-100 text-yellow-700 border-yellow-300",
-  [Request_status.APPROVED]: "bg-green-100 text-green-700 border-green-300",
-  "APPROVE": "bg-green-100 text-green-700 border-green-300",
-  [Request_status.REJECTED]: "bg-red-100 text-red-600 border-red-300",
-  "REJECT": "bg-red-100 text-red-600 border-red-300",
+  [Request_status.APPROVE]: "bg-green-100 text-green-700 border-green-300",
+  APPROVE: "bg-green-100 text-green-700 border-green-300",
+  [Request_status.REJECT]: "bg-red-100 text-red-600 border-red-300",
+  REJECT: "bg-red-100 text-red-600 border-red-300",
 };
 
 async function RequestDetailContent({

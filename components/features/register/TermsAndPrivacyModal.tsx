@@ -69,7 +69,13 @@ export function TermsAndPrivacyModal({ isOpen, onAccept, onDecline }: PolicyModa
               </p>
             </div>
 
-            {data.sections.map((section: any, idx: number) => (
+            {(data.sections as Array<{
+              title: string;
+              content?: string[];
+              items?: string[];
+              note?: string;
+              subsections?: Array<{ title: string; items: string[] }>;
+            }>).map((section, idx) => (
               <div key={`${currentStep}-${idx}`} className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-500" style={{ animationDelay: `${idx * 50}ms` }}>
                 <h3 className="text-xl md:text-2xl font-bold text-gray-800 flex items-start gap-3">
                   <span className={cn(
@@ -98,7 +104,7 @@ export function TermsAndPrivacyModal({ isOpen, onAccept, onDecline }: PolicyModa
                   </ul>
                 )}
 
-                {section.subsections && section.subsections.map((sub: any, subIdx: number) => (
+                {section.subsections && section.subsections.map((sub, subIdx) => (
                   <div key={subIdx} className="pl-11 space-y-3 mt-4">
                     <h4 className="text-lg font-bold text-gray-700 flex items-center gap-2">
                       <ChevronRight className={cn("w-5 h-5", currentStep === "terms" ? "text-blue-400" : "text-emerald-400")} />

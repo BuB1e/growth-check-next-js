@@ -2,11 +2,7 @@
 
 import { useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import {
-  HistoryEntry,
-  HistoryActor,
-  PaginatedHistoryResponse,
-} from "@/dto";
+import { HistoryEntry, HistoryActor, PaginatedHistoryResponse } from "@/dto";
 import { Request_status, Role, RoleToThai } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -45,9 +41,9 @@ function ActorLabel({ actor }: { actor: HistoryActor }) {
 }
 
 function StatusIcon({ status }: { status: string }) {
-  if (status === Request_status.APPROVED || status === "APPROVE")
+  if (status === Request_status.APPROVE || status === "APPROVE")
     return <CheckCircle2 className="h-4 w-4 text-green-500" />;
-  if (status === Request_status.REJECTED || status === "REJECT")
+  if (status === Request_status.REJECT || status === "REJECT")
     return <XCircle className="h-4 w-4 text-red-500" />;
   return <Clock className="h-4 w-4 text-yellow-500" />;
 }
@@ -175,35 +171,35 @@ export function HistoryTable({ rawData }: HistoryTableProps) {
                     : `history-fallback-${entry.createdAt}-${entry.title}-${index}`;
 
                   return (
-                  <tr
-                    key={rowKey}
-                    className="border-b last:border-0 cursor-pointer hover:bg-muted/40 transition-colors"
-                    onClick={() => {
-                      if (!hasValidId) return;
-                      router.push(`${pathname}/${numericId}`);
-                    }}
-                  >
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-2">
-                        <StatusIcon status={entry.status} />
-                        <span className="line-clamp-1">{entry.title}</span>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3">
-                      <ActorLabel actor={entry.actor} />
-                    </td>
-                    <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">
-                      {formatBE(entry.createdAt, "d MMM yyyy")}
-                    </td>
-                    <td
-                      className="px-2 py-3"
-                      onClick={(e) => e.stopPropagation()}
+                    <tr
+                      key={rowKey}
+                      className="border-b last:border-0 cursor-pointer hover:bg-muted/40 transition-colors"
+                      onClick={() => {
+                        if (!hasValidId) return;
+                        router.push(`${pathname}/${numericId}`);
+                      }}
                     >
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <MoreVertical className="h-4 w-4" />
-                      </Button>
-                    </td>
-                  </tr>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2">
+                          <StatusIcon status={entry.status} />
+                          <span className="line-clamp-1">{entry.title}</span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <ActorLabel actor={entry.actor} />
+                      </td>
+                      <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">
+                        {formatBE(entry.createdAt, "d MMM yyyy")}
+                      </td>
+                      <td
+                        className="px-2 py-3"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <MoreVertical className="h-4 w-4" />
+                        </Button>
+                      </td>
+                    </tr>
                   );
                 })
               ) : (

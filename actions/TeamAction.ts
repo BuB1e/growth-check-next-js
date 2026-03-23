@@ -9,7 +9,7 @@ import type {
   OptionsGetTeamsDTO,
   PaginatedResponseDTO,
 } from "@/dto";
-import { getForwardHeaders } from "@/lib/auth/auth-guard";
+// import { getForwardHeaders } from "@/lib/auth/auth-guard";
 
 type GetTeamsParams = OptionsGetTeamsDTO & {
   page?: number;
@@ -24,9 +24,13 @@ export class TeamAction {
 
   static async getTeams(
     params: GetTeamsParams = {},
-    headers?: any,
+    headers?: Record<string, string>,
   ): Promise<PaginatedResponseDTO<TeamResponse>> {
-    const activeHeaders = headers || (typeof window === 'undefined' ? await getForwardHeaders() : undefined);
+    let activeHeaders: Record<string, string> | undefined = headers;
+    if (!activeHeaders && typeof window === 'undefined') {
+      const { getForwardHeaders } = await import("@/lib/auth/header-utils");
+      activeHeaders = await getForwardHeaders();
+    }
     const defaultParams = {
       page: 1,
       limit: EnvConfig.PAGINATION_LIMIT_DESKTOP_SIZE,
@@ -39,11 +43,15 @@ export class TeamAction {
     return response.data;
   }
 
-  static async getTeamById(id: number | string, headers?: any): Promise<TeamResponse> {
+  static async getTeamById(id: number | string, headers?: Record<string, string>): Promise<TeamResponse> {
     if (!id || id === 'undefined' || id === 'null') {
       throw new Error("Invalid team ID");
     }
-    const activeHeaders = headers || (typeof window === 'undefined' ? await getForwardHeaders() : undefined);
+    let activeHeaders: Record<string, string> | undefined = headers;
+    if (!activeHeaders && typeof window === 'undefined') {
+      const { getForwardHeaders } = await import("@/lib/auth/header-utils");
+      activeHeaders = await getForwardHeaders();
+    }
     const response = await axios.get(`${this.ACTION_ENDPOINT}/${id}`, {
       headers: activeHeaders
     });

@@ -13,10 +13,14 @@ interface Session {
 
 // Structured Logger for Proxy
 const log = {
-  info: (msg: string, ctx?: Record<string, unknown>) => console.log(`[Proxy:INFO] ${msg}`, ctx ? JSON.stringify(ctx) : ""),
-  error: (msg: string, ctx?: unknown) => console.error(`[Proxy:ERROR] ${msg}`, ctx || ""),
+  info: (msg: string, ctx?: Record<string, unknown>) =>
+    console.log(`[Proxy:INFO] ${msg}`, ctx ? JSON.stringify(ctx) : ""),
+  error: (msg: string, ctx?: unknown) =>
+    console.error(`[Proxy:ERROR] ${msg}`, ctx || ""),
   auth: (outcome: string, user?: string, path?: string) =>
-    console.log(`[Proxy:AUTH] [${outcome}] user=${user || 'guest'} path=${path}`),
+    console.log(
+      `[Proxy:AUTH] [${outcome}] user=${user || "guest"} path=${path}`,
+    ),
 };
 
 export async function proxy(request: NextRequest) {
@@ -30,7 +34,10 @@ export async function proxy(request: NextRequest) {
     const backendUrl = process.env.BACKEND_ENDPOINT;
     if (!backendUrl) {
       log.error(`No BACKEND_ENDPOINT configured for ${pathname}`);
-      return NextResponse.json({ error: "Backend URL not configured" }, { status: 500 });
+      return NextResponse.json(
+        { error: "Backend URL not configured" },
+        { status: 500 },
+      );
     }
 
     let backendPath = pathname;
@@ -47,8 +54,15 @@ export async function proxy(request: NextRequest) {
 
     const proxyHeaders = new Headers(request.headers);
     proxyHeaders.set("X-Forwarded-Host", request.nextUrl.host);
-    proxyHeaders.set("X-Forwarded-Port", request.nextUrl.port || (request.nextUrl.protocol === "https:" ? "443" : "80"));
-    proxyHeaders.set("X-Forwarded-Proto", request.nextUrl.protocol.replace(":", ""));
+    proxyHeaders.set(
+      "X-Forwarded-Port",
+      request.nextUrl.port ||
+        (request.nextUrl.protocol === "https:" ? "443" : "80"),
+    );
+    proxyHeaders.set(
+      "X-Forwarded-Proto",
+      request.nextUrl.protocol.replace(":", ""),
+    );
 
     return NextResponse.rewrite(targetUrl, {
       request: {
@@ -58,11 +72,20 @@ export async function proxy(request: NextRequest) {
   }
 
   // 1.5. Global Auth Guard & RBAC
-  const isAuthRoute = pathname === "/login" || pathname === "/register" || pathname.startsWith("/api/auth");
+  const isAuthRoute =
+    pathname === "/login" ||
+    pathname === "/register" ||
+    pathname.startsWith("/api/auth");
   const isPendingPageRoute = pathname === "/pending-approval";
-  const isPublicAsset = pathname.startsWith("/_next") || /\.(.*)$/.test(pathname);
+  const isPublicAsset =
+    pathname.startsWith("/_next") || /\.(.*)$/.test(pathname);
 
-  if (!isAuthRoute && !isPendingPageRoute && !isPublicAsset && !pathname.startsWith("/api/")) {
+  if (
+    !isAuthRoute &&
+    !isPendingPageRoute &&
+    !isPublicAsset &&
+    !pathname.startsWith("/api/")
+  ) {
     const backendUrl = process.env.BACKEND_ENDPOINT;
     let session: Session | null = null;
     try {
@@ -85,29 +108,43 @@ export async function proxy(request: NextRequest) {
       return NextResponse.redirect(new URL("/login", request.url));
     }
 
-    const user = session.user as { id: string; email: string; role: string; teamId?: string | number };
+    const user = session.user as {
+      id: string;
+      email: string;
+      role: string;
+      teamId?: string | number;
+    };
 
     // Check approval status FIRST
     try {
-      const statusData = await UserCreateStatusAction.getStatuses({
-        q: user.id,
-        limit: 10
-      }, {
-        cookie: request.headers.get("cookie") || "",
-        "user-agent": request.headers.get("user-agent") || "",
-      });
-      const userStatus = (statusData.data || []).find(s => s.userId === user.id);
+      const statusData = await UserCreateStatusAction.getStatuses(
+        {
+          q: user.id,
+          limit: 10,
+        },
+        {
+          cookie: request.headers.get("cookie") || "",
+          "user-agent": request.headers.get("user-agent") || "",
+        },
+      );
+      const userStatus = (statusData.data || []).find(
+        (s) => s.userId === user.id,
+      );
 
       if (userStatus) {
         const currentStatus = userStatus.requestStatus as string;
 
-        if (currentStatus !== Request_status.APPROVED) {
+        if (currentStatus !== Request_status.APPROVE) {
           log.auth("Pending Approval", user.email, pathname);
-          return NextResponse.redirect(new URL("/pending-approval", request.url));
+          return NextResponse.redirect(
+            new URL("/pending-approval", request.url),
+          );
         }
       } else if (!user.teamId) {
         log.auth("Incomplete Registration", user.email, pathname);
-        return NextResponse.redirect(new URL("/register?method=SOCIAL", request.url));
+        return NextResponse.redirect(
+          new URL("/register?method=SOCIAL", request.url),
+        );
       }
 
       // 1.6. Role-Based Access Control (RBAC) Enforcement
@@ -117,20 +154,27 @@ export async function proxy(request: NextRequest) {
 
       if (user.role === Role.USER) {
         if (isDesktopPlatform) {
-          log.auth("RBAC Restriction: Staff restricted to Mobile. Redirecting to shared path.", user.email, pathname);
+          log.auth(
+            "RBAC Restriction: Staff restricted to Mobile. Redirecting to shared path.",
+            user.email,
+            pathname,
+          );
           const sharedPath = pathname.replace("/desktop", "") || "/dashboard";
           return NextResponse.redirect(new URL(sharedPath, request.url));
         }
       } else if (user.role === Role.ADMIN || user.role === Role.HEAD) {
         if (isMobilePlatform) {
-          log.auth("RBAC Restriction: Admin/Head restricted to Desktop. Redirecting to shared path.", user.email, pathname);
+          log.auth(
+            "RBAC Restriction: Admin/Head restricted to Desktop. Redirecting to shared path.",
+            user.email,
+            pathname,
+          );
           const sharedPath = pathname.replace("/mobile", "") || "/dashboard";
           return NextResponse.redirect(new URL(sharedPath, request.url));
         }
       }
 
       log.auth("Approved", user.email, pathname);
-
     } catch (error) {
       log.error("Status Check Error", error);
       return NextResponse.redirect(new URL("/pending-approval", request.url));
@@ -140,10 +184,7 @@ export async function proxy(request: NextRequest) {
   // 2. Role-based routing for platform (desktop/mobile)
 
   // Skip internal Next.js paths or static assets
-  if (
-    pathname.startsWith("/_next") ||
-    /\.(.*)$/.test(pathname)
-  ) {
+  if (pathname.startsWith("/_next") || /\.(.*)$/.test(pathname)) {
     return NextResponse.next();
   }
 

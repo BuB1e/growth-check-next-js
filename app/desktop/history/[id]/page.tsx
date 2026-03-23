@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { HistoryAction } from "@/actions/HistoryAction";
 import type { HistoryType } from "@/dto";
-import { Role } from "@/types";
+import { Request_status, Role } from "@/types";
 
 export const metadata = {
   title: "รายละเอียดประวัติ",
@@ -51,17 +51,17 @@ export default function HistoryDetailPage({
 }
 
 const STATUS_CONFIG = {
-  APPROVED: {
+  [Request_status.APPROVE]: {
     label: "อนุมัติ",
     cls: "bg-green-100 text-green-700 border-green-300",
     icon: CheckCircle2,
   },
-  REJECTED: {
+  [Request_status.REJECT]: {
     label: "ปฏิเสธ",
     cls: "bg-red-100 text-red-600 border-red-300",
     icon: XCircle,
   },
-  WAITING: {
+  [Request_status.WAITING]: {
     label: "รอดำเนินการ",
     cls: "bg-yellow-100 text-yellow-700 border-yellow-300",
     icon: Clock,

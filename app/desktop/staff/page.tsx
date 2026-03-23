@@ -78,12 +78,6 @@ async function StaffDataWrapper({
       : EnvConfig.PAGINATION_LIMIT_DESKTOP_SIZE;
 
   const q = typeof params.q === "string" ? params.q : undefined;
-  const orderBy =
-    typeof params.orderBy === "string" ? params.orderBy : undefined;
-  const orderDirection =
-    params.orderDirection === "desc" || params.orderDirection === "asc"
-      ? params.orderDirection
-      : undefined;
   const roleRaw = typeof params.role === "string" ? params.role : undefined;
   const role =
     roleRaw === Role.ADMIN || roleRaw === Role.USER || roleRaw === Role.HEAD

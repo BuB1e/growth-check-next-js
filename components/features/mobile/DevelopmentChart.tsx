@@ -10,7 +10,6 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  Legend,
 } from "recharts";
 import { formatBE } from "@/lib/date-utils";
 import { buildPredictionPoints } from "@/lib/prediction-utils";

@@ -9,7 +9,7 @@ import type {
   OptionsLocationCreateRequestDTO,
   PaginatedResponseDTO,
 } from "@/dto";
-import { getForwardHeaders } from "@/lib/auth/auth-guard";
+// import { getForwardHeaders } from "@/lib/auth/auth-guard";
 
 type GetLocationCreateRequestsParams = OptionsLocationCreateRequestDTO & {
   page?: number;
@@ -30,7 +30,13 @@ export class LocationCreateRequestAction {
       limit: EnvConfig.PAGINATION_LIMIT_DESKTOP_SIZE,
       ...params,
     };
-    const activeHeaders = typeof window === 'undefined' ? await getForwardHeaders() : undefined;
+    
+    let activeHeaders: Record<string, string> | undefined = undefined;
+    if (typeof window === 'undefined') {
+      const { getForwardHeaders } = await import("@/lib/auth/header-utils");
+      activeHeaders = await getForwardHeaders();
+    }
+
     const response = await axios.get(`${this.ACTION_ENDPOINT}/`, { 
       params: defaultParams,
       headers: activeHeaders
@@ -41,7 +47,12 @@ export class LocationCreateRequestAction {
   static async getRequestById(
     id: number,
   ): Promise<LocationCreateRequestResponse> {
-    const activeHeaders = typeof window === 'undefined' ? await getForwardHeaders() : undefined;
+    let activeHeaders: Record<string, string> | undefined = undefined;
+    if (typeof window === 'undefined') {
+      const { getForwardHeaders } = await import("@/lib/auth/header-utils");
+      activeHeaders = await getForwardHeaders();
+    }
+
     const response = await axios.get(`${this.ACTION_ENDPOINT}/${id}`, {
       headers: activeHeaders
     });
@@ -57,7 +68,13 @@ export class LocationCreateRequestAction {
       limit: EnvConfig.PAGINATION_LIMIT_DESKTOP_SIZE,
       ...params,
     };
-    const activeHeaders = typeof window === 'undefined' ? await getForwardHeaders() : undefined;
+    
+    let activeHeaders: Record<string, string> | undefined = undefined;
+    if (typeof window === 'undefined') {
+      const { getForwardHeaders } = await import("@/lib/auth/header-utils");
+      activeHeaders = await getForwardHeaders();
+    }
+
     const response = await axios.get(
       `${this.ACTION_ENDPOINT}/user/${userId}`,
       { 

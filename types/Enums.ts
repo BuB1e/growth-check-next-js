@@ -1,56 +1,55 @@
 export const Role = {
-  ADMIN: 'ADMIN',
-  USER: 'STAFF',
-  HEAD: 'HEAD',
-} as const
+  ADMIN: "ADMIN",
+  USER: "STAFF",
+  HEAD: "HEAD",
+} as const;
 
 export const RoleTH = {
-  ADMIN: 'แอดมิน',
-  USER: 'เจ้าหน้าที่',
-  HEAD: 'หัวหน้า',
-} as const
+  ADMIN: "แอดมิน",
+  USER: "เจ้าหน้าที่",
+  HEAD: "หัวหน้า",
+} as const;
 
 export const RoleToThai: Record<Role, string> = {
   [Role.ADMIN]: RoleTH.ADMIN,
   [Role.USER]: RoleTH.USER,
   [Role.HEAD]: RoleTH.HEAD,
-}
+};
 
-export type Role = (typeof Role)[keyof typeof Role]
-
+export type Role = (typeof Role)[keyof typeof Role];
 
 export const Sex = {
-  MALE: 'MALE',
-  FEMALE: 'FEMALE'
-} as const
+  MALE: "MALE",
+  FEMALE: "FEMALE",
+} as const;
 
 export const SexTH = {
-  MALE: 'ชาย',
-  FEMALE: 'หญิง'
-} as const
+  MALE: "ชาย",
+  FEMALE: "หญิง",
+} as const;
 
 export const SexToThai: Record<Sex, string> = {
   [Sex.MALE]: SexTH.MALE,
   [Sex.FEMALE]: SexTH.FEMALE,
 };
 
-export type Sex = (typeof Sex)[keyof typeof Sex]
+export type Sex = (typeof Sex)[keyof typeof Sex];
 
 // Child location status, not child's growth status
 export const Child_status = {
-  IN_AREA: 'IN_AREA',
-  OUT_AREA: 'OUT_AREA',
-  UNKNOWN: 'UNKNOWN',
-  DIED: 'DIED'
-} as const
+  IN_AREA: "IN_AREA",
+  OUT_AREA: "OUT_AREA",
+  UNKNOWN: "UNKNOWN",
+  DIED: "DIED",
+} as const;
 
 // Child location status, not child's growth status
 export const Child_status_TH = {
-  IN_AREA: 'อยู่ในพื้นที่',
-  OUT_AREA: 'อยู่นอกพื้นที่',
-  UNKNOWN: 'ไม่ทราบสถานะ',
-  DIED: 'เสียชีวิต'
-}
+  IN_AREA: "อยู่ในพื้นที่",
+  OUT_AREA: "อยู่นอกพื้นที่",
+  UNKNOWN: "ไม่ทราบสถานะ",
+  DIED: "เสียชีวิต",
+};
 
 // Child location status, not child's growth status
 export const Child_statusToThai: Record<Child_status, string> = {
@@ -61,7 +60,7 @@ export const Child_statusToThai: Record<Child_status, string> = {
 };
 
 // Child location status, not child's growth status
-export type Child_status = (typeof Child_status)[keyof typeof Child_status]
+export type Child_status = (typeof Child_status)[keyof typeof Child_status];
 
 // export const DevelopmentStatus = {
 //   NORMAL: 'normal',
@@ -93,20 +92,20 @@ export type Child_status = (typeof Child_status)[keyof typeof Child_status]
 // export type DevelopmentStatus = (typeof DevelopmentStatus)[keyof typeof DevelopmentStatus]
 
 export const Metric_type = {
-  WA: 'WA',
-  HA: 'HA',
-  BMI: 'BMI',
-  WH: 'WH',
-  WL: 'WL'
-} as const
+  WA: "WA",
+  HA: "HA",
+  BMI: "BMI",
+  WH: "WH",
+  WL: "WL",
+} as const;
 
-export type Metric_type = (typeof Metric_type)[keyof typeof Metric_type]
-
+export type Metric_type = (typeof Metric_type)[keyof typeof Metric_type];
 
 export const Request_status = {
-  APPROVED: 'APPROVED',
-  REJECTED: 'REJECTED',
-  WAITING: 'WAITING'
-} as const
+  APPROVE: "APPROVE",
+  REJECT: "REJECT",
+  WAITING: "WAITING",
+} as const;
 
-export type Request_status = (typeof Request_status)[keyof typeof Request_status]
+export type Request_status =
+  (typeof Request_status)[keyof typeof Request_status];

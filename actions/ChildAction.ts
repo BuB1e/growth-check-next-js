@@ -40,40 +40,11 @@ const toOptionalNumber = (
   return Number.isFinite(n) ? n : undefined;
 };
 
-const getAgeInMonths = (birthDate?: string | Date): number | null => {
-  if (!birthDate) return null;
-  const birth = new Date(birthDate);
-  if (Number.isNaN(birth.getTime())) return null;
-
-  const now = new Date();
-  let ageInMonths =
-    (now.getFullYear() - birth.getFullYear()) * 12 +
-    (now.getMonth() - birth.getMonth());
-
-  if (now.getDate() < birth.getDate()) {
-    ageInMonths -= 1;
-  }
-
-  return ageInMonths;
-};
-
 const applyClientFilters = (
   children: ChildResponse[],
   params: GetChildrenParams,
 ): ChildResponse[] => {
   const search = (params.q ?? params.firstName)?.toLowerCase().trim();
-  const minAgeMonths = toOptionalNumber(params.minAge);
-  const maxAgeMonths = toOptionalNumber(params.maxAge);
-  const minAgeYears = toOptionalNumber(params.minAgeYears);
-  const maxAgeYears = toOptionalNumber(params.maxAgeYears);
-  const minAge =
-    isDefined(minAgeMonths) || isDefined(minAgeYears)
-      ? (minAgeYears ?? 0) * 12 + (minAgeMonths ?? 0)
-      : undefined;
-  const maxAge =
-    isDefined(maxAgeMonths) || isDefined(maxAgeYears)
-      ? (maxAgeYears ?? 0) * 12 + (maxAgeMonths ?? 0)
-      : undefined;
 
   return children.filter((child) => {
     if (isNonEmptyString(search)) {
@@ -331,7 +302,11 @@ export class ChildAction {
   }
 
   static async getChildById(id: string): Promise<ChildResponse> {
-    const activeHeaders = typeof window === 'undefined' ? await getForwardHeaders() : undefined;
+    let activeHeaders = undefined;
+    if (typeof window === 'undefined') {
+      const { getForwardHeaders } = await import("@/lib/auth/header-utils");
+      activeHeaders = await getForwardHeaders();
+    }
     const response = await axios.get(`${this.ACTION_ENDPOINT}/getById/${id}`, {
       headers: activeHeaders
     });

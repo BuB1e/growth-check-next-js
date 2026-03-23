@@ -19,8 +19,6 @@ import {
   ChartLegend,
   ChartLegendContent,
 } from "@/components/ui/chart";
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
 
 const chartConfig = {
   normal: {

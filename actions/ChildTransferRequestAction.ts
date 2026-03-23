@@ -9,7 +9,7 @@ import type {
   OptionsGetChildTransferRequestsDTO,
   PaginatedResponseDTO,
 } from "@/dto";
-import { getForwardHeaders } from "@/lib/auth/auth-guard";
+// import { getForwardHeaders } from "@/lib/auth/auth-guard";
 
 type GetChildTransferRequestsParams = OptionsGetChildTransferRequestsDTO & {
   page?: number;
@@ -30,8 +30,14 @@ export class ChildTransferRequestAction {
       limit: EnvConfig.PAGINATION_LIMIT_DESKTOP_SIZE,
       ...params,
     };
-    const activeHeaders = typeof window === 'undefined' ? await getForwardHeaders() : undefined;
-    const response = await axios.get(`${this.ACTION_ENDPOINT}/`, { 
+
+    let activeHeaders: Record<string, string> | undefined = undefined;
+    if (typeof window === 'undefined') {
+      const { getForwardHeaders } = await import("@/lib/auth/header-utils");
+      activeHeaders = await getForwardHeaders();
+    }
+
+    const response = await axios.get(`${this.ACTION_ENDPOINT}/`, {
       params: defaultParams,
       headers: activeHeaders
     });
@@ -41,7 +47,12 @@ export class ChildTransferRequestAction {
   static async getRequestById(
     id: string,
   ): Promise<ChildTransferRequestResponse> {
-    const activeHeaders = typeof window === 'undefined' ? await getForwardHeaders() : undefined;
+    let activeHeaders: Record<string, string> | undefined = undefined;
+    if (typeof window === 'undefined') {
+      const { getForwardHeaders } = await import("@/lib/auth/header-utils");
+      activeHeaders = await getForwardHeaders();
+    }
+
     const response = await axios.get(`${this.ACTION_ENDPOINT}/${id}`, {
       headers: activeHeaders
     });

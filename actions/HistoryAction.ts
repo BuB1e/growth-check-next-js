@@ -1,5 +1,3 @@
-
-
 import {
   ChildTransferRequestResponse,
   LocationCreateRequestResponse,
@@ -17,14 +15,19 @@ import type {
 
 export class HistoryAction {
   static BACKEND_ENDPOINT = EnvConfig.BACKEND_ENDPOINT || "";
-  static PAGE_LIMIT = typeof window === 'undefined' ? EnvConfig.PAGINATION_LIMIT_DESKTOP_SIZE : 10;
-  
+  static PAGE_LIMIT =
+    typeof window === "undefined"
+      ? EnvConfig.PAGINATION_LIMIT_DESKTOP_SIZE
+      : 10;
+
   // Constants for magic numbers and strings
   private static readonly TRANSFER_ID_OFFSET = 10000;
   private static readonly LOCATION_ID_OFFSET = 20000;
   private static readonly TYPE_TRANSFER = "TRANSFER" as HistoryType;
-  private static readonly TYPE_LOCATION_APPROVE = "LOCATION_APPROVE" as HistoryType;
-  private static readonly TYPE_LOCATION_REJECT = "LOCATION_REJECT" as HistoryType;
+  private static readonly TYPE_LOCATION_APPROVE =
+    "LOCATION_APPROVE" as HistoryType;
+  private static readonly TYPE_LOCATION_REJECT =
+    "LOCATION_REJECT" as HistoryType;
 
   private static async fetchAllTransferRequests(): Promise<
     ChildTransferRequestResponse[]
@@ -101,7 +104,7 @@ export class HistoryAction {
           type: this.TYPE_TRANSFER,
           title: `ขอย้ายเด็ก (ID: ${t.childId}) จากเขต ${t.fromLocation} ไปเขต ${t.toLocation}`,
           actor: { role: Role.USER, name: t.userId },
-          status: t.handledBy ? Request_status.APPROVED : Request_status.WAITING,
+          status: t.handledBy ? Request_status.APPROVE : Request_status.WAITING,
           createdAt: t.createdAt,
           updatedAt: t.updatedAt,
           fromLocation: t.fromLocation.toString(),
@@ -114,16 +117,16 @@ export class HistoryAction {
     if (locationRequestsRes.status === "fulfilled") {
       locationRequestsRes.value.forEach((r: LocationCreateRequestResponse) => {
         const historyType: HistoryType =
-          r.requestStatus === Request_status.REJECTED
+          r.requestStatus === Request_status.REJECT
             ? this.TYPE_LOCATION_REJECT
             : this.TYPE_LOCATION_APPROVE;
         entries.push({
           id: r.id + this.LOCATION_ID_OFFSET,
           type: historyType,
           title:
-            r.requestStatus === Request_status.APPROVED
+            r.requestStatus === Request_status.APPROVE
               ? `อนุมัติสร้าง ${r.locationName}`
-              : r.requestStatus === Request_status.REJECTED
+              : r.requestStatus === Request_status.REJECT
                 ? `ปฏิเสธคำร้องสร้าง ${r.locationName}`
                 : `คำร้องขอสร้าง ${r.locationName} (รอดำเนินการ)`,
           actor: {

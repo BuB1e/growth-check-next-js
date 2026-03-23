@@ -8,7 +8,7 @@ import type {
   UpdateUserDto,
   OptionsGetAllUserDTO,
 } from "@/dto";
-import { getForwardHeaders } from "@/lib/auth/auth-guard";
+// import { getForwardHeaders } from "@/lib/auth/auth-guard";
 
 type GetUsersParams = OptionsGetAllUserDTO & {
   page?: number;
@@ -46,9 +46,13 @@ export class UserAction {
 
   static async getUsers(
     params: GetUsersParams = {},
-    headers?: any,
+    headers?: Record<string, string>,
   ): Promise<UserResponse[]> {
-    const activeHeaders = headers || (typeof window === 'undefined' ? await getForwardHeaders() : undefined);
+    let activeHeaders: Record<string, string> | undefined = headers;
+    if (!activeHeaders && typeof window === 'undefined') {
+      const { getForwardHeaders } = await import("@/lib/auth/header-utils");
+      activeHeaders = await getForwardHeaders();
+    }
     const defaultParams = {
       page: 1,
       limit: EnvConfig.PAGINATION_LIMIT_DESKTOP_SIZE,
@@ -64,9 +68,13 @@ export class UserAction {
   static async getUsersByTeam(
     teamId: number,
     params: GetUsersByTeamParams = {},
-    headers?: any,
+    headers?: Record<string, string>,
   ): Promise<UserResponse[]> {
-    const activeHeaders = headers || (typeof window === 'undefined' ? await getForwardHeaders() : undefined);
+    let activeHeaders: Record<string, string> | undefined = headers;
+    if (!activeHeaders && typeof window === 'undefined') {
+      const { getForwardHeaders } = await import("@/lib/auth/header-utils");
+      activeHeaders = await getForwardHeaders();
+    }
     const defaultParams = {
       page: 1,
       limit: EnvConfig.PAGINATION_LIMIT_DESKTOP_SIZE,
@@ -82,8 +90,12 @@ export class UserAction {
     return normalizeUsersList(response.data);
   }
 
-  static async getUserById(id: string, headers?: any): Promise<UserResponse> {
-    const activeHeaders = headers || (typeof window === 'undefined' ? await getForwardHeaders() : undefined);
+  static async getUserById(id: string, headers?: Record<string, string>): Promise<UserResponse> {
+    let activeHeaders: Record<string, string> | undefined = headers;
+    if (!activeHeaders && typeof window === 'undefined') {
+      const { getForwardHeaders } = await import("@/lib/auth/header-utils");
+      activeHeaders = await getForwardHeaders();
+    }
     const response = await axios.get(
       `${this.ACTION_ENDPOINT}/getById/${id}`,
       { headers: activeHeaders }
@@ -91,8 +103,12 @@ export class UserAction {
     return response.data;
   }
 
-  static async getUserByEmail(email: string, headers?: any): Promise<UserResponse> {
-    const activeHeaders = headers || (typeof window === 'undefined' ? await getForwardHeaders() : undefined);
+  static async getUserByEmail(email: string, headers?: Record<string, string>): Promise<UserResponse> {
+    let activeHeaders: Record<string, string> | undefined = headers;
+    if (!activeHeaders && typeof window === 'undefined') {
+      const { getForwardHeaders } = await import("@/lib/auth/header-utils");
+      activeHeaders = await getForwardHeaders();
+    }
     const response = await axios.get(
       `${this.ACTION_ENDPOINT}/getByEmail/${email}`,
       { headers: activeHeaders }
