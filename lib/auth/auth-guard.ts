@@ -1,7 +1,7 @@
 import { cache } from "react";
 import { UserCreateStatusAction } from "@/actions/UserCreateStatusAction";
 import { Request_status } from "@/types/Enums";
-import { getForwardHeaders } from "./header-utils";
+import { getForwardHeaders } from "./header-utils.server";
 
 import type { UserCreateStatusResponse } from "@/dto";
 

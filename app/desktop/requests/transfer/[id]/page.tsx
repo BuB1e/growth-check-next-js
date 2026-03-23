@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { Loader2, ArrowLeft, MapPin, ExternalLink } from "lucide-react";
+import { Loader2, ArrowLeft, CheckCircle2, XCircle, Clock } from "lucide-react";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -10,14 +10,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { LocationCreateRequestAction } from "@/actions/LocationCreateRequestAction";
+import { ChildTransferRequestAction } from "@/actions/ChildTransferRequestAction";
 import { Request_status } from "@/types";
 
 export const metadata = {
-  title: "รายละเอียดคำร้องขอ",
+  title: "รายละเอียดคำร้องขอย้ายเด็ก",
 };
 
-export default function RequestDetailPage({
+export default function TransferRequestDetailPage({
   params,
 }: {
   params: Promise<{ id: string }>;
@@ -26,23 +26,23 @@ export default function RequestDetailPage({
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
       <div className="flex items-center gap-4 mb-4">
         <Button variant="ghost" size="icon" asChild>
-          <Link href="/requests">
+          <Link href="/desktop/requests?type=transfer">
             <ArrowLeft className="h-5 w-5" />
             <span className="sr-only">กลับ</span>
           </Link>
         </Button>
         <div>
           <h2 className="text-3xl font-bold tracking-tight">
-            รายละเอียดคำร้องขอ
+            รายละเอียดคำร้องขอย้ายเด็ก
           </h2>
           <p className="text-muted-foreground mt-1">
-            ข้อมูลคำร้องขอสร้างสถานที่ (ดูได้อย่างเดียว)
+            ข้อมูลคำร้องขอย้ายเด็กระหว่างสถานที่ (ดูได้อย่างเดียว)
           </p>
         </div>
       </div>
 
       <Suspense fallback={<DetailSkeleton />}>
-        <RequestDetailContent params={params} />
+        <TransferRequestDetailContent params={params} />
       </Suspense>
     </div>
   );
@@ -57,19 +57,25 @@ function DetailSkeleton() {
   );
 }
 
-const STATUS_LABEL: Record<string, string> = {
-  [Request_status.WAITING]: "รอดำเนินการ",
-  [Request_status.APPROVE]: "อนุมัติแล้ว",
-  [Request_status.REJECT]: "ปฏิเสธ",
+const STATUS_CONFIG = {
+  [Request_status.WAITING]: {
+    label: "รอดำเนินการ",
+    cls: "bg-yellow-100 text-yellow-700 border-yellow-300",
+    icon: Clock,
+  },
+  [Request_status.APPROVE]: {
+    label: "อนุมัติแล้ว",
+    cls: "bg-green-100 text-green-700 border-green-300",
+    icon: CheckCircle2,
+  },
+  [Request_status.REJECT]: {
+    label: "ปฏิเสธ",
+    cls: "bg-red-100 text-red-600 border-red-300",
+    icon: XCircle,
+  },
 };
 
-const STATUS_CLASS: Record<string, string> = {
-  [Request_status.WAITING]: "bg-yellow-100 text-yellow-700 border-yellow-300",
-  [Request_status.APPROVE]: "bg-green-100 text-green-700 border-green-300",
-  [Request_status.REJECT]: "bg-red-100 text-red-600 border-red-300",
-};
-
-async function RequestDetailContent({
+async function TransferRequestDetailContent({
   params,
 }: {
   params: Promise<{ id: string }>;
@@ -79,55 +85,47 @@ async function RequestDetailContent({
 
   if (isNaN(reqId)) notFound();
 
-  const request = await LocationCreateRequestAction.getRequestById(reqId);
+  const request = await ChildTransferRequestAction.getRequestById(reqId.toString());
   if (!request) notFound();
 
-  const fullAddress = `ต.${request.sub_district} อ.${request.district} จ.${request.province} ${request.zip_code}`;
+  // Determine status: no handledBy = WAITING, has handledBy = APPROVE
+  const status = !request.handledBy 
+    ? Request_status.WAITING 
+    : Request_status.APPROVE;
+  const statusCfg = STATUS_CONFIG[status] ?? STATUS_CONFIG[Request_status.WAITING];
+  const StatusIcon = statusCfg.icon;
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-      {/* Left: Core Info */}
       <div className="md:col-span-2 space-y-5">
         <Card>
           <CardHeader>
-            <CardTitle>ข้อมูลสถานที่ที่ร้องขอ</CardTitle>
-            <CardDescription>รายละเอียดที่เจ้าหน้าที่ส่งมา</CardDescription>
+            <CardTitle>ข้อมูลการย้ายเด็ก</CardTitle>
+            <CardDescription>รายละเอียดคำร้องขอย้ายเด็ก</CardDescription>
           </CardHeader>
           <CardContent>
             <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-5 text-base">
               <InfoRow
-                label="ชื่อสถานที่ (ที่ขอสร้าง)"
-                value={request.locationName}
+                label="รหัสเด็ก"
+                value={request.childId.toString()}
               />
-              <InfoRow label="ตำบล / แขวง" value={request.sub_district} />
-              <InfoRow label="อำเภอ / เขต" value={request.district} />
-              <InfoRow label="จังหวัด" value={request.province} />
-              <InfoRow label="รหัสไปรษณีย์" value={request.zip_code} />
-              <InfoRow label="ที่อยู่เต็ม" value={fullAddress} />
+              <InfoRow
+                label="ผู้ยื่นคำร้อง"
+                value={request.userId}
+              />
+              <InfoRow
+                label="จากสถานที่ (ID)"
+                value={request.fromLocation.toString()}
+              />
+              <InfoRow
+                label="ไปยังสถานที่ (ID)"
+                value={request.toLocation.toString()}
+              />
             </dl>
-
-            {request.locationMap && (
-              <div className="mt-5 pt-4 border-t">
-                <p className="text-sm text-muted-foreground mb-2 font-medium flex items-center gap-1.5">
-                  <MapPin className="h-3.5 w-3.5" />
-                  Google Maps / ลิงก์พิกัด
-                </p>
-                <a
-                  href={request.locationMap}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline font-medium"
-                >
-                  เปิดแผนที่
-                  <ExternalLink className="h-3.5 w-3.5" />
-                </a>
-              </div>
-            )}
           </CardContent>
         </Card>
       </div>
 
-      {/* Right: Status & Meta */}
       <div className="space-y-5">
         <Card>
           <CardHeader>
@@ -135,9 +133,10 @@ async function RequestDetailContent({
           </CardHeader>
           <CardContent className="space-y-4">
             <div
-              className={`inline-flex items-center px-3 py-1.5 rounded-full border text-sm font-semibold ${STATUS_CLASS[request.requestStatus] ?? STATUS_CLASS[Request_status.WAITING]}`}
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-sm font-semibold ${statusCfg.cls}`}
             >
-              {STATUS_LABEL[request.requestStatus] ?? request.requestStatus}
+              <StatusIcon className="h-3.5 w-3.5" />
+              {statusCfg.label}
             </div>
             {request.handledBy && (
               <InfoRow label="ดำเนินการโดย" value={request.handledBy} />
@@ -166,7 +165,6 @@ async function RequestDetailContent({
                 day: "numeric",
               })}
             />
-            <InfoRow label="รหัสผู้ยื่น" value={request.userId} />
           </CardContent>
         </Card>
       </div>

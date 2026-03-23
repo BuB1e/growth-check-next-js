@@ -304,7 +304,7 @@ export class ChildAction {
   static async getChildById(id: string): Promise<ChildResponse> {
     let activeHeaders = undefined;
     if (typeof window === 'undefined') {
-      const { getForwardHeaders } = await import("@/lib/auth/header-utils");
+      const { getForwardHeaders } = await import("@/lib/auth/header-utils.server");
       activeHeaders = await getForwardHeaders();
     }
     const response = await axios.get(`${this.ACTION_ENDPOINT}/getById/${id}`, {

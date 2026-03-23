@@ -1,7 +1,11 @@
 import { createEnv } from "@t3-oss/env-nextjs";
 import { z } from "zod";
 
-export const EnvConfig = createEnv({
+// Check if we're in a browser context
+const isBrowser = typeof window !== 'undefined';
+
+// Server-only env schema
+const serverEnvSchema = {
   server: {
     BACKEND_ENDPOINT: z.url(),
     BETTER_AUTH_SECRET: z.string().min(1),
@@ -29,4 +33,23 @@ export const EnvConfig = createEnv({
     PAGINATION_LIMIT_MOBILE_SIZE: process.env.PAGINATION_LIMIT_MOBILE_SIZE,
     PAGINATION_LIMIT_DESKTOP_SIZE: process.env.PAGINATION_LIMIT_DESKTOP_SIZE,
   },
-});
+};
+
+// Fallback config for client-side (when server env is not available)
+const fallbackConfig = {
+  BACKEND_ENDPOINT: "",
+  BETTER_AUTH_SECRET: "",
+  AI_PREDICTION_POLL_INITIAL_MS: 2500,
+  AI_PREDICTION_POLL_BACKOFF_FACTOR: 1.7,
+  AI_PREDICTION_POLL_MAX_MS: 12000,
+  AI_PREDICTION_POLL_TIMEOUT_MS: 90000,
+  AI_PREDICTION_POLL_HIDDEN_MIN_MS: 15000,
+  AI_PREDICTION_POLL_JITTER_RATIO: 0.2,
+  PAGINATION_LIMIT_MOBILE_SIZE: 6,
+  PAGINATION_LIMIT_DESKTOP_SIZE: 10,
+};
+
+// Use createEnv only in server context, otherwise use fallback
+export const EnvConfig = isBrowser 
+  ? fallbackConfig 
+  : createEnv(serverEnvSchema);

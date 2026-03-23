@@ -8,16 +8,29 @@ import {
 } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 import { LocationCreateRequestAction } from "@/actions/LocationCreateRequestAction";
+import { ChildTransferRequestAction } from "@/actions/ChildTransferRequestAction";
 import type {
   LocationCreateRequestResponse,
-  PaginatedResponseDTO,
+  ChildTransferRequestResponse,
+  PaginatedMetaDTO,
 } from "@/dto";
 import { Request_status } from "@/types/Enums";
 import { RequestsTable } from "@/components/features/desktop/RequestsTable";
 
 export const metadata = {
-  title: "คำร้องขอสร้างสถานที่",
+  title: "คำร้องขอ",
 };
+
+// Combined request type for unified table
+export type CombinedRequest = 
+  | ({ type: "location" } & LocationCreateRequestResponse)
+  | ({ type: "transfer" } & ChildTransferRequestResponse);
+
+// Unified response type
+export interface UnifiedRequestsResponse {
+  data: CombinedRequest[];
+  meta: PaginatedMetaDTO;
+}
 
 export default function RequestsPage({
   searchParams,
@@ -30,7 +43,7 @@ export default function RequestsPage({
         <div>
           <h2 className="text-3xl font-bold tracking-tight">คำร้องขอ</h2>
           <p className="text-muted-foreground mt-1">
-            รายการคำร้องขอสร้างสถานที่ใหม่จากเจ้าหน้าที่
+            รายการคำร้องขอทั้งหมด — การสร้างสถานที่และการย้ายเด็ก
           </p>
         </div>
       </div>
@@ -68,6 +81,7 @@ async function RequestsDataWrapper({
 }) {
   const sp = await searchParams;
   const { EnvConfig } = await import("@/configs/BackendConfig");
+  
   const parsedPage = Number(sp?.page);
   const parsedLimit = Number(sp?.limit);
   const page = Number.isFinite(parsedPage) && parsedPage > 0 ? parsedPage : 1;
@@ -76,6 +90,7 @@ async function RequestsDataWrapper({
       ? parsedLimit
       : EnvConfig.PAGINATION_LIMIT_DESKTOP_SIZE;
   const q = typeof sp?.q === "string" ? sp.q : undefined;
+  const requestType = sp?.type || "all"; // "all" | "location" | "transfer"
   const requestStatus =
     sp?.status === Request_status.WAITING ||
     sp?.status === Request_status.APPROVE ||
@@ -83,26 +98,100 @@ async function RequestsDataWrapper({
       ? (sp.status as Request_status)
       : undefined;
 
-  let data: PaginatedResponseDTO<LocationCreateRequestResponse> | null = null;
+  // Fetch both request types in parallel
+  const [locationRes, transferRes] = await Promise.allSettled([
+    requestType === "transfer" 
+      ? Promise.resolve({ data: [], meta: { total: 0, page: 1, limit, totalPages: 0 } })
+      : LocationCreateRequestAction.getRequests({
+          page: 1,
+          limit: 1000, // Fetch all for merging
+          q,
+          requestStatus,
+        }),
+    requestType === "location"
+      ? Promise.resolve({ data: [], meta: { total: 0, page: 1, limit, totalPages: 0 } })
+      : ChildTransferRequestAction.getRequests({
+          page: 1,
+          limit: 1000, // Fetch all for merging
+          q,
+        }),
+  ]);
 
-  try {
-    data = await LocationCreateRequestAction.getRequests({
-      page,
-      limit,
-      q,
-      requestStatus,
+  // Combine and type the results
+  const locationData: LocationCreateRequestResponse[] =
+    locationRes.status === "fulfilled" ? locationRes.value.data : [];
+  const transferData: ChildTransferRequestResponse[] =
+    transferRes.status === "fulfilled" ? transferRes.value.data : [];
+
+  // Debug log
+  console.log("[RequestsPage] Fetch results:", {
+    locationCount: locationData.length,
+    transferCount: transferData.length,
+    requestType,
+    requestStatus,
+    q,
+    locationError: locationRes.status === "rejected" ? locationRes.reason : null,
+    transferError: transferRes.status === "rejected" ? transferRes.reason : null
+  });
+
+  // Add type discriminator
+  const combinedData: CombinedRequest[] = [
+    ...locationData.map((item) => ({ ...item, type: "location" as const })),
+    ...transferData.map((item) => ({ ...item, type: "transfer" as const })),
+  ];
+
+  // Sort by createdAt descending (most recent first)
+  combinedData.sort((a, b) => {
+    const dateA = new Date(a.createdAt).getTime();
+    const dateB = new Date(b.createdAt).getTime();
+    return dateB - dateA;
+  });
+
+  // Apply status filter if needed (for transfer requests, check if handledBy exists)
+  let filteredData = combinedData;
+  if (requestStatus) {
+    filteredData = combinedData.filter((item) => {
+      if (item.type === "location") {
+        return item.requestStatus === requestStatus;
+      } else {
+        // Transfer requests: WAITING = no handledBy, APPROVE/REJECT = has handledBy
+        if (requestStatus === Request_status.WAITING) {
+          return !item.handledBy;
+        } else if (requestStatus === Request_status.APPROVE || requestStatus === Request_status.REJECT) {
+          return !!item.handledBy;
+        }
+        return true;
+      }
     });
-  } catch (error) {
-    console.error("Failed to load requests:", error);
   }
 
-  if (!data) {
-    return (
-      <div className="bg-destructive/10 text-destructive p-4 rounded-md text-sm font-medium">
-        ไม่สามารถโหลดข้อมูลได้ กรุณาลองใหม่อีกครั้ง
-      </div>
-    );
+  // Apply search filter
+  if (q) {
+    const searchLower = q.toLowerCase();
+    filteredData = filteredData.filter((item) => {
+      if (item.type === "location") {
+        return (
+          item.locationName.toLowerCase().includes(searchLower) ||
+          item.sub_district.toLowerCase().includes(searchLower) ||
+          item.district.toLowerCase().includes(searchLower)
+        );
+      } else {
+        return item.childId.toString().includes(searchLower);
+      }
+    });
   }
 
-  return <RequestsTable rawData={data} />;
+  // Paginate
+  const total = filteredData.length;
+  const totalPages = Math.ceil(total / limit);
+  const start = (page - 1) * limit;
+  const paginatedData = filteredData.slice(start, start + limit);
+
+  const unifiedResponse: UnifiedRequestsResponse = {
+    data: paginatedData,
+    meta: { total, page, limit, totalPages },
+  };
+
+  // Return the combined data to the table with requestType filter
+  return <RequestsTable rawData={unifiedResponse} requestType={requestType} />;
 }

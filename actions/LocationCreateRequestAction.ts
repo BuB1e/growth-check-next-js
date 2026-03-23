@@ -19,8 +19,7 @@ type GetLocationCreateRequestsParams = OptionsLocationCreateRequestDTO & {
 export class LocationCreateRequestAction {
   static BACKEND_ENDPOINT = EnvConfig.BACKEND_ENDPOINT || "";
   static API_ENDPOINT = "/location-create-requests";
-  // If we're on the client, EnvConfig.BACKEND_ENDPOINT is undefined, so we use "/api" prefix for proxying
-  static ACTION_ENDPOINT = typeof window === 'undefined' ? (this.BACKEND_ENDPOINT + this.API_ENDPOINT) : ("/api" + this.API_ENDPOINT);
+  static ACTION_ENDPOINT = this.BACKEND_ENDPOINT + this.API_ENDPOINT;
 
   static async getRequests(
     params: GetLocationCreateRequestsParams = {},
@@ -30,14 +29,14 @@ export class LocationCreateRequestAction {
       limit: EnvConfig.PAGINATION_LIMIT_DESKTOP_SIZE,
       ...params,
     };
-    
+
     let activeHeaders: Record<string, string> | undefined = undefined;
     if (typeof window === 'undefined') {
-      const { getForwardHeaders } = await import("@/lib/auth/header-utils");
+      const { getForwardHeaders } = await import("@/lib/auth/header-utils.server");
       activeHeaders = await getForwardHeaders();
     }
 
-    const response = await axios.get(`${this.ACTION_ENDPOINT}/`, { 
+    const response = await axios.get(`${this.ACTION_ENDPOINT}/`, {
       params: defaultParams,
       headers: activeHeaders
     });
@@ -49,7 +48,7 @@ export class LocationCreateRequestAction {
   ): Promise<LocationCreateRequestResponse> {
     let activeHeaders: Record<string, string> | undefined = undefined;
     if (typeof window === 'undefined') {
-      const { getForwardHeaders } = await import("@/lib/auth/header-utils");
+      const { getForwardHeaders } = await import("@/lib/auth/header-utils.server");
       activeHeaders = await getForwardHeaders();
     }
 
@@ -68,16 +67,16 @@ export class LocationCreateRequestAction {
       limit: EnvConfig.PAGINATION_LIMIT_DESKTOP_SIZE,
       ...params,
     };
-    
+
     let activeHeaders: Record<string, string> | undefined = undefined;
     if (typeof window === 'undefined') {
-      const { getForwardHeaders } = await import("@/lib/auth/header-utils");
+      const { getForwardHeaders } = await import("@/lib/auth/header-utils.server");
       activeHeaders = await getForwardHeaders();
     }
 
     const response = await axios.get(
       `${this.ACTION_ENDPOINT}/user/${userId}`,
-      { 
+      {
         params: defaultParams,
         headers: activeHeaders
       },

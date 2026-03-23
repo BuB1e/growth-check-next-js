@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/table";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { UserCreateStatusResponse } from "@/dto";
-import type { PaginatedResponseDTO, TeamResponse } from "@/dto";
+import type { PaginatedResponseDTO, UserResponse } from "@/dto";
 import { Request_status, Role, RoleTH } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -35,14 +35,24 @@ import {
   Clock,
   CheckCircle2,
   XCircle,
-  Eye,
 } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { formatBE } from "@/lib/date-utils";
-import { UserRequestDetailsModal } from "./UserRequestDetailsModal";
+import { bulkUpdateUserRequestStatusAction } from "@/app/desktop/user-requests/action";
 
 interface UserRequestsTableProps {
   rawData: PaginatedResponseDTO<UserCreateStatusResponse>;
-  teams: TeamResponse[];
+  usersMap?: Map<string, UserResponse>;
 }
 
 function StatusBadge({ status }: { status: string }) {
@@ -72,7 +82,7 @@ function StatusBadge({ status }: { status: string }) {
   }
 }
 
-export function UserRequestsTable({ rawData, teams }: UserRequestsTableProps) {
+export function UserRequestsTable({ rawData, usersMap = new Map() }: UserRequestsTableProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -85,8 +95,12 @@ export function UserRequestsTable({ rawData, teams }: UserRequestsTableProps) {
     searchParams.get("role") || "all",
   );
 
-  const [selectedRequest, setSelectedRequest] =
-    useState<UserCreateStatusResponse | null>(null);
+  // Note: Modal removed - using detail page at /desktop/user-requests/[id] instead
+
+  // Selection state for bulk actions
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [confirmAction, setConfirmAction] = useState<Request_status | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const updateURLParams = (updates: Record<string, string | null>) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -107,7 +121,7 @@ export function UserRequestsTable({ rawData, teams }: UserRequestsTableProps) {
 
   const handleStatusChange = (val: string) => {
     setStatusFilter(val);
-    updateURLParams({ status: val === "all" ? null : val, page: "1" });
+    updateURLParams({ status: val, page: "1" });
   };
 
   const handleRoleChange = (val: string) => {
@@ -115,22 +129,123 @@ export function UserRequestsTable({ rawData, teams }: UserRequestsTableProps) {
     updateURLParams({ role: val === "all" ? null : val, page: "1" });
   };
 
+  // Toggle single row selection
+  const toggleRow = (userId: string) => {
+    const newSelected = new Set(selectedIds);
+    if (newSelected.has(userId)) {
+      newSelected.delete(userId);
+    } else {
+      newSelected.add(userId);
+    }
+    setSelectedIds(newSelected);
+  };
+
+  // Toggle all rows
+  const toggleAll = () => {
+    if (selectedIds.size === rawData.data.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(rawData.data.map(r => r.userId)));
+    }
+  };
+
+  // Handle bulk action confirmation
+  const handleBulkAction = async () => {
+    if (!confirmAction || selectedIds.size === 0) return;
+    
+    setIsProcessing(true);
+    
+    try {
+      const result = await bulkUpdateUserRequestStatusAction(
+        Array.from(selectedIds),
+        confirmAction
+      );
+      
+      if (result.success) {
+        console.log(`[Bulk Action] Success: Updated ${selectedIds.size} requests`);
+        setSelectedIds(new Set());
+      } else {
+        console.error(`[Bulk Action] Error: ${result.error || "Unknown error"}`);
+        alert(result.error || "เกิดข้อผิดพลาดในการดำเนินการแบบกลุ่ม");
+      }
+    } catch (error) {
+      console.error(`[Bulk Action] Unexpected error:`, error);
+      alert("เกิดข้อผิดพลาดที่ไม่คาดคิด");
+    } finally {
+      setIsProcessing(true); // Keep processing true until next navigation? No, result.success handled it.
+      // Wait, result.success will trigger revalidatePath on server.
+      // The component will re-render with new data if the parent (page) re-fetches.
+      setIsProcessing(false);
+      setConfirmAction(null);
+    }
+  };
+
   const columns: ColumnDef<UserCreateStatusResponse>[] = [
     {
-      accessorKey: "userId",
-      header: "ชื่อ-นามสกุลผู้ขอเปิดบัญชี",
+      id: "select",
+      header: () => (
+        <Checkbox
+          checked={selectedIds.size === rawData.data.length && rawData.data.length > 0}
+          onCheckedChange={toggleAll}
+          aria-label="เลือกทั้งหมด"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={selectedIds.has(row.original.userId)}
+          onCheckedChange={() => toggleRow(row.original.userId)}
+          onClick={(e) => e.stopPropagation()}
+          aria-label="เลือกรายการ"
+        />
+      ),
+      size: 40,
+    },
+    {
+      accessorKey: "firstName",
+      header: "ชื่อจริง",
       cell: ({ row }) => {
+        // Use usersMap to get user name
+        const user = usersMap.get(row.original.userId);
+        if (user) {
+          return user.firstName.trim();
+        }
         // Fallback or mapped from backend if available inside user object.
         const req = row.original as UserCreateStatusResponse & {
-          user?: { firstName: string; lastName?: string };
+          user?: { firstName: string };
           firstName?: string;
-          lastName?: string;
         };
         if (req.user && req.user.firstName) {
-          return `${req.user.firstName} ${req.user.lastName || ""}`;
+          return req.user.firstName.trim();
         }
         if (req.firstName) {
-          return `${req.firstName} ${req.lastName || ""}`;
+          return req.firstName.trim();
+        }
+        return (
+          <span className="text-gray-500 italic">
+            User ID: {row.original.userId.substring(0, 8)}...
+          </span>
+        );
+      },
+    },
+    {
+      accessorKey: "lastName",
+      header: "นามสกุล",
+      cell: ({ row }) => {
+        // Use usersMap to get user name
+        const user = usersMap.get(row.original.userId);
+        if (user) {
+          return user.lastName.trim();
+        }
+        // Fallback or mapped from backend if available inside user object.
+        const req = row.original as UserCreateStatusResponse & {
+          user?: { lastName: string };
+          lastName?: string;
+        };
+        if (req.user && req.user.lastName) {
+          return req.user.lastName.trim();
+        }
+        if (req.lastName) {
+          return req.lastName.trim();
         }
         return (
           <span className="text-gray-500 italic">
@@ -149,23 +264,7 @@ export function UserRequestsTable({ rawData, teams }: UserRequestsTableProps) {
       header: "สถานะคำร้อง",
       cell: ({ row }) => <StatusBadge status={row.original.requestStatus} />,
     },
-    {
-      id: "actions",
-      header: "จัดการ",
-      cell: ({ row }) => {
-        return (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setSelectedRequest(row.original)}
-            className="text-primary hover:text-primary-focus hover:bg-blue-50"
-          >
-            <Eye className="h-4 w-4 mr-1" />
-            ตรวจสอบ
-          </Button>
-        );
-      },
-    },
+    // "จัดการ" column removed - click row to navigate to detail page
   ];
 
   const table = useReactTable({
@@ -205,7 +304,6 @@ export function UserRequestsTable({ rawData, teams }: UserRequestsTableProps) {
               <SelectValue placeholder="สถานะคำร้อง" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">ทุกสถานะ</SelectItem>
               <SelectItem value={Request_status.WAITING}>
                 รอดำเนินการ
               </SelectItem>
@@ -226,10 +324,33 @@ export function UserRequestsTable({ rawData, teams }: UserRequestsTableProps) {
               <SelectItem value={Role.USER}>{RoleTH.USER} (Staff)</SelectItem>
             </SelectContent>
           </Select>
+
+          {/* Bulk Action Buttons - show when items are selected */}
+          {selectedIds.size > 0 && (
+            <div className="flex gap-2 ml-2">
+              <Button
+                variant="default"
+                size="sm"
+                onClick={() => setConfirmAction(Request_status.APPROVE)}
+                className="bg-green-600 hover:bg-green-700"
+              >
+                <CheckCircle2 className="h-4 w-4 mr-1" />
+                อนุมัติ ({selectedIds.size})
+              </Button>
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={() => setConfirmAction(Request_status.REJECT)}
+              >
+                <XCircle className="h-4 w-4 mr-1" />
+                ปฏิเสธ ({selectedIds.size})
+              </Button>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Table */}
+      {/* Table with clickable rows */}
       <div className="rounded-md border overflow-hidden">
         <div className="overflow-x-auto">
           <Table>
@@ -249,23 +370,24 @@ export function UserRequestsTable({ rawData, teams }: UserRequestsTableProps) {
                 </TableRow>
               ))}
             </TableHeader>
-            <TableBody>
-              {table.getRowModel().rows.length ? (
-                table.getRowModel().rows.map((row) => (
-                  <TableRow
-                    key={row.id}
-                    className="hover:bg-muted/50 transition-colors"
-                  >
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id} className="py-3">
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext(),
-                        )}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))
+          <TableBody>
+            {table.getRowModel().rows.length ? (
+              table.getRowModel().rows.map((row) => (
+                <TableRow
+                  key={row.id}
+                  className="cursor-pointer hover:bg-muted/50 transition-colors"
+                  onClick={() => router.push(`/desktop/user-requests/${row.original.userId}`)}
+                >
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id} className="py-3">
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext(),
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
               ) : (
                 <TableRow>
                   <TableCell
@@ -317,17 +439,30 @@ export function UserRequestsTable({ rawData, teams }: UserRequestsTableProps) {
         </div>
       )}
 
-      {selectedRequest && (
-        <UserRequestDetailsModal
-          request={selectedRequest}
-          teams={teams}
-          onClose={() => setSelectedRequest(null)}
-          onSuccess={() => {
-            setSelectedRequest(null);
-            router.refresh();
-          }}
-        />
-      )}
+      {/* Bulk Action Confirmation Dialog */}
+      <AlertDialog open={!!confirmAction} onOpenChange={() => setConfirmAction(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {confirmAction === Request_status.APPROVE ? "ยืนยันการอนุมัติ" : "ยืนยันการปฏิเสธ"}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              คุณต้องการ{confirmAction === Request_status.APPROVE ? "อนุมัติ" : "ปฏิเสธ"} {selectedIds.size} คำร้องใช่หรือไม่?
+              {confirmAction === Request_status.REJECT && " ผู้ใช้งานจะได้รับแจ้งว่าคำร้องถูกปฏิเสธ"}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>ยกเลิก</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleBulkAction}
+              disabled={isProcessing}
+              className={confirmAction === Request_status.APPROVE ? "bg-green-600 hover:bg-green-700" : "bg-red-600 hover:bg-red-700"}
+            >
+              {isProcessing ? "กำลังดำเนินการ..." : confirmAction === Request_status.APPROVE ? "อนุมัติ" : "ปฏิเสธ"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

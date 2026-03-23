@@ -41,8 +41,7 @@ const normalizeUsersList = (payload: UsersPayload): UserResponse[] => {
 export class UserAction {
   static BACKEND_ENDPOINT = EnvConfig.BACKEND_ENDPOINT || "";
   static API_ENDPOINT = "/users";
-  // If we're on the client, EnvConfig.BACKEND_ENDPOINT is undefined, so we use "/api" prefix for proxying
-  static ACTION_ENDPOINT = typeof window === 'undefined' ? (this.BACKEND_ENDPOINT + this.API_ENDPOINT) : ("/api" + this.API_ENDPOINT);
+  static ACTION_ENDPOINT = this.BACKEND_ENDPOINT + this.API_ENDPOINT;
 
   static async getUsers(
     params: GetUsersParams = {},
@@ -50,7 +49,7 @@ export class UserAction {
   ): Promise<UserResponse[]> {
     let activeHeaders: Record<string, string> | undefined = headers;
     if (!activeHeaders && typeof window === 'undefined') {
-      const { getForwardHeaders } = await import("@/lib/auth/header-utils");
+      const { getForwardHeaders } = await import("@/lib/auth/header-utils.server");
       activeHeaders = await getForwardHeaders();
     }
     const defaultParams = {
@@ -72,7 +71,7 @@ export class UserAction {
   ): Promise<UserResponse[]> {
     let activeHeaders: Record<string, string> | undefined = headers;
     if (!activeHeaders && typeof window === 'undefined') {
-      const { getForwardHeaders } = await import("@/lib/auth/header-utils");
+      const { getForwardHeaders } = await import("@/lib/auth/header-utils.server");
       activeHeaders = await getForwardHeaders();
     }
     const defaultParams = {
@@ -82,9 +81,9 @@ export class UserAction {
     };
     const response = await axios.get<UsersPayload>(
       `${this.ACTION_ENDPOINT}/teams/${teamId}/users`,
-      { 
+      {
         params: defaultParams,
-        headers: activeHeaders 
+        headers: activeHeaders
       },
     );
     return normalizeUsersList(response.data);
@@ -93,7 +92,7 @@ export class UserAction {
   static async getUserById(id: string, headers?: Record<string, string>): Promise<UserResponse> {
     let activeHeaders: Record<string, string> | undefined = headers;
     if (!activeHeaders && typeof window === 'undefined') {
-      const { getForwardHeaders } = await import("@/lib/auth/header-utils");
+      const { getForwardHeaders } = await import("@/lib/auth/header-utils.server");
       activeHeaders = await getForwardHeaders();
     }
     const response = await axios.get(
@@ -106,7 +105,7 @@ export class UserAction {
   static async getUserByEmail(email: string, headers?: Record<string, string>): Promise<UserResponse> {
     let activeHeaders: Record<string, string> | undefined = headers;
     if (!activeHeaders && typeof window === 'undefined') {
-      const { getForwardHeaders } = await import("@/lib/auth/header-utils");
+      const { getForwardHeaders } = await import("@/lib/auth/header-utils.server");
       activeHeaders = await getForwardHeaders();
     }
     const response = await axios.get(

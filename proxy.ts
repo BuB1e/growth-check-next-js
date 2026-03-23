@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { UserCreateStatusAction } from "@/actions/UserCreateStatusAction";
 import { Request_status, Role } from "@/types";
 
 interface Session {
@@ -79,11 +78,18 @@ export async function proxy(request: NextRequest) {
   const isPendingPageRoute = pathname === "/pending-approval";
   const isPublicAsset =
     pathname.startsWith("/_next") || /\.(.*)$/.test(pathname);
+  const isBackendPath = 
+    pathname === "/user-create-status" || 
+    pathname.startsWith("/user-create-status/") ||
+    pathname.includes("/users/") ||
+    pathname.includes("/locations/") ||
+    pathname.includes("/teams/");
 
   if (
     !isAuthRoute &&
     !isPendingPageRoute &&
     !isPublicAsset &&
+    !isBackendPath &&
     !pathname.startsWith("/api/")
   ) {
     const backendUrl = process.env.BACKEND_ENDPOINT;
@@ -117,18 +123,19 @@ export async function proxy(request: NextRequest) {
 
     // Check approval status FIRST
     try {
-      const statusData = await UserCreateStatusAction.getStatuses(
+      const backendUrl = process.env.BACKEND_ENDPOINT;
+      const statusRes = await fetch(
+        `${backendUrl}/user-create-status?q=${encodeURIComponent(user.id)}&limit=10`,
         {
-          q: user.id,
-          limit: 10,
-        },
-        {
-          cookie: request.headers.get("cookie") || "",
-          "user-agent": request.headers.get("user-agent") || "",
+          headers: {
+            cookie: request.headers.get("cookie") || "",
+            "user-agent": request.headers.get("user-agent") || "",
+          },
         },
       );
+      const statusData = statusRes.ok ? await statusRes.json() : { data: [] };
       const userStatus = (statusData.data || []).find(
-        (s) => s.userId === user.id,
+        (s: { userId: string }) => s.userId === user.id,
       );
 
       if (userStatus) {
@@ -195,7 +202,6 @@ export async function proxy(request: NextRequest) {
     "/staff",
     "/children",
     "/requests",
-    "/history",
     "/profile",
   ];
 

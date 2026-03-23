@@ -8,7 +8,8 @@ import {
 } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 import { UserCreateStatusAction } from "@/actions/UserCreateStatusAction";
-import type { UserCreateStatusResponse, PaginatedResponseDTO, TeamResponse } from "@/dto";
+import { UserAction } from "@/actions/UserAction";
+import type { UserCreateStatusResponse, PaginatedResponseDTO, UserResponse } from "@/dto";
 import { Request_status } from "@/types/Enums";
 import { UserRequestsTable } from "@/components/features/desktop/UserRequestsTable";
 
@@ -74,26 +75,30 @@ async function RequestsDataWrapper({
       : EnvConfig.PAGINATION_LIMIT_DESKTOP_SIZE;
   const q = typeof sp?.q === "string" ? sp.q : undefined;
 
-  // Use WAITING as default status if not "all"
-  const requestStatus = sp?.status === "all" ? undefined : (sp?.status as Request_status | undefined) || Request_status.WAITING;
+  // Default to WAITING status, no "all" option
+  const requestStatus = (sp?.status as Request_status) || Request_status.WAITING;
 
   let data: PaginatedResponseDTO<UserCreateStatusResponse> | null = null;
-  let teams: TeamResponse[] = [];
+  const usersMap: Map<string, UserResponse> = new Map();
 
   try {
     data = await UserCreateStatusAction.getStatuses({
       page,
       limit,
       q,
-      status: requestStatus, // Passed to API
-      // role: role as any // The DTO might not have role yet, but we'll check
+      status: requestStatus,
     });
 
-    // Also fetch teams for the modal dropdown
-    const { TeamAction } = await import("@/actions/TeamAction");
-    const teamsRes = await TeamAction.getTeams({ limit: 1000, page: 1 });
-    if (teamsRes && teamsRes.data) {
-      teams = teamsRes.data;
+    // Fetch users to map with userId for displaying names
+    if (data && data.data && data.data.length > 0) {
+      const userIds = data.data.map((req) => req.userId).filter(Boolean);
+      if (userIds.length > 0) {
+        // Fetch all users and create a map
+        const allUsers = await UserAction.getUsers({ limit: 1000, page: 1 });
+        allUsers.forEach((user) => {
+          usersMap.set(user.id, user);
+        });
+      }
     }
   } catch (error) {
     console.error("Failed to load requests:", error);
@@ -107,6 +112,6 @@ async function RequestsDataWrapper({
     );
   }
 
-  // Pass teams to the table so the modal can use them
-  return <UserRequestsTable rawData={data} teams={teams} />;
+  // Pass usersMap to the table so it can display user names
+  return <UserRequestsTable rawData={data} usersMap={usersMap} />;
 }

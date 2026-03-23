@@ -19,8 +19,7 @@ type GetChildTransferRequestsParams = OptionsGetChildTransferRequestsDTO & {
 export class ChildTransferRequestAction {
   static BACKEND_ENDPOINT = EnvConfig.BACKEND_ENDPOINT || "";
   static API_ENDPOINT = "/child-transfer-requests";
-  // If we're on the client, EnvConfig.BACKEND_ENDPOINT is undefined, so we use "/api" prefix for proxying
-  static ACTION_ENDPOINT = typeof window === 'undefined' ? (this.BACKEND_ENDPOINT + this.API_ENDPOINT) : ("/api" + this.API_ENDPOINT);
+  static ACTION_ENDPOINT = this.BACKEND_ENDPOINT + this.API_ENDPOINT;
 
   static async getRequests(
     params: GetChildTransferRequestsParams = {},
@@ -33,7 +32,7 @@ export class ChildTransferRequestAction {
 
     let activeHeaders: Record<string, string> | undefined = undefined;
     if (typeof window === 'undefined') {
-      const { getForwardHeaders } = await import("@/lib/auth/header-utils");
+      const { getForwardHeaders } = await import("@/lib/auth/header-utils.server");
       activeHeaders = await getForwardHeaders();
     }
 
@@ -49,7 +48,7 @@ export class ChildTransferRequestAction {
   ): Promise<ChildTransferRequestResponse> {
     let activeHeaders: Record<string, string> | undefined = undefined;
     if (typeof window === 'undefined') {
-      const { getForwardHeaders } = await import("@/lib/auth/header-utils");
+      const { getForwardHeaders } = await import("@/lib/auth/header-utils.server");
       activeHeaders = await getForwardHeaders();
     }
 

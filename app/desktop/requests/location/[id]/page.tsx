@@ -14,10 +14,10 @@ import { LocationCreateRequestAction } from "@/actions/LocationCreateRequestActi
 import { Request_status } from "@/types";
 
 export const metadata = {
-  title: "รายละเอียดคำร้องขอ",
+  title: "รายละเอียดคำร้องขอสร้างสถานที่",
 };
 
-export default function RequestDetailPage({
+export default function LocationRequestDetailPage({
   params,
 }: {
   params: Promise<{ id: string }>;
@@ -26,7 +26,7 @@ export default function RequestDetailPage({
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
       <div className="flex items-center gap-4 mb-4">
         <Button variant="ghost" size="icon" asChild>
-          <Link href="/requests">
+          <Link href="/desktop/requests?type=location">
             <ArrowLeft className="h-5 w-5" />
             <span className="sr-only">กลับ</span>
           </Link>
@@ -42,7 +42,7 @@ export default function RequestDetailPage({
       </div>
 
       <Suspense fallback={<DetailSkeleton />}>
-        <RequestDetailContent params={params} />
+        <LocationRequestDetailContent params={params} />
       </Suspense>
     </div>
   );
@@ -69,7 +69,7 @@ const STATUS_CLASS: Record<string, string> = {
   [Request_status.REJECT]: "bg-red-100 text-red-600 border-red-300",
 };
 
-async function RequestDetailContent({
+async function LocationRequestDetailContent({
   params,
 }: {
   params: Promise<{ id: string }>;

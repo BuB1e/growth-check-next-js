@@ -64,8 +64,7 @@ const normalizeLocationsResponse = (
 export class LocationAction {
   static BACKEND_ENDPOINT = EnvConfig.BACKEND_ENDPOINT || "";
   static API_ENDPOINT = "/locations";
-  // If we're on the client, EnvConfig.BACKEND_ENDPOINT is undefined, so we use "/api" prefix for proxying
-  static ACTION_ENDPOINT = typeof window === 'undefined' ? (this.BACKEND_ENDPOINT + this.API_ENDPOINT) : ("/api" + this.API_ENDPOINT);
+  static ACTION_ENDPOINT =this.BACKEND_ENDPOINT + this.API_ENDPOINT;
 
   static async getLocations(
     params: GetLocationsParams = {},
@@ -81,10 +80,10 @@ export class LocationAction {
       limit,
       ...params,
     };
-    
+
     let activeHeaders: Record<string, string> | undefined = undefined;
     if (typeof window === 'undefined') {
-      const { getForwardHeaders } = await import("@/lib/auth/header-utils");
+      const { getForwardHeaders } = await import("@/lib/auth/header-utils.server");
       activeHeaders = await getForwardHeaders();
     }
 
@@ -98,7 +97,7 @@ export class LocationAction {
   static async getLocationById(id: string): Promise<LocationResponse> {
     let activeHeaders: Record<string, string> | undefined = undefined;
     if (typeof window === 'undefined') {
-      const { getForwardHeaders } = await import("@/lib/auth/header-utils");
+      const { getForwardHeaders } = await import("@/lib/auth/header-utils.server");
       activeHeaders = await getForwardHeaders();
     }
     const response = await axios.get(`${this.ACTION_ENDPOINT}/${id}`, {

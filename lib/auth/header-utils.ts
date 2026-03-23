@@ -1,14 +1,15 @@
-import { headers } from "next/headers";
+/**
+ * Client-safe header utilities (for Middleware, Edge Runtime).
+ * This file should NOT import from "next/headers".
+ */
 
 /**
- * Helper to get headers for forwarding authentication to the backend.
- * Works only on the server side (RSC, Server Actions, Middleware).
- * Using dynamic import in shared actions prevents this from leaking into client bundles.
+ * Create headers object for middleware/edge runtime.
+ * Use this in proxy.ts (middleware) instead of getForwardHeaders.
  */
-export async function getForwardHeaders() {
-  const headersList = await headers();
+export function createMiddlewareHeaders(requestHeaders: Headers): Record<string, string> {
   return {
-    cookie: headersList.get("cookie") || "",
-    "user-agent": headersList.get("user-agent") || "",
+    cookie: requestHeaders.get("cookie") || "",
+    "user-agent": requestHeaders.get("user-agent") || "",
   };
 }

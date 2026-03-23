@@ -16,8 +16,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { LocationCreateRequestResponse } from "@/dto";
-import type { PaginatedResponseDTO } from "@/dto";
+import type { PaginatedMetaDTO } from "@/dto";
 import { Request_status } from "@/types/Enums";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,21 +28,61 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  ArrowUpDown,
   Search,
   ChevronLeft,
   ChevronRight,
   Clock,
   CheckCircle2,
   XCircle,
-} from "lucide-react"; // Assuming these icons are from lucide-react
+  MapPin,
+  ArrowRightLeft,
+} from "lucide-react";
 import { formatBE } from "@/lib/date-utils";
 
-interface RequestsTableProps {
-  rawData: PaginatedResponseDTO<LocationCreateRequestResponse>;
+// Combined request type matching the page
+type CombinedRequest = {
+  id: number;
+  type: "location" | "transfer";
+  userId: string;
+  requestStatus?: Request_status;
+  handledBy?: string;
+  createdAt: Date;
+  updatedAt: Date;
+  // Location fields
+  locationName?: string;
+  locationMap?: string;
+  province?: string;
+  district?: string;
+  sub_district?: string;
+  zip_code?: string;
+  // Transfer fields
+  childId?: number;
+  fromLocation?: number;
+  toLocation?: number;
+};
+
+interface UnifiedRequestsData {
+  data: CombinedRequest[];
+  meta: PaginatedMetaDTO;
 }
 
-function StatusBadge({ status }: { status: string }) {
+interface RequestsTableProps {
+  rawData: UnifiedRequestsData;
+  requestType?: string; // "all" | "location" | "transfer"
+}
+
+function StatusBadge({ status }: { status?: string }) {
+  // For location requests, status is in requestStatus
+  // For transfer requests, no handledBy = WAITING, has handledBy = APPROVE/REJECT
+  if (!status) {
+    return (
+      <div className="flex items-center gap-1.5 text-yellow-500 font-medium">
+        <Clock className="h-4 w-4" />
+        รอดำเนินการ
+      </div>
+    );
+  }
+  
   switch (status) {
     case Request_status.APPROVE:
       return (
@@ -70,7 +109,36 @@ function StatusBadge({ status }: { status: string }) {
   }
 }
 
-export function RequestsTable({ rawData }: RequestsTableProps) {
+function TypeBadge({ type }: { type: "location" | "transfer" }) {
+  if (type === "location") {
+    return (
+      <div className="flex items-center gap-1.5 text-blue-600 font-medium">
+        <MapPin className="h-4 w-4" />
+        สร้างสถานที่
+      </div>
+    );
+  }
+  return (
+    <div className="flex items-center gap-1.5 text-purple-600 font-medium">
+      <ArrowRightLeft className="h-4 w-4" />
+      ย้ายเด็ก
+    </div>
+  );
+}
+
+// Get status for display (handles both location and transfer)
+function getRequestStatus(item: CombinedRequest): string | undefined {
+  if (item.type === "location") {
+    return item.requestStatus;
+  } else {
+    // Transfer: WAITING if no handledBy, APPROVE/REJECT if has handledBy
+    if (!item.handledBy) return Request_status.WAITING;
+    // Assume handled = approved (in real app, would need status field)
+    return Request_status.APPROVE;
+  }
+}
+
+export function RequestsTable({ rawData, requestType = "all" }: RequestsTableProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -79,6 +147,7 @@ export function RequestsTable({ rawData }: RequestsTableProps) {
   const [statusFilter, setStatusFilter] = useState(
     searchParams.get("status") || "all",
   );
+  const [typeFilter, setTypeFilter] = useState(requestType);
 
   const updateURLParams = (updates: Record<string, string | null>) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -102,70 +171,105 @@ export function RequestsTable({ rawData }: RequestsTableProps) {
     updateURLParams({ status: val === "all" ? null : val, page: "1" });
   };
 
-  const handleSort = (columnKey: keyof LocationCreateRequestResponse) => {
-    const currentOrder = searchParams.get("orderBy");
-    const currentDir = searchParams.get("orderDirection");
-    const newDir =
-      currentOrder === columnKey && currentDir === "desc" ? "asc" : "desc";
-    updateURLParams({ orderBy: columnKey, orderDirection: newDir });
+  const handleTypeChange = (val: string) => {
+    setTypeFilter(val);
+    updateURLParams({ type: val === "all" ? null : val, page: "1" });
   };
 
-  const SortHeader = ({
-    label,
-    col,
-  }: {
-    label: string;
-    col: keyof LocationCreateRequestResponse;
-  }) => (
-    <Button
-      variant="ghost"
-      size="sm"
-      onClick={() => handleSort(col)}
-      className="-ml-3 h-8 data-[state=open]:bg-accent"
-    >
-      {label}
-      <ArrowUpDown className="ml-2 h-3.5 w-3.5" />
-    </Button>
-  );
-
-  const columns: ColumnDef<LocationCreateRequestResponse>[] = [
+  const columns: ColumnDef<CombinedRequest>[] = [
     {
-      accessorKey: "locationName",
-      header: () => (
-        <SortHeader label="ชื่อสถานที่ (ที่ขอสร้าง)" col="locationName" />
-      ),
+      id: "type",
+      header: "ประเภท",
+      cell: ({ row }) => <TypeBadge type={row.original.type} />,
+      filterFn: (row, id, value) => {
+        if (value === "all") return true;
+        return row.original.type === value;
+      },
     },
     {
-      id: "fullAddress",
-      header: "สถานที่",
+      accessorKey: "title",
+      header: "รายละเอียด",
       cell: ({ row }) => {
-        const { sub_district, district, province, zip_code } = row.original;
-        return (
-          <span className="text-sm text-muted-foreground">
-            ต.{sub_district} อ.{district} จ.{province} {zip_code}
-          </span>
-        );
+        const item = row.original;
+        if (item.type === "location") {
+          return (
+            <div>
+              <div className="font-medium">{item.locationName || "—"}</div>
+              <div className="text-sm text-muted-foreground">
+                ต.{item.sub_district} อ.{item.district} จ.{item.province}
+              </div>
+            </div>
+          );
+        } else {
+          return (
+            <div>
+              <div className="font-medium">ขอย้ายเด็ก (ID: {item.childId})</div>
+              <div className="text-sm text-muted-foreground">
+                จากเขต {item.fromLocation} → เขต {item.toLocation}
+              </div>
+            </div>
+          );
+        }
       },
     },
     {
       accessorKey: "createdAt",
-      header: () => <SortHeader label="วันที่ร้องขอ" col="createdAt" />,
+      header: "วันที่ร้องขอ",
       cell: ({ row }) => formatBE(row.original.createdAt, "d MMM yyyy"),
+      sortingFn: "datetime",
     },
     {
-      accessorKey: "updatedAt",
-      header: () => <SortHeader label="วันที่แก้ไขล่าสุด" col="updatedAt" />,
-      cell: ({ row }) => formatBE(row.original.updatedAt, "d MMM yyyy"),
-    },
-    {
-      accessorKey: "requestStatus",
-      header: () => <SortHeader label="สถานะ" col="requestStatus" />,
-      cell: ({ row }) => <StatusBadge status={row.original.requestStatus} />,
+      id: "status",
+      header: "สถานะ",
+      cell: ({ row }) => <StatusBadge status={getRequestStatus(row.original)} />,
+      filterFn: (row, id, value) => {
+        if (value === "all") return true;
+        const item = row.original;
+        if (item.type === "location") {
+          return item.requestStatus === value;
+        } else {
+          if (value === Request_status.WAITING) return !item.handledBy;
+          if (value === Request_status.APPROVE) return !!item.handledBy;
+          return false;
+        }
+      },
     },
   ];
 
+  // Apply filters locally for unified view
+  let filteredData = rawData.data;
+  
+  // Debug log
+  console.log("[RequestsTable] Initial data:", {
+    total: filteredData.length,
+    typeFilter,
+    statusFilter,
+    rawDataTotal: rawData.meta.total
+  });
+  
+  if (typeFilter !== "all") {
+    filteredData = filteredData.filter((item) => item.type === typeFilter);
+  }
+  if (statusFilter !== "all") {
+    filteredData = filteredData.filter((item) => {
+      if (item.type === "location") {
+        return item.requestStatus === statusFilter;
+      } else {
+        if (statusFilter === Request_status.WAITING) return !item.handledBy;
+        if (statusFilter === Request_status.APPROVE) return !!item.handledBy;
+        return false;
+      }
+    });
+  }
+  
+  console.log("[RequestsTable] After filtering:", {
+    filteredCount: filteredData.length,
+    typeFilter,
+    statusFilter
+  });
+
   const table = useReactTable({
-    data: rawData.data,
+    data: filteredData,
     columns,
     getCoreRowModel: getCoreRowModel(),
   });
@@ -192,17 +296,30 @@ export function RequestsTable({ rawData }: RequestsTableProps) {
           </Button>
         </form>
 
-        <Select value={statusFilter} onValueChange={handleStatusChange}>
-          <SelectTrigger className="w-45">
-            <SelectValue placeholder="ทุกสถานะ" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">ทุกสถานะ</SelectItem>
-            <SelectItem value={Request_status.WAITING}>รอดำเนินการ</SelectItem>
-            <SelectItem value={Request_status.APPROVE}>อนุมัติแล้ว</SelectItem>
-            <SelectItem value={Request_status.REJECT}>ปฏิเสธ</SelectItem>
-          </SelectContent>
-        </Select>
+        <div className="flex gap-2">
+          <Select value={typeFilter} onValueChange={handleTypeChange}>
+            <SelectTrigger className="w-40">
+              <SelectValue placeholder="ทุกประเภท" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">ทุกประเภท</SelectItem>
+              <SelectItem value="location">สร้างสถานที่</SelectItem>
+              <SelectItem value="transfer">ย้ายเด็ก</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select value={statusFilter} onValueChange={handleStatusChange}>
+            <SelectTrigger className="w-45">
+              <SelectValue placeholder="ทุกสถานะ" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">ทุกสถานะ</SelectItem>
+              <SelectItem value={Request_status.WAITING}>รอดำเนินการ</SelectItem>
+              <SelectItem value={Request_status.APPROVE}>อนุมัติแล้ว</SelectItem>
+              <SelectItem value={Request_status.REJECT}>ปฏิเสธ</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {/* Table */}
@@ -231,9 +348,13 @@ export function RequestsTable({ rawData }: RequestsTableProps) {
                   <TableRow
                     key={row.id}
                     className="cursor-pointer hover:bg-muted/50 transition-colors"
-                    onClick={() =>
-                      router.push(`${pathname}/${row.original.id}`)
-                    }
+                    onClick={() => {
+                      const item = row.original;
+                      const detailPath = item.type === "location" 
+                        ? `/desktop/requests/location/${item.id}`
+                        : `/desktop/requests/transfer/${item.id}`;
+                      router.push(detailPath);
+                    }}
                   >
                     {row.getVisibleCells().map((cell) => (
                       <TableCell key={cell.id} className="py-3">

@@ -9,7 +9,6 @@ import type {
   OptionsGetUserCreateStatusDTO,
   PaginatedResponseDTO,
 } from "@/dto";
-// // import { getForwardHeaders } from "@/lib/auth/auth-guard";
 
 type GetUserCreateStatusParams = OptionsGetUserCreateStatusDTO & {
   page?: number;
@@ -19,8 +18,7 @@ type GetUserCreateStatusParams = OptionsGetUserCreateStatusDTO & {
 export class UserCreateStatusAction {
   static BACKEND_ENDPOINT = EnvConfig.BACKEND_ENDPOINT || "";
   static API_ENDPOINT = "/user-create-status";
-  // If we're on the client, EnvConfig.BACKEND_ENDPOINT is undefined, so we use "/api" prefix for proxying
-  static ACTION_ENDPOINT = typeof window === 'undefined' ? (this.BACKEND_ENDPOINT + this.API_ENDPOINT) : ("/api" + this.API_ENDPOINT);
+  static ACTION_ENDPOINT = this.BACKEND_ENDPOINT + this.API_ENDPOINT;
 
   static async getStatuses(
     params: GetUserCreateStatusParams = {},
@@ -31,10 +29,10 @@ export class UserCreateStatusAction {
       limit: EnvConfig.PAGINATION_LIMIT_DESKTOP_SIZE,
       ...params,
     };
-    
+
     let activeHeaders: Record<string, string> | undefined = headers;
     if (!activeHeaders && typeof window === 'undefined') {
-      const { getForwardHeaders } = await import("@/lib/auth/header-utils");
+      const { getForwardHeaders } = await import("@/lib/auth/header-utils.server");
       activeHeaders = await getForwardHeaders();
     }
 
@@ -49,14 +47,19 @@ export class UserCreateStatusAction {
   static async getStatusById(id: string, headers?: Record<string, string>): Promise<UserCreateStatusResponse> {
     let activeHeaders: Record<string, string> | undefined = headers;
     if (!activeHeaders && typeof window === 'undefined') {
-      const { getForwardHeaders } = await import("@/lib/auth/header-utils");
+      const { getForwardHeaders } = await import("@/lib/auth/header-utils.server");
       activeHeaders = await getForwardHeaders();
     }
 
-    const response = await axios.get(`${this.ACTION_ENDPOINT}/${id}`, {
-      headers: activeHeaders
-    });
-    return response.data;
+    try {
+      const response = await axios.get(`${this.ACTION_ENDPOINT}/${id}`, {
+        headers: activeHeaders
+      });
+      return response.data;
+    } catch (error: unknown) {
+      // Silently rethrow, logging done in calling context or proxy
+      throw error;
+    }
   }
 
   static async createStatus(

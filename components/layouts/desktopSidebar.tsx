@@ -17,7 +17,6 @@ import {
   Users,
   Baby,
   FileText,
-  History,
   UserPlus,
 } from "lucide-react";
 import Link from "next/link";
@@ -59,12 +58,6 @@ const sidebarNavItems = [
     url: "/desktop/user-requests",
     icon: UserPlus,
     type: ESidebar.USER_REQUEST,
-  },
-  {
-    title: ESidebarToThai[ESidebar.HISTORY],
-    url: "/desktop/history",
-    icon: History,
-    type: ESidebar.HISTORY,
   },
 ];
 

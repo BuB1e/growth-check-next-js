@@ -18,8 +18,8 @@ function getPageTitle(pathname: string) {
   if (pathname.startsWith("/desktop/children")) return ESidebarToThai[ESidebar.CHILD];
   if (pathname.startsWith("/desktop/requests"))
     return ESidebarToThai[ESidebar.REQUEST];
-  if (pathname.startsWith("/desktop/history"))
-    return ESidebarToThai[ESidebar.HISTORY];
+  if (pathname.startsWith("/desktop/user-requests"))
+    return ESidebarToThai[ESidebar.USER_REQUEST];
   return "ระบบจัดการส่วนกลาง";
 }
 
