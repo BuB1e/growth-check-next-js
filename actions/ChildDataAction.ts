@@ -23,26 +23,41 @@ export class ChildDataAction {
   static async getChildDataList(
     params: GetChildDataParams = {},
   ): Promise<ChildDataResponse[]> {
+    let activeHeaders = undefined;
+    if (typeof window === 'undefined') {
+      const { getForwardHeaders } = await import("@/lib/auth/header-utils.server");
+      activeHeaders = await getForwardHeaders();
+    }
     const defaultParams = {
       page: 1,
       limit: EnvConfig.PAGINATION_LIMIT_DESKTOP_SIZE,
       ...params,
     };
-    const response = await axios.get(`${this.ACTION_ENDPOINT}/`, { params: defaultParams });
+    const response = await axios.get(`${this.ACTION_ENDPOINT}/`, { 
+      params: defaultParams,
+      headers: activeHeaders 
+    });
 
     if (Array.isArray(response.data)) {
       return response.data;
     }
 
-    if (response.data && Array.isArray(response.data.data)) {
-      return response.data.data;
+    if (response.data && typeof response.data === 'object' && 'data' in response.data && Array.isArray((response.data as { data: unknown }).data)) {
+      return (response.data as { data: ChildDataResponse[] }).data;
     }
 
     return [];
   }
 
   static async getChildDataById(id: string): Promise<ChildDataResponse> {
-    const response = await axios.get(`${this.ACTION_ENDPOINT}/${id}`);
+    let activeHeaders = undefined;
+    if (typeof window === 'undefined') {
+      const { getForwardHeaders } = await import("@/lib/auth/header-utils.server");
+      activeHeaders = await getForwardHeaders();
+    }
+    const response = await axios.get(`${this.ACTION_ENDPOINT}/${id}`, {
+      headers: activeHeaders
+    });
     return response.data;
   }
 

@@ -17,7 +17,7 @@ export function MobileChildListItem({ child }: { child: ChildResponse }) {
       <div className="group relative overflow-hidden rounded-2xl bg-white shadow-[0_2px_8px_-4px_rgba(0,0,0,0.1)] ring-1 ring-gray-200/50 transition-all active:scale-[0.98] cursor-pointer flex">
         {/* Main Content Area routes to detail view */}
         <Link
-          href={`/mobile/staff/child_${child.id}`}
+          href={`/mobile/staff/child/${child.id}`}
           className="flex-1 p-4 flex items-center gap-4"
         >
           <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-50/80 text-blue-600 shrink-0">

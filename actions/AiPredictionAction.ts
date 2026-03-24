@@ -24,12 +24,20 @@ export class AiPredictionAction {
   static async getPredictions(
     params: GetAiPredictionsParams = {},
   ): Promise<PaginatedResponseDTO<AiPredictionResponse>> {
+    let activeHeaders = undefined;
+    if (typeof window === 'undefined') {
+      const { getForwardHeaders } = await import("@/lib/auth/header-utils.server");
+      activeHeaders = await getForwardHeaders();
+    }
     const defaultParams = {
       page: 1,
       limit: EnvConfig.PAGINATION_LIMIT_DESKTOP_SIZE,
       ...params,
     };
-    const response = await axios.get(`${this.ACTION_ENDPOINT}/`, { params: defaultParams });
+    const response = await axios.get(`${this.ACTION_ENDPOINT}/`, { 
+      params: defaultParams,
+      headers: activeHeaders
+    });
 
     if (Array.isArray(response.data)) {
       return {
@@ -59,7 +67,14 @@ export class AiPredictionAction {
   }
 
   static async getPredictionById(id: string): Promise<AiPredictionResponse> {
-    const response = await axios.get(`${this.ACTION_ENDPOINT}/${id}`);
+    let activeHeaders = undefined;
+    if (typeof window === 'undefined') {
+      const { getForwardHeaders } = await import("@/lib/auth/header-utils.server");
+      activeHeaders = await getForwardHeaders();
+    }
+    const response = await axios.get(`${this.ACTION_ENDPOINT}/${id}`, {
+      headers: activeHeaders
+    });
     return response.data;
   }
 

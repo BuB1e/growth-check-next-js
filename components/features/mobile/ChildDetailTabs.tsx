@@ -109,7 +109,7 @@ export function ChildDetailTabs({
 
     try {
       const { createPredictionForChildAction } = await import(
-        "@/app/mobile/staff/[child_id]/actions"
+        "@/app/mobile/staff/child/[child_id]/actions"
       );
 
       const result = await createPredictionForChildAction(child.id, "lstm");

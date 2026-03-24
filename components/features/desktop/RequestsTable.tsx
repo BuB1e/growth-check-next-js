@@ -82,7 +82,7 @@ function StatusBadge({ status }: { status?: string }) {
       </div>
     );
   }
-  
+
   switch (status) {
     case Request_status.APPROVE:
       return (
@@ -129,7 +129,7 @@ function TypeBadge({ type }: { type: "location" | "transfer" }) {
 // Get status for display (handles both location and transfer)
 function getRequestStatus(item: CombinedRequest): string | undefined {
   if (item.requestStatus) return item.requestStatus;
-  
+
   if (item.type === "location") {
     return item.requestStatus;
   } else {
@@ -205,8 +205,8 @@ export function RequestsTable({ rawData, requestType = "all" }: RequestsTablePro
                 {typeof item.locationName === 'object' ? JSON.stringify(item.locationName) : (item.locationName || "—")}
               </div>
               <div className="text-sm text-muted-foreground">
-                ต.{typeof item.sub_district === 'object' ? JSON.stringify(item.sub_district) : item.sub_district} 
-                อ.{typeof item.district === 'object' ? JSON.stringify(item.district) : item.district} 
+                ต.{typeof item.sub_district === 'object' ? JSON.stringify(item.sub_district) : item.sub_district}
+                อ.{typeof item.district === 'object' ? JSON.stringify(item.district) : item.district}
                 จ.{typeof item.province === 'object' ? JSON.stringify(item.province) : item.province}
               </div>
             </div>
@@ -218,7 +218,7 @@ export function RequestsTable({ rawData, requestType = "all" }: RequestsTablePro
                 ขอย้ายเด็ก (ID: {typeof item.childId === 'object' ? JSON.stringify(item.childId) : item.childId})
               </div>
               <div className="text-sm text-muted-foreground">
-                จากเขต {typeof item.fromLocation === 'object' ? JSON.stringify(item.fromLocation) : item.fromLocation} 
+                จากเขต {typeof item.fromLocation === 'object' ? JSON.stringify(item.fromLocation) : item.fromLocation}
                 → เขต {typeof item.toLocation === 'object' ? JSON.stringify(item.toLocation) : item.toLocation}
               </div>
             </div>
@@ -241,7 +241,7 @@ export function RequestsTable({ rawData, requestType = "all" }: RequestsTablePro
 
   // Use rawData directly as it's already filtered on the server
   const filteredData = rawData.data;
-  
+
   console.log("[RequestsTable] Render state:", {
     total: filteredData.length,
     typeFilter,
@@ -332,7 +332,7 @@ export function RequestsTable({ rawData, requestType = "all" }: RequestsTablePro
                     className="cursor-pointer hover:bg-muted/50 transition-colors"
                     onClick={() => {
                       const item = row.original;
-                      const detailPath = item.type === "location" 
+                      const detailPath = item.type === "location"
                         ? `/desktop/requests/location/${item.id}`
                         : `/desktop/requests/transfer/${item.id}`;
                       router.push(detailPath);

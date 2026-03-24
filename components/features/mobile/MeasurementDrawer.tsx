@@ -96,7 +96,7 @@ export function MeasurementDrawer({
     setIsPending(true);
     try {
       const { createChildDataAction, createPredictionForChildAction } = await import(
-        "@/app/mobile/staff/[child_id]/actions"
+        "@/app/mobile/staff/child/[child_id]/actions"
       );
       await createChildDataAction({
         childId: childId ?? 0,
@@ -144,7 +144,7 @@ export function MeasurementDrawer({
 
     try {
       const { createPredictionForChildAction } = await import(
-        "@/app/mobile/staff/[child_id]/actions"
+        "@/app/mobile/staff/child/[child_id]/actions"
       );
       const result = await createPredictionForChildAction(childId, "lstm");
 

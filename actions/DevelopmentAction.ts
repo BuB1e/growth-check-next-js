@@ -24,17 +24,32 @@ export class DevelopmentAction {
   static async getDevelopments(
     params: GetDevelopmentsParams = {},
   ): Promise<PaginatedResponseDTO<DevelopmentResponse>> {
+    let activeHeaders = undefined;
+    if (typeof window === 'undefined') {
+      const { getForwardHeaders } = await import("@/lib/auth/header-utils.server");
+      activeHeaders = await getForwardHeaders();
+    }
     const defaultParams = {
       page: 1,
       limit: EnvConfig.PAGINATION_LIMIT_DESKTOP_SIZE,
       ...params,
     };
-    const response = await axios.get(`${this.ACTION_ENDPOINT}/`, { params: defaultParams });
+    const response = await axios.get(`${this.ACTION_ENDPOINT}/`, { 
+      params: defaultParams,
+      headers: activeHeaders
+    });
     return response.data;
   }
 
   static async getDevelopmentById(id: string): Promise<DevelopmentResponse> {
-    const response = await axios.get(`${this.ACTION_ENDPOINT}/${id}`);
+    let activeHeaders = undefined;
+    if (typeof window === 'undefined') {
+      const { getForwardHeaders } = await import("@/lib/auth/header-utils.server");
+      activeHeaders = await getForwardHeaders();
+    }
+    const response = await axios.get(`${this.ACTION_ENDPOINT}/${id}`, {
+      headers: activeHeaders
+    });
     return response.data;
   }
 

@@ -307,7 +307,7 @@ export class ChildAction {
       const { getForwardHeaders } = await import("@/lib/auth/header-utils.server");
       activeHeaders = await getForwardHeaders();
     }
-    const response = await axios.get(`${this.ACTION_ENDPOINT}/getById/${id}`, {
+    const response = await axios.get(`${this.ACTION_ENDPOINT}/${id}`, {
       headers: activeHeaders
     });
     return response.data;
