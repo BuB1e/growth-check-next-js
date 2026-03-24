@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { Loader2, ArrowLeft, MapPin, ExternalLink } from "lucide-react";
+import { Loader2, ArrowLeft } from "lucide-react";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { LocationCreateRequestAction } from "@/actions/LocationCreateRequestAction";
+import { UserAction } from "@/actions/UserAction";
 import { Request_status } from "@/types";
 
 export const metadata = {
@@ -82,15 +83,22 @@ async function LocationRequestDetailContent({
   const request = await LocationCreateRequestAction.getRequestById(reqId);
   if (!request) notFound();
 
+  // Fetch names in parallel
+  const [user, handler] = await Promise.all([
+    UserAction.getUserById(request.userId).catch(() => null),
+    request.handledBy ? UserAction.getUserById(request.handledBy).catch(() => null) : Promise.resolve(null),
+  ]);
+
+  const userName = user ? `${user.firstName} ${user.lastName}` : request.userId;
+  const handlerName = handler ? `${handler.firstName} ${handler.lastName}` : request.handledBy;
+
   const fullAddress = `ต.${request.sub_district} อ.${request.district} จ.${request.province} ${request.zip_code}`;
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <div className="md:col-span-2 space-y-5">
-        <Card>
-          <CardHeader>
-            <CardTitle>ข้อมูลสถานที่ที่ร้องขอ</CardTitle>
-            <CardDescription>รายละเอียดที่เจ้าหน้าที่ส่งมา</CardDescription>
+    <div className="max-w-5xl mx-auto space-y-8">
+      <Card className="shadow-md">
+          <CardHeader className="pb-6 border-b">
+            <CardTitle className="text-3xl font-bold">ข้อมูลสถานที่ที่ร้องขอ</CardTitle>
           </CardHeader>
           <CardContent>
             <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-5 text-base">
@@ -105,7 +113,7 @@ async function LocationRequestDetailContent({
               <InfoRow label="ที่อยู่เต็ม" value={fullAddress} />
             </dl>
 
-            {request.locationMap && (
+            {/*{request.locationMap && (
               <div className="mt-5 pt-4 border-t">
                 <p className="text-sm text-muted-foreground mb-2 font-medium flex items-center gap-1.5">
                   <MapPin className="h-3.5 w-3.5" />
@@ -121,15 +129,14 @@ async function LocationRequestDetailContent({
                   <ExternalLink className="h-3.5 w-3.5" />
                 </a>
               </div>
-            )}
+            )}*/}
           </CardContent>
-        </Card>
-      </div>
+      </Card>
 
-      <div className="space-y-5">
-        <Card>
-          <CardHeader>
-            <CardTitle>สถานะคำร้อง</CardTitle>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <Card className="shadow-sm">
+          <CardHeader className="pb-4 border-b bg-muted/30">
+            <CardTitle className="text-2xl">สถานะคำร้อง</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div
@@ -138,14 +145,14 @@ async function LocationRequestDetailContent({
               {STATUS_LABEL[request.requestStatus] ?? request.requestStatus}
             </div>
             {request.handledBy && (
-              <InfoRow label="ดำเนินการโดย" value={request.handledBy} />
+              <InfoRow label="ดำเนินการโดย" value={handlerName || request.handledBy} />
             )}
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>ข้อมูลเวลา</CardTitle>
+        <Card className="shadow-sm">
+          <CardHeader className="pb-4 border-b bg-muted/30">
+            <CardTitle className="text-2xl">ข้อมูลเวลา</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4 text-sm">
             <InfoRow
@@ -164,7 +171,7 @@ async function LocationRequestDetailContent({
                 day: "numeric",
               })}
             />
-            <InfoRow label="รหัสผู้ยื่น" value={request.userId} />
+            <InfoRow label="ผู้ยื่นคำร้อง" value={userName} />
           </CardContent>
         </Card>
       </div>
@@ -172,11 +179,11 @@ async function LocationRequestDetailContent({
   );
 }
 
-function InfoRow({ label, value }: { label: string; value: string }) {
+function InfoRow({ label, value }: { label: string; value: string | null | undefined }) {
   return (
-    <div>
-      <dt className="text-muted-foreground text-sm font-medium">{label}</dt>
-      <dd className="mt-1 font-medium text-base">{value || "—"}</dd>
+    <div className="py-2">
+      <dt className="text-base font-semibold text-muted-foreground">{label}</dt>
+      <dd className="mt-1 font-medium text-lg text-foreground">{value || "—"}</dd>
     </div>
   );
 }

@@ -59,6 +59,11 @@ type CombinedRequest = {
   childId?: number;
   fromLocation?: number;
   toLocation?: number;
+  // Enriched fields
+  userName?: string;
+  childName?: string;
+  fromLocationName?: string;
+  toLocationName?: string;
 };
 
 interface UnifiedRequestsData {
@@ -202,12 +207,13 @@ export function RequestsTable({ rawData, requestType = "all" }: RequestsTablePro
           return (
             <div>
               <div className="font-medium">
-                {typeof item.locationName === 'object' ? JSON.stringify(item.locationName) : (item.locationName || "—")}
+                {item.locationName || "—"}
               </div>
               <div className="text-sm text-muted-foreground">
-                ต.{typeof item.sub_district === 'object' ? JSON.stringify(item.sub_district) : item.sub_district}
-                อ.{typeof item.district === 'object' ? JSON.stringify(item.district) : item.district}
-                จ.{typeof item.province === 'object' ? JSON.stringify(item.province) : item.province}
+                โดย {item.userName || item.userId}
+              </div>
+              <div className="text-xs text-muted-foreground mt-0.5">
+                ต.{item.sub_district} อ.{item.district} จ.{item.province}
               </div>
             </div>
           );
@@ -215,11 +221,13 @@ export function RequestsTable({ rawData, requestType = "all" }: RequestsTablePro
           return (
             <div>
               <div className="font-medium">
-                ขอย้ายเด็ก (ID: {typeof item.childId === 'object' ? JSON.stringify(item.childId) : item.childId})
+                ย้าย: {item.childName || `เด็ก ID: ${item.childId}`}
               </div>
               <div className="text-sm text-muted-foreground">
-                จากเขต {typeof item.fromLocation === 'object' ? JSON.stringify(item.fromLocation) : item.fromLocation}
-                → เขต {typeof item.toLocation === 'object' ? JSON.stringify(item.toLocation) : item.toLocation}
+                โดย {item.userName || item.userId}
+              </div>
+              <div className="text-xs text-muted-foreground mt-0.5">
+                จาก {item.fromLocationName || `เขต ${item.fromLocation}`} → {item.toLocationName || `เขต ${item.toLocation}`}
               </div>
             </div>
           );

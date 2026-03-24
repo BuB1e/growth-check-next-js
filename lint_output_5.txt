@@ -1,0 +1,55 @@
+
+> growth-check-nextjs@0.1.0 lint D:\SeniorProject\new\growth-check-next-js
+> eslint
+
+
+D:\SeniorProject\new\growth-check-next-js\actions\ProfileAction.ts
+  47:31  warning  'data' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\SeniorProject\new\growth-check-next-js\app\desktop\user-requests\[id]\page.tsx
+  120:9  warning  'teamName' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+D:\SeniorProject\new\growth-check-next-js\components\features\desktop\ChildrenTable.tsx
+  187:17  warning  Compilation Skipped: Use of incompatible library
+
+This API returns functions which cannot be memoized without leading to stale UI. To prevent this, by default React Compiler will skip memoizing this component/hook. However, you may see issues if values from this API are passed to other components/hooks that are memoized.
+
+D:\SeniorProject\new\growth-check-next-js\components\features\desktop\ChildrenTable.tsx:187:17
+  185 |   const paginatedData = rawData.data;
+  186 |
+> 187 |   const table = useReactTable({
+      |                 ^^^^^^^^^^^^^ TanStack Table's `useReactTable()` API returns functions that cannot be memoized safely
+  188 |     data: paginatedData,
+  189 |     columns,
+  190 |     getCoreRowModel: getCoreRowModel(),  react-hooks/incompatible-library
+
+D:\SeniorProject\new\growth-check-next-js\components\features\desktop\RequestsTable.tsx
+  259:17  warning  Compilation Skipped: Use of incompatible library
+
+This API returns functions which cannot be memoized without leading to stale UI. To prevent this, by default React Compiler will skip memoizing this component/hook. However, you may see issues if values from this API are passed to other components/hooks that are memoized.
+
+D:\SeniorProject\new\growth-check-next-js\components\features\desktop\RequestsTable.tsx:259:17
+  257 |   });
+  258 |
+> 259 |   const table = useReactTable({
+      |                 ^^^^^^^^^^^^^ TanStack Table's `useReactTable()` API returns functions that cannot be memoized safely
+  260 |     data: filteredData,
+  261 |     columns,
+  262 |     getCoreRowModel: getCoreRowModel(),  react-hooks/incompatible-library
+
+D:\SeniorProject\new\growth-check-next-js\components\features\desktop\data-table.tsx
+  72:17  warning  Compilation Skipped: Use of incompatible library
+
+This API returns functions which cannot be memoized without leading to stale UI. To prevent this, by default React Compiler will skip memoizing this component/hook. However, you may see issues if values from this API are passed to other components/hooks that are memoized.
+
+D:\SeniorProject\new\growth-check-next-js\components\features\desktop\data-table.tsx:72:17
+  70 |   };
+  71 |
+> 72 |   const table = useReactTable({
+     |                 ^^^^^^^^^^^^^ TanStack Table's `useReactTable()` API returns functions that cannot be memoized safely
+  73 |     data,
+  74 |     columns,
+  75 |     getCoreRowModel: getCoreRowModel(),  react-hooks/incompatible-library
+
+✖ 5 problems (0 errors, 5 warnings)
+

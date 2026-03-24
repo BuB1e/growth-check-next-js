@@ -11,6 +11,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { ChildTransferRequestAction } from "@/actions/ChildTransferRequestAction";
+import { UserAction } from "@/actions/UserAction";
+import { ChildAction } from "@/actions/ChildAction";
+import { LocationAction } from "@/actions/LocationAction";
 import { Request_status } from "@/types";
 
 export const metadata = {
@@ -88,6 +91,21 @@ async function TransferRequestDetailContent({
   const request = await ChildTransferRequestAction.getRequestById(reqId.toString());
   if (!request) notFound();
 
+  // Fetch all names in parallel
+  const [child, requester, fromLoc, toLoc, handler] = await Promise.all([
+    ChildAction.getChildById(request.childId.toString()).catch(() => null),
+    UserAction.getUserById(request.userId).catch(() => null),
+    LocationAction.getLocationById(request.fromLocation.toString()).catch(() => null),
+    LocationAction.getLocationById(request.toLocation.toString()).catch(() => null),
+    request.handledBy ? UserAction.getUserById(request.handledBy).catch(() => null) : Promise.resolve(null),
+  ]);
+
+  const childName = child ? `${child.firstName} ${child.lastName}` : `ID: ${request.childId}`;
+  const requesterName = requester ? `${requester.firstName} ${requester.lastName}` : request.userId;
+  const fromLocName = fromLoc ? fromLoc.name : `ID: ${request.fromLocation}`;
+  const toLocName = toLoc ? toLoc.name : `ID: ${request.toLocation}`;
+  const handlerName = handler ? `${handler.firstName} ${handler.lastName}` : request.handledBy;
+
   // Use requestStatus if available, fallback to handledBy logic
   const status = request.requestStatus || 
     (!request.handledBy ? Request_status.WAITING : Request_status.APPROVE);
@@ -96,40 +114,37 @@ async function TransferRequestDetailContent({
   const StatusIcon = statusCfg.icon;
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <div className="md:col-span-2 space-y-5">
-        <Card>
-          <CardHeader>
-            <CardTitle>ข้อมูลการย้ายเด็ก</CardTitle>
-            <CardDescription>รายละเอียดคำร้องขอย้ายเด็ก</CardDescription>
+    <div className="max-w-5xl mx-auto space-y-8">
+      <Card className="shadow-md">
+          <CardHeader className="pb-6 border-b">
+            <CardTitle className="text-3xl font-bold">ข้อมูลการย้ายเด็ก</CardTitle>
           </CardHeader>
           <CardContent>
             <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-5 text-base">
               <InfoRow
-                label="รหัสเด็ก"
-                value={request.childId.toString()}
+                label="เด็ก"
+                value={childName}
               />
               <InfoRow
                 label="ผู้ยื่นคำร้อง"
-                value={request.userId}
+                value={requesterName}
               />
               <InfoRow
-                label="จากสถานที่ (ID)"
-                value={request.fromLocation.toString()}
+                label="จากสถานที่"
+                value={fromLocName}
               />
               <InfoRow
-                label="ไปยังสถานที่ (ID)"
-                value={request.toLocation.toString()}
+                label="ไปยังสถานที่"
+                value={toLocName}
               />
             </dl>
           </CardContent>
-        </Card>
-      </div>
+      </Card>
 
-      <div className="space-y-5">
-        <Card>
-          <CardHeader>
-            <CardTitle>สถานะคำร้อง</CardTitle>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <Card className="shadow-sm">
+          <CardHeader className="pb-4 border-b bg-muted/30">
+            <CardTitle className="text-2xl">สถานะคำร้อง</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div
@@ -139,14 +154,14 @@ async function TransferRequestDetailContent({
               {statusCfg.label}
             </div>
             {request.handledBy && (
-              <InfoRow label="ดำเนินการโดย" value={request.handledBy} />
+              <InfoRow label="ดำเนินการโดย" value={handlerName || request.handledBy} />
             )}
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>ข้อมูลเวลา</CardTitle>
+        <Card className="shadow-sm">
+          <CardHeader className="pb-4 border-b bg-muted/30">
+            <CardTitle className="text-2xl">ข้อมูลเวลา</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4 text-sm">
             <InfoRow
@@ -172,11 +187,11 @@ async function TransferRequestDetailContent({
   );
 }
 
-function InfoRow({ label, value }: { label: string; value: string }) {
+function InfoRow({ label, value }: { label: string; value: string | null | undefined }) {
   return (
-    <div>
-      <dt className="text-muted-foreground text-sm font-medium">{label}</dt>
-      <dd className="mt-1 font-medium text-base">{value || "—"}</dd>
+    <div className="py-2">
+      <dt className="text-base font-semibold text-muted-foreground">{label}</dt>
+      <dd className="mt-1 font-medium text-lg text-foreground">{value || "—"}</dd>
     </div>
   );
 }

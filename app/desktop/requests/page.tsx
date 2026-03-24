@@ -9,6 +9,9 @@ import {
 import { Loader2 } from "lucide-react";
 import { LocationCreateRequestAction } from "@/actions/LocationCreateRequestAction";
 import { ChildTransferRequestAction } from "@/actions/ChildTransferRequestAction";
+import { UserAction } from "@/actions/UserAction";
+import { ChildAction } from "@/actions/ChildAction";
+import { LocationAction } from "@/actions/LocationAction";
 import type {
   LocationCreateRequestResponse,
   ChildTransferRequestResponse,
@@ -23,8 +26,14 @@ export const metadata = {
 
 // Combined request type for unified table
 export type CombinedRequest = 
-  | ({ type: "location" } & LocationCreateRequestResponse)
-  | ({ type: "transfer" } & ChildTransferRequestResponse);
+  | ({ type: "location"; userName?: string } & LocationCreateRequestResponse)
+  | ({ 
+      type: "transfer"; 
+      userName?: string; 
+      childName?: string;
+      fromLocationName?: string;
+      toLocationName?: string;
+    } & ChildTransferRequestResponse);
 
 // Unified response type
 export interface UnifiedRequestsResponse {
@@ -196,13 +205,51 @@ async function RequestsDataWrapper({
   }
 
   // Paginate
+  // Paginate
   const total = filteredData.length;
   const totalPages = Math.ceil(total / limit);
   const start = (page - 1) * limit;
   const paginatedData = filteredData.slice(start, start + limit);
 
+  // --- Enrichment: Fetch names for the paginated page only ---
+  const userIds = Array.from(new Set(paginatedData.map((item: CombinedRequest) => item.userId)));
+  const childIds = Array.from(new Set(
+    paginatedData
+      .filter((item): item is CombinedRequest & { type: "transfer" } => item.type === "transfer")
+      .map(item => item.childId)
+  ));
+  const locationIds = Array.from(new Set(
+    paginatedData
+      .filter((item): item is CombinedRequest & { type: "transfer" } => item.type === "transfer")
+      .flatMap(item => [item.fromLocation, item.toLocation])
+  ));
+
+  // Fetch in parallel
+  const [users, children, locations] = await Promise.all([
+    Promise.all(userIds.map((id: string) => UserAction.getUserById(id).catch(() => null))),
+    Promise.all(childIds.map((id: number) => ChildAction.getChildById(id.toString()).catch(() => null))),
+    Promise.all(locationIds.map((id: number) => LocationAction.getLocationById(id.toString()).catch(() => null))),
+  ]);
+
+  // Create lookup maps
+  const userMap = new Map(users.filter(Boolean).map(u => [u!.id, `${u!.firstName} ${u!.lastName}`]));
+  const childMap = new Map(children.filter(Boolean).map(c => [c!.id, `${c!.firstName} ${c!.lastName}`]));
+  const locationMap = new Map(locations.filter(Boolean).map(l => [l!.id, l!.name]));
+
+  // Attach names to paginatedData
+  const enrichedData = paginatedData.map(item => {
+    const newItem = { ...item } as CombinedRequest;
+    newItem.userName = userMap.get(item.userId);
+    if (newItem.type === "transfer") {
+      newItem.childName = childMap.get(newItem.childId);
+      newItem.fromLocationName = locationMap.get(newItem.fromLocation);
+      newItem.toLocationName = locationMap.get(newItem.toLocation);
+    }
+    return newItem;
+  });
+
   const unifiedResponse: UnifiedRequestsResponse = {
-    data: paginatedData,
+    data: enrichedData,
     meta: { total, page, limit, totalPages },
   };
 
