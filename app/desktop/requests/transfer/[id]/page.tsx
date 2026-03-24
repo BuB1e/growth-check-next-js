@@ -1,12 +1,11 @@
 import { Suspense } from "react";
 import { Loader2, ArrowLeft, CheckCircle2, XCircle, Clock } from "lucide-react";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -14,33 +13,37 @@ import { ChildTransferRequestAction } from "@/actions/ChildTransferRequestAction
 import { UserAction } from "@/actions/UserAction";
 import { ChildAction } from "@/actions/ChildAction";
 import { LocationAction } from "@/actions/LocationAction";
-import { Request_status } from "@/types";
+import { Request_status, Role } from "@/types";
+import { getCurrentSession } from "@/lib/auth/session.server";
+import { RequestActionButtons } from "../../_components/RequestActionButtons";
 
 export const metadata = {
   title: "รายละเอียดคำร้องขอย้ายเด็ก",
 };
 
-export default function TransferRequestDetailPage({
+export default async function TransferRequestDetailPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-      <div className="flex items-center gap-4 mb-4">
-        <Button variant="ghost" size="icon" asChild>
-          <Link href="/desktop/requests?type=transfer">
-            <ArrowLeft className="h-5 w-5" />
-            <span className="sr-only">กลับ</span>
-          </Link>
-        </Button>
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight">
-            รายละเอียดคำร้องขอย้ายเด็ก
-          </h2>
-          <p className="text-muted-foreground mt-1">
-            ข้อมูลคำร้องขอย้ายเด็กระหว่างสถานที่ (ดูได้อย่างเดียว)
-          </p>
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="icon" asChild>
+            <Link href="/desktop/requests?type=transfer">
+              <ArrowLeft className="h-5 w-5" />
+              <span className="sr-only">กลับ</span>
+            </Link>
+          </Button>
+          <div>
+            <h2 className="text-3xl font-bold tracking-tight">
+              รายละเอียดคำร้องขอย้ายเด็ก
+            </h2>
+            <p className="text-muted-foreground mt-1">
+              ข้อมูลคำร้องขอย้ายเด็กระหว่างสถานที่
+            </p>
+          </div>
         </div>
       </div>
 
@@ -83,6 +86,11 @@ async function TransferRequestDetailContent({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const session = await getCurrentSession();
+  const userRole = session?.user?.role;
+  const isAdmin = userRole === Role.ADMIN;
+  const currentUserId = session?.user?.id;
+
   const { id } = await params;
   const reqId = parseInt(id, 10);
 
@@ -146,12 +154,22 @@ async function TransferRequestDetailContent({
           <CardHeader className="pb-4 border-b bg-muted/30">
             <CardTitle className="text-2xl">สถานะคำร้อง</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div
-              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-sm font-semibold ${statusCfg.cls}`}
-            >
-              <StatusIcon className="h-3.5 w-3.5" />
-              {statusCfg.label}
+          <CardContent className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div
+                className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-full border text-base font-bold shadow-sm ${statusCfg.cls}`}
+              >
+                <StatusIcon className="h-4 w-4" />
+                {statusCfg.label}
+              </div>
+
+              {isAdmin && status === Request_status.WAITING && currentUserId && (
+                <RequestActionButtons 
+                  id={id} 
+                  type="transfer" 
+                  handlerId={currentUserId} 
+                />
+              )}
             </div>
             {request.handledBy && (
               <InfoRow label="ดำเนินการโดย" value={handlerName || request.handledBy} />

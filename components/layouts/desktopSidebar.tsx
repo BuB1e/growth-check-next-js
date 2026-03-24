@@ -10,7 +10,8 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { ESidebar, ESidebarToThai } from "@/types";
+import { ESidebar, ESidebarToThai, Role } from "@/types";
+import { authClient } from "@/lib/auth/auth-client";
 import {
   LayoutDashboard,
   MapPin,
@@ -21,6 +22,12 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+
+interface CustomSession {
+  user?: {
+    role?: Role;
+  };
+}
 
 const sidebarNavItems = [
   {
@@ -63,6 +70,15 @@ const sidebarNavItems = [
 
 export default function DesktopSidebar() {
   const pathname = usePathname();
+  const { data: session } = authClient.useSession();
+  const userRole = (session as CustomSession)?.user?.role;
+
+  const filteredNavItems = sidebarNavItems.filter((item) => {
+    if (item.type === ESidebar.USER_REQUEST) {
+      return userRole === Role.ADMIN;
+    }
+    return true;
+  });
 
   return (
     <Sidebar>
@@ -73,7 +89,7 @@ export default function DesktopSidebar() {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-              {sidebarNavItems.map((item) => (
+              {filteredNavItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton
                     asChild

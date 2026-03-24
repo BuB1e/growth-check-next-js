@@ -10,14 +10,16 @@ import { Loader2 } from "lucide-react";
 import { UserCreateStatusAction } from "@/actions/UserCreateStatusAction";
 import { UserAction } from "@/actions/UserAction";
 import type { UserCreateStatusResponse, PaginatedResponseDTO, UserResponse } from "@/dto";
-import { Request_status } from "@/types/Enums";
+import { Request_status, Role } from "@/types/Enums";
 import { UserRequestsTable } from "@/components/features/desktop/UserRequestsTable";
+import { getCurrentSession } from "@/lib/auth/session.server";
+import { redirect } from "next/navigation";
 
 export const metadata = {
   title: "คำร้องขอเปิดบัญชีผู้ใช้งาน",
 };
 
-export default function UserRequestsPage({
+export default async function UserRequestsPage({
   searchParams,
 }: {
   searchParams: Promise<{ [key: string]: string | undefined }>;
@@ -64,6 +66,11 @@ async function RequestsDataWrapper({
 }: {
   searchParams: Promise<{ [key: string]: string | undefined }>;
 }) {
+  const session = await getCurrentSession();
+  if (session?.user?.role !== Role.ADMIN) {
+    redirect("/desktop/dashboard");
+  }
+
   const sp = await searchParams;
   const { EnvConfig } = await import("@/configs/BackendConfig");
   const parsedPage = Number(sp?.page);

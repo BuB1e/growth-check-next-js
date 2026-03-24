@@ -1,44 +1,47 @@
 import { Suspense } from "react";
 import { Loader2, ArrowLeft } from "lucide-react";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import { LocationCreateRequestAction } from "@/actions/LocationCreateRequestAction";
 import { UserAction } from "@/actions/UserAction";
-import { Request_status } from "@/types";
+import { Request_status, Role } from "@/types";
+import { getCurrentSession } from "@/lib/auth/session.server";
+import { RequestActionButtons } from "../../_components/RequestActionButtons";
 
 export const metadata = {
   title: "รายละเอียดคำร้องขอสร้างสถานที่",
 };
 
-export default function LocationRequestDetailPage({
+export default async function LocationRequestDetailPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-      <div className="flex items-center gap-4 mb-4">
-        <Button variant="ghost" size="icon" asChild>
-          <Link href="/desktop/requests?type=location">
-            <ArrowLeft className="h-5 w-5" />
-            <span className="sr-only">กลับ</span>
-          </Link>
-        </Button>
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight">
-            รายละเอียดคำร้องขอ
-          </h2>
-          <p className="text-muted-foreground mt-1">
-            ข้อมูลคำร้องขอสร้างสถานที่ (ดูได้อย่างเดียว)
-          </p>
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="icon" asChild>
+            <Link href="/desktop/requests?type=location">
+              <ArrowLeft className="h-5 w-5" />
+              <span className="sr-only">กลับ</span>
+            </Link>
+          </Button>
+          <div>
+            <h2 className="text-3xl font-bold tracking-tight">
+              รายละเอียดคำร้องขอ
+            </h2>
+            <p className="text-muted-foreground mt-1">
+              ข้อมูลคำร้องขอสร้างสถานที่
+            </p>
+          </div>
         </div>
       </div>
 
@@ -75,6 +78,11 @@ async function LocationRequestDetailContent({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const session = await getCurrentSession();
+  const userRole = session?.user?.role;
+  const isAdmin = userRole === Role.ADMIN;
+  const currentUserId = session?.user?.id;
+  
   const { id } = await params;
   const reqId = parseInt(id, 10);
 
@@ -112,24 +120,6 @@ async function LocationRequestDetailContent({
               <InfoRow label="รหัสไปรษณีย์" value={request.zip_code} />
               <InfoRow label="ที่อยู่เต็ม" value={fullAddress} />
             </dl>
-
-            {/*{request.locationMap && (
-              <div className="mt-5 pt-4 border-t">
-                <p className="text-sm text-muted-foreground mb-2 font-medium flex items-center gap-1.5">
-                  <MapPin className="h-3.5 w-3.5" />
-                  Google Maps / ลิงก์พิกัด
-                </p>
-                <a
-                  href={request.locationMap}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline font-medium"
-                >
-                  เปิดแผนที่
-                  <ExternalLink className="h-3.5 w-3.5" />
-                </a>
-              </div>
-            )}*/}
           </CardContent>
       </Card>
 
@@ -138,11 +128,21 @@ async function LocationRequestDetailContent({
           <CardHeader className="pb-4 border-b bg-muted/30">
             <CardTitle className="text-2xl">สถานะคำร้อง</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div
-              className={`inline-flex items-center px-3 py-1.5 rounded-full border text-sm font-semibold ${STATUS_CLASS[request.requestStatus] ?? STATUS_CLASS[Request_status.WAITING]}`}
-            >
-              {STATUS_LABEL[request.requestStatus] ?? request.requestStatus}
+          <CardContent className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div
+                className={`inline-flex items-center px-4 py-2 rounded-full border text-base font-bold shadow-sm ${STATUS_CLASS[request.requestStatus] ?? STATUS_CLASS[Request_status.WAITING]}`}
+              >
+                {STATUS_LABEL[request.requestStatus] ?? request.requestStatus}
+              </div>
+
+              {isAdmin && request.requestStatus === Request_status.WAITING && currentUserId && (
+                <RequestActionButtons 
+                  id={request.id} 
+                  type="location" 
+                  handlerId={currentUserId} 
+                />
+              )}
             </div>
             {request.handledBy && (
               <InfoRow label="ดำเนินการโดย" value={handlerName || request.handledBy} />

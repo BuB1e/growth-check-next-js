@@ -11,6 +11,8 @@ import type { TeamResponse } from "@/dto";
 import { UserRequestActionHandler } from "../../../../components/features/desktop/UserRequestActionHandler";
 import { UserRequestRoleSelector } from "../../../../components/features/desktop/UserRequestRoleSelector";
 import { UserRequestTeamSelector } from "../../../../components/features/desktop/UserRequestTeamSelector";
+import { getCurrentSession } from "@/lib/auth/session.server";
+import { redirect } from "next/navigation";
 
 export const metadata = {
   title: "รายละเอียดคำร้องขอเปิดบัญชี",
@@ -34,7 +36,7 @@ const STATUS_CONFIG = {
   },
 };
 
-export default function UserRequestDetailPage({
+export default async function UserRequestDetailPage({
   params,
 }: {
   params: Promise<{ id: string }>;
@@ -77,6 +79,12 @@ async function UserRequestDetailContent({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const session = await getCurrentSession();
+  
+  if (session?.user?.role !== Role.ADMIN) {
+    redirect("/desktop/dashboard");
+  }
+
   const { id } = await params;
 
   // id is now expected to be userId (UUID) to match backend requirements
@@ -115,11 +123,6 @@ async function UserRequestDetailContent({
     STATUS_CONFIG[request.requestStatus] ??
     STATUS_CONFIG[Request_status.WAITING];
   const StatusIcon = statusCfg.icon;
-
-  // Get team name if available
-  const teamName = user?.teamId
-    ? teams.find((t) => t.id === user.teamId)?.name
-    : null;
 
   return (
     <div className="w-full space-y-5">
