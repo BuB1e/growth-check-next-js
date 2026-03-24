@@ -1,5 +1,4 @@
 
-
 import axios from "axios";
 import { EnvConfig } from "@/configs/BackendConfig";
 import type {
@@ -7,6 +6,7 @@ import type {
   CreateUserDto,
   UpdateUserDto,
   OptionsGetAllUserDTO,
+  PaginatedResponseDTO,
 } from "@/dto";
 // import { getForwardHeaders } from "@/lib/auth/auth-guard";
 
@@ -22,9 +22,7 @@ type GetUsersByTeamParams = OptionsGetAllUserDTO & {
 
 type UsersPayload =
   | UserResponse[]
-  | {
-      data?: UserResponse[];
-    };
+  | PaginatedResponseDTO<UserResponse>;
 
 const normalizeUsersList = (payload: UsersPayload): UserResponse[] => {
   if (Array.isArray(payload)) {
@@ -69,14 +67,26 @@ export class UserAction {
     params: GetUsersByTeamParams = {},
     headers?: Record<string, string>,
   ): Promise<UserResponse[]> {
+    const res = await this.getUsersByTeamPaginated(teamId, params, headers);
+    return res.data;
+  }
+
+  static async getUsersByTeamPaginated(
+    teamId: number,
+    params: GetUsersByTeamParams = {},
+    headers?: Record<string, string>,
+  ): Promise<PaginatedResponseDTO<UserResponse>> {
     let activeHeaders: Record<string, string> | undefined = headers;
     if (!activeHeaders && typeof window === 'undefined') {
       const { getForwardHeaders } = await import("@/lib/auth/header-utils.server");
       activeHeaders = await getForwardHeaders();
     }
+    const page = typeof params.page === 'number' && params.page > 0 ? params.page : 1;
+    const limit = typeof params.limit === 'number' && params.limit > 0 ? params.limit : EnvConfig.PAGINATION_LIMIT_DESKTOP_SIZE;
+    
     const defaultParams = {
-      page: 1,
-      limit: EnvConfig.PAGINATION_LIMIT_DESKTOP_SIZE,
+      page,
+      limit,
       ...params,
     };
     const response = await axios.get<UsersPayload>(
@@ -86,7 +96,38 @@ export class UserAction {
         headers: activeHeaders
       },
     );
-    return normalizeUsersList(response.data);
+    
+    // Normalize to PaginatedResponseDTO
+    const payload = response.data;
+    if (Array.isArray(payload)) {
+      return {
+        data: payload,
+        meta: {
+          total: payload.length,
+          page,
+          limit,
+          totalPages: Math.ceil(payload.length / limit),
+        }
+      };
+    }
+    
+    if (payload && "data" in payload && Array.isArray(payload.data)) {
+      const p = payload as PaginatedResponseDTO<UserResponse>;
+      return {
+        data: p.data,
+        meta: {
+          total: p.meta?.total ?? p.data.length,
+          page: p.meta?.page ?? page,
+          limit: p.meta?.limit ?? limit,
+          totalPages: p.meta?.totalPages ?? Math.ceil((p.meta?.total ?? p.data.length) / (p.meta?.limit ?? limit)),
+        }
+      };
+    }
+
+    return {
+      data: [],
+      meta: { total: 0, page, limit, totalPages: 0 }
+    };
   }
 
   static async getUserById(id: string, headers?: Record<string, string>): Promise<UserResponse> {

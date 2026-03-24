@@ -107,22 +107,20 @@ async function RequestsDataWrapper({
       ? (sp.status as Request_status)
       : undefined;
 
-  // Fetch both request types in parallel
+  // Fetch both request types in parallel (without q to allow local filtering across all names)
   const [locationRes, transferRes] = await Promise.allSettled([
     requestType === "transfer" 
       ? Promise.resolve({ data: [], meta: { total: 0, page: 1, limit, totalPages: 0 } })
       : LocationCreateRequestAction.getRequests({
           page: 1,
-          limit: 1000, // Fetch all for merging
-          q,
+          limit: 1000, // Fetch all for merging and local search
           requestStatus,
         }),
     requestType === "location"
       ? Promise.resolve({ data: [], meta: { total: 0, page: 1, limit, totalPages: 0 } })
       : ChildTransferRequestAction.getRequests({
           page: 1,
-          limit: 1000, // Fetch all for merging
-          q,
+          limit: 1000, // Fetch all for merging and local search
         }),
   ]);
 
@@ -149,95 +147,20 @@ async function RequestsDataWrapper({
     ...transferData.map((item) => ({ ...item, type: "transfer" as const })),
   ];
 
-  // Sort by createdAt descending (most recent first)
-  combinedData.sort((a, b) => {
-    const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-    const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-    
-    // Handle invalid dates
-    const timeA = Number.isNaN(dateA) ? 0 : dateA;
-    const timeB = Number.isNaN(dateB) ? 0 : dateB;
-    
-    return timeB - timeA;
-  });
-
-  // Apply status filter if needed (for transfer requests, check if handledBy exists)
-  let filteredData = combinedData;
-  if (requestStatus) {
-    filteredData = combinedData.filter((item) => {
-      if (item.type === "location") {
-        return item.requestStatus === requestStatus;
-      } else {
-        // Use the actual requestStatus field if available
-        if (item.requestStatus) {
-          return item.requestStatus === requestStatus;
-        }
-        
-        // Fallback: Transfer requests: WAITING = no handledBy, APPROVE/REJECT = has handledBy
-        if (requestStatus === Request_status.WAITING) {
-          return !item.handledBy;
-        } else if (requestStatus === Request_status.APPROVE) {
-          return !!item.handledBy;
-        } else if (requestStatus === Request_status.REJECT) {
-          // If no status and we filtered by REJECT, and we don't know if it's rejected,
-          // assume no rejection can be detected without the field.
-          return false; 
-        }
-        return true;
-      }
-    });
-  }
-
-  // Apply search filter
-  if (q) {
-    const searchLower = q.toLowerCase();
-    filteredData = filteredData.filter((item) => {
-      if (item.type === "location") {
-        return (
-          item.locationName.toLowerCase().includes(searchLower) ||
-          item.sub_district.toLowerCase().includes(searchLower) ||
-          item.district.toLowerCase().includes(searchLower)
-        );
-      } else {
-        return item.childId.toString().includes(searchLower);
-      }
-    });
-  }
-
-  // Paginate
-  // Paginate
-  const total = filteredData.length;
-  const totalPages = Math.ceil(total / limit);
-  const start = (page - 1) * limit;
-  const paginatedData = filteredData.slice(start, start + limit);
-
-  // --- Enrichment: Fetch names for the paginated page only ---
-  const userIds = Array.from(new Set(paginatedData.map((item: CombinedRequest) => item.userId)));
-  const childIds = Array.from(new Set(
-    paginatedData
-      .filter((item): item is CombinedRequest & { type: "transfer" } => item.type === "transfer")
-      .map(item => item.childId)
-  ));
-  const locationIds = Array.from(new Set(
-    paginatedData
-      .filter((item): item is CombinedRequest & { type: "transfer" } => item.type === "transfer")
-      .flatMap(item => [item.fromLocation, item.toLocation])
-  ));
-
-  // Fetch in parallel
-  const [users, children, locations] = await Promise.all([
-    Promise.all(userIds.map((id: string) => UserAction.getUserById(id).catch(() => null))),
-    Promise.all(childIds.map((id: number) => ChildAction.getChildById(id.toString()).catch(() => null))),
-    Promise.all(locationIds.map((id: number) => LocationAction.getLocationById(id.toString()).catch(() => null))),
+  // --- Enrichment: Fetch all names to enable search by name ---
+  // To avoid too many requests, we fetch everything with a large limit once
+  const [allUsers, allChildren, allLocations] = await Promise.all([
+    UserAction.getUsers({ limit: 1000, page: 1 }).catch(() => []),
+    ChildAction.getChildren({ limit: 1000, page: 1 }).catch(() => ({ data: [], meta: { total: 0, page: 1, limit: 1000, totalPages: 0 } })),
+    LocationAction.getLocations({ limit: 1000, page: 1 }).catch(() => ({ data: [], meta: { total: 0, page: 1, limit: 1000, totalPages: 0 } })),
   ]);
 
-  // Create lookup maps
-  const userMap = new Map(users.filter(Boolean).map(u => [u!.id, `${u!.firstName} ${u!.lastName}`]));
-  const childMap = new Map(children.filter(Boolean).map(c => [c!.id, `${c!.firstName} ${c!.lastName}`]));
-  const locationMap = new Map(locations.filter(Boolean).map(l => [l!.id, l!.name]));
+  const userMap = new Map<string, string>(allUsers.map(u => [u.id, `${u.firstName} ${u.lastName}`]));
+  const childMap = new Map<number, string>(allChildren.data.map(c => [c.id, `${c.firstName} ${c.lastName}`]));
+  const locationMap = new Map<number, string>(allLocations.data.map(l => [l.id, l.name]));
 
-  // Attach names to paginatedData
-  const enrichedData = paginatedData.map(item => {
+  // Attach names to all combinedData before filtering
+  const enrichedCombinedData = combinedData.map(item => {
     const newItem = { ...item } as CombinedRequest;
     newItem.userName = userMap.get(item.userId);
     if (newItem.type === "transfer") {
@@ -248,8 +171,66 @@ async function RequestsDataWrapper({
     return newItem;
   });
 
+  // 2. Sort by createdAt descending (most recent first)
+  enrichedCombinedData.sort((a, b) => {
+    const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+    const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+    return timeB - timeA;
+  });
+
+  // 3. Apply status filter
+  let filteredData = enrichedCombinedData;
+  if (requestStatus) {
+    filteredData = enrichedCombinedData.filter((item) => {
+      if (item.type === "location") {
+        return item.requestStatus === requestStatus;
+      } else {
+        if (item.requestStatus) return item.requestStatus === requestStatus;
+        if (requestStatus === Request_status.WAITING) return !item.handledBy;
+        if (requestStatus === Request_status.APPROVE) return !!item.handledBy;
+        return false;
+      }
+    });
+  }
+
+  // 4. Apply search filter (now including safe access and mapping)
+  if (q) {
+    const searchLower = q.toLowerCase();
+    filteredData = filteredData.filter((item) => {
+      const userName = item.userName?.toLowerCase() || "";
+      const userId = item.userId?.toLowerCase() || "";
+      const locationName = (item.type === "location" ? item.locationName : "")?.toLowerCase() || "";
+      const childName = (item.type === "transfer" ? item.childName : "")?.toLowerCase() || "";
+      const childId = (item.type === "transfer" ? item.childId?.toString() : "") || "";
+      const subDistrict = (item.type === "location" ? item.sub_district : "")?.toLowerCase() || "";
+      const district = (item.type === "location" ? item.district : "")?.toLowerCase() || "";
+      const province = (item.type === "location" ? item.province : "")?.toLowerCase() || "";
+      const fromLoc = (item.type === "transfer" ? item.fromLocationName : "")?.toLowerCase() || "";
+      const toLoc = (item.type === "transfer" ? item.toLocationName : "")?.toLowerCase() || "";
+
+      return (
+        userName.includes(searchLower) ||
+        userId.includes(searchLower) ||
+        locationName.includes(searchLower) ||
+        childName.includes(searchLower) ||
+        childId.includes(searchLower) ||
+        subDistrict.includes(searchLower) ||
+        district.includes(searchLower) ||
+        province.includes(searchLower) ||
+        fromLoc.includes(searchLower) ||
+        toLoc.includes(searchLower)
+      );
+    });
+  }
+
+  // Paginate
+  const total = filteredData.length;
+  const totalPages = Math.ceil(total / limit);
+  const start = (page - 1) * limit;
+  const paginatedData = filteredData.slice(start, start + limit);
+
   const unifiedResponse: UnifiedRequestsResponse = {
-    data: enrichedData,
+    data: paginatedData,
     meta: { total, page, limit, totalPages },
   };
 

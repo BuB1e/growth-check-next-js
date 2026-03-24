@@ -70,10 +70,10 @@ export function DashboardFilters({
         onChange={(e) => handleFilterChange("ageRange", e.target.value)}
       >
         <option value="">ทุกช่วงอายุ</option>
-        <option value="0-1">ทารก (0-1 ปี)</option>
+        <option value="0-1">เด็กทารก (0-1 ปี)</option>
         {/* เด็กวัยหัดเดิน == Toddler */}
         <option value="1-3">เด็กวัยหัดเดิน (1-3 ปี)</option>
-        <option value="3-5">วัยก่อนเรียน (3-5 ปี)</option>
+        <option value="3-5">เด็กวัยก่อนเรียน (3-5 ปี)</option>
       </select>
 
       <select

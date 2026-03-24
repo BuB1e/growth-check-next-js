@@ -13,6 +13,9 @@ export interface ChildResponse {
   updatedAt: Date;
   deleteStatus: boolean;
   status: Child_status;
+  haStatus?: string;
+  waStatus?: string;
+  ageMonth?: number;
 }
 
 export interface CreateChildDTO {

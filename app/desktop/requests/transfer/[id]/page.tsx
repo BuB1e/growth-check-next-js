@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { Loader2, ArrowLeft, CheckCircle2, XCircle, Clock } from "lucide-react";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {

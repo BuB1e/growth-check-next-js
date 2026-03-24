@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   ColumnDef,
   flexRender,
@@ -154,11 +154,18 @@ export function RequestsTable({ rawData, requestType = "all" }: RequestsTablePro
   const currentStatusProp = searchParams.get("status") || "all";
   const currentTypeProp = requestType || "all";
 
-  // Sync state with props when URL changes
   const [statusFilter, setStatusFilter] = useState(currentStatusProp);
   const [typeFilter, setTypeFilter] = useState(currentTypeProp);
   const [prevProps, setPrevProps] = useState({ currentStatusProp, currentTypeProp });
 
+  // Sync searchQuery with URL when it changes elsewhere (e.g. back button)
+  useEffect(() => {
+    const urlQ = searchParams.get("q") || "";
+    if (urlQ !== searchQuery) {
+      setSearchQuery(urlQ);
+    }
+  }, [searchParams]);
+  
   if (prevProps.currentStatusProp !== currentStatusProp || prevProps.currentTypeProp !== currentTypeProp) {
     setStatusFilter(currentStatusProp);
     setTypeFilter(currentTypeProp);
@@ -312,7 +319,25 @@ export function RequestsTable({ rawData, requestType = "all" }: RequestsTablePro
         </div>
       </div>
 
-      {/* Table */}
+      {searchParams.get("q") && (
+        <div className="flex items-center gap-2 text-muted-foreground bg-muted/30 p-3 rounded-lg border border-dashed">
+          <Search className="h-4 w-4" />
+          <span className="text-base">
+            ผลการค้นหาสำหรับ &quot;<span className="font-bold text-foreground">{searchParams.get("q")}</span>&quot;
+            <span className="ml-2">(พบ {rawData.meta.total} รายการ)</span>
+          </span>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={() => updateURLParams({ q: null, page: "1" })}
+            className="h-7 px-2 text-xs ml-auto hover:text-destructive"
+          >
+            ล้างการค้นหา
+          </Button>
+        </div>
+      )}
+
+      {/* Table with clickable rows */}
       <div className="rounded-md border overflow-hidden">
         <div className="overflow-x-auto">
           <Table>
