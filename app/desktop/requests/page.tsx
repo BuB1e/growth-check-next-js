@@ -142,9 +142,14 @@ async function RequestsDataWrapper({
 
   // Sort by createdAt descending (most recent first)
   combinedData.sort((a, b) => {
-    const dateA = new Date(a.createdAt).getTime();
-    const dateB = new Date(b.createdAt).getTime();
-    return dateB - dateA;
+    const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+    const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+    
+    // Handle invalid dates
+    const timeA = Number.isNaN(dateA) ? 0 : dateA;
+    const timeB = Number.isNaN(dateB) ? 0 : dateB;
+    
+    return timeB - timeA;
   });
 
   // Apply status filter if needed (for transfer requests, check if handledBy exists)
@@ -154,11 +159,20 @@ async function RequestsDataWrapper({
       if (item.type === "location") {
         return item.requestStatus === requestStatus;
       } else {
-        // Transfer requests: WAITING = no handledBy, APPROVE/REJECT = has handledBy
+        // Use the actual requestStatus field if available
+        if (item.requestStatus) {
+          return item.requestStatus === requestStatus;
+        }
+        
+        // Fallback: Transfer requests: WAITING = no handledBy, APPROVE/REJECT = has handledBy
         if (requestStatus === Request_status.WAITING) {
           return !item.handledBy;
-        } else if (requestStatus === Request_status.APPROVE || requestStatus === Request_status.REJECT) {
+        } else if (requestStatus === Request_status.APPROVE) {
           return !!item.handledBy;
+        } else if (requestStatus === Request_status.REJECT) {
+          // If no status and we filtered by REJECT, and we don't know if it's rejected,
+          // assume no rejection can be detected without the field.
+          return false; 
         }
         return true;
       }

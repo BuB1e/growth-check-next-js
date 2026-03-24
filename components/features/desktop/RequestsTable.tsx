@@ -128,12 +128,14 @@ function TypeBadge({ type }: { type: "location" | "transfer" }) {
 
 // Get status for display (handles both location and transfer)
 function getRequestStatus(item: CombinedRequest): string | undefined {
+  if (item.requestStatus) return item.requestStatus;
+  
   if (item.type === "location") {
     return item.requestStatus;
   } else {
     // Transfer: WAITING if no handledBy, APPROVE/REJECT if has handledBy
     if (!item.handledBy) return Request_status.WAITING;
-    // Assume handled = approved (in real app, would need status field)
+    // Fallback if requestStatus is missing from some records
     return Request_status.APPROVE;
   }
 }
@@ -144,10 +146,19 @@ export function RequestsTable({ rawData, requestType = "all" }: RequestsTablePro
   const searchParams = useSearchParams();
 
   const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
-  const [statusFilter, setStatusFilter] = useState(
-    searchParams.get("status") || "all",
-  );
-  const [typeFilter, setTypeFilter] = useState(requestType);
+  const currentStatusProp = searchParams.get("status") || "all";
+  const currentTypeProp = requestType || "all";
+
+  // Sync state with props when URL changes
+  const [statusFilter, setStatusFilter] = useState(currentStatusProp);
+  const [typeFilter, setTypeFilter] = useState(currentTypeProp);
+  const [prevProps, setPrevProps] = useState({ currentStatusProp, currentTypeProp });
+
+  if (prevProps.currentStatusProp !== currentStatusProp || prevProps.currentTypeProp !== currentTypeProp) {
+    setStatusFilter(currentStatusProp);
+    setTypeFilter(currentTypeProp);
+    setPrevProps({ currentStatusProp, currentTypeProp });
+  }
 
   const updateURLParams = (updates: Record<string, string | null>) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -181,10 +192,6 @@ export function RequestsTable({ rawData, requestType = "all" }: RequestsTablePro
       id: "type",
       header: "ประเภท",
       cell: ({ row }) => <TypeBadge type={row.original.type} />,
-      filterFn: (row, id, value) => {
-        if (value === "all") return true;
-        return row.original.type === value;
-      },
     },
     {
       accessorKey: "title",
@@ -194,18 +201,25 @@ export function RequestsTable({ rawData, requestType = "all" }: RequestsTablePro
         if (item.type === "location") {
           return (
             <div>
-              <div className="font-medium">{item.locationName || "—"}</div>
+              <div className="font-medium">
+                {typeof item.locationName === 'object' ? JSON.stringify(item.locationName) : (item.locationName || "—")}
+              </div>
               <div className="text-sm text-muted-foreground">
-                ต.{item.sub_district} อ.{item.district} จ.{item.province}
+                ต.{typeof item.sub_district === 'object' ? JSON.stringify(item.sub_district) : item.sub_district} 
+                อ.{typeof item.district === 'object' ? JSON.stringify(item.district) : item.district} 
+                จ.{typeof item.province === 'object' ? JSON.stringify(item.province) : item.province}
               </div>
             </div>
           );
         } else {
           return (
             <div>
-              <div className="font-medium">ขอย้ายเด็ก (ID: {item.childId})</div>
+              <div className="font-medium">
+                ขอย้ายเด็ก (ID: {typeof item.childId === 'object' ? JSON.stringify(item.childId) : item.childId})
+              </div>
               <div className="text-sm text-muted-foreground">
-                จากเขต {item.fromLocation} → เขต {item.toLocation}
+                จากเขต {typeof item.fromLocation === 'object' ? JSON.stringify(item.fromLocation) : item.fromLocation} 
+                → เขต {typeof item.toLocation === 'object' ? JSON.stringify(item.toLocation) : item.toLocation}
               </div>
             </div>
           );
@@ -222,50 +236,18 @@ export function RequestsTable({ rawData, requestType = "all" }: RequestsTablePro
       id: "status",
       header: "สถานะ",
       cell: ({ row }) => <StatusBadge status={getRequestStatus(row.original)} />,
-      filterFn: (row, id, value) => {
-        if (value === "all") return true;
-        const item = row.original;
-        if (item.type === "location") {
-          return item.requestStatus === value;
-        } else {
-          if (value === Request_status.WAITING) return !item.handledBy;
-          if (value === Request_status.APPROVE) return !!item.handledBy;
-          return false;
-        }
-      },
     },
   ];
 
-  // Apply filters locally for unified view
-  let filteredData = rawData.data;
+  // Use rawData directly as it's already filtered on the server
+  const filteredData = rawData.data;
   
-  // Debug log
-  console.log("[RequestsTable] Initial data:", {
+  console.log("[RequestsTable] Render state:", {
     total: filteredData.length,
     typeFilter,
     statusFilter,
-    rawDataTotal: rawData.meta.total
-  });
-  
-  if (typeFilter !== "all") {
-    filteredData = filteredData.filter((item) => item.type === typeFilter);
-  }
-  if (statusFilter !== "all") {
-    filteredData = filteredData.filter((item) => {
-      if (item.type === "location") {
-        return item.requestStatus === statusFilter;
-      } else {
-        if (statusFilter === Request_status.WAITING) return !item.handledBy;
-        if (statusFilter === Request_status.APPROVE) return !!item.handledBy;
-        return false;
-      }
-    });
-  }
-  
-  console.log("[RequestsTable] After filtering:", {
-    filteredCount: filteredData.length,
-    typeFilter,
-    statusFilter
+    propType: currentTypeProp,
+    propStatus: currentStatusProp
   });
 
   const table = useReactTable({

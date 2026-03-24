@@ -5,6 +5,8 @@ import { getForwardHeaders } from "./header-utils.server";
 
 import type { UserCreateStatusResponse } from "@/dto";
 
+import axios from "axios";
+
 type AuthUser = {
   id: string;
   email: string;
@@ -43,12 +45,11 @@ export const getInternalSession = cache(async () => {
   try {
     const headersList = await getForwardHeaders();
     const backendUrl = process.env.BACKEND_ENDPOINT || "";
-    const sessionRes = await fetch(`${backendUrl}/api/auth/get-session`, {
+    const sessionRes = await axios.get(`${backendUrl}/api/auth/get-session`, {
       headers: headersList,
-      cache: "no-store",
     });
-    if (sessionRes.ok) {
-      return await sessionRes.json();
+    if (sessionRes.status === 200) {
+      return sessionRes.data;
     }
   } catch (e) {
     console.error("[Auth Guard] Session Fetch Error:", e);

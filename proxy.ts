@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Request_status, Role } from "@/types";
+import axios from "axios";
 
 interface Session {
   user: {
@@ -95,15 +96,16 @@ export async function proxy(request: NextRequest) {
     const backendUrl = process.env.BACKEND_ENDPOINT;
     let session: Session | null = null;
     try {
-      const sessionRes = await fetch(`${backendUrl}/api/auth/get-session`, {
+      const sessionRes = await axios.get(`${backendUrl}/api/auth/get-session`, {
         headers: {
           cookie: request.headers.get("cookie") || "",
           "user-agent": request.headers.get("user-agent") || "",
           "x-forwarded-host": request.nextUrl.host,
         },
+        validateStatus: (status) => status < 500,
       });
-      if (sessionRes.ok) {
-        session = await sessionRes.json();
+      if (sessionRes.status === 200) {
+        session = sessionRes.data;
       }
     } catch (e) {
       log.error("Session Fetch Error", e);
@@ -124,16 +126,17 @@ export async function proxy(request: NextRequest) {
     // Check approval status FIRST
     try {
       const backendUrl = process.env.BACKEND_ENDPOINT;
-      const statusRes = await fetch(
+      const statusRes = await axios.get(
         `${backendUrl}/user-create-status?q=${encodeURIComponent(user.id)}&limit=10`,
         {
           headers: {
             cookie: request.headers.get("cookie") || "",
             "user-agent": request.headers.get("user-agent") || "",
           },
+          validateStatus: (status) => status < 500,
         },
       );
-      const statusData = statusRes.ok ? await statusRes.json() : { data: [] };
+      const statusData = statusRes.status === 200 ? statusRes.data : { data: [] };
       const userStatus = (statusData.data || []).find(
         (s: { userId: string }) => s.userId === user.id,
       );
@@ -182,6 +185,14 @@ export async function proxy(request: NextRequest) {
       }
 
       log.auth("Approved", user.email, pathname);
+
+      // 1.7. Root Path Redirect
+      if (pathname === "/") {
+        const isDesktopRole = user.role === Role.ADMIN || user.role === Role.HEAD;
+        const targetPath = isDesktopRole ? "/desktop/dashboard" : "/mobile/staff/home";
+        log.auth(`Root Redirect to ${targetPath}`, user.email, pathname);
+        return NextResponse.redirect(new URL(targetPath, request.url));
+      }
     } catch (error) {
       log.error("Status Check Error", error);
       return NextResponse.redirect(new URL("/pending-approval", request.url));
@@ -216,15 +227,16 @@ export async function proxy(request: NextRequest) {
     const backendUrl = process.env.BACKEND_ENDPOINT;
     let session: Session | null = null;
     try {
-      const sessionRes = await fetch(`${backendUrl}/api/auth/get-session`, {
+      const sessionRes = await axios.get(`${backendUrl}/api/auth/get-session`, {
         headers: {
           cookie: request.headers.get("cookie") || "",
           "user-agent": request.headers.get("user-agent") || "",
           "x-forwarded-host": request.nextUrl.host,
         },
+        validateStatus: (status) => status < 500,
       });
-      if (sessionRes.ok) {
-        session = await sessionRes.json();
+      if (sessionRes.status === 200) {
+        session = sessionRes.data;
       }
     } catch (e) {
       log.error("Session Re-fetch Error", e);

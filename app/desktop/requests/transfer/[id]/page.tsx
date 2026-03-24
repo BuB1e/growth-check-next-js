@@ -88,10 +88,10 @@ async function TransferRequestDetailContent({
   const request = await ChildTransferRequestAction.getRequestById(reqId.toString());
   if (!request) notFound();
 
-  // Determine status: no handledBy = WAITING, has handledBy = APPROVE
-  const status = !request.handledBy 
-    ? Request_status.WAITING 
-    : Request_status.APPROVE;
+  // Use requestStatus if available, fallback to handledBy logic
+  const status = request.requestStatus || 
+    (!request.handledBy ? Request_status.WAITING : Request_status.APPROVE);
+  
   const statusCfg = STATUS_CONFIG[status] ?? STATUS_CONFIG[Request_status.WAITING];
   const StatusIcon = statusCfg.icon;
 

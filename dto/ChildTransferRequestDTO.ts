@@ -1,9 +1,12 @@
+import { Request_status } from "@/types";
+
 export interface ChildTransferRequestResponse {
   id: number;
 	userId: string;
 	childId: number;
 	fromLocation: number;
 	toLocation: number;
+	requestStatus: Request_status;
 	handledBy: string;
 	createdAt: Date;
 	updatedAt: Date;
@@ -23,6 +26,7 @@ export interface UpdateChildTransferRequestDTO {
 	childId?: number;
 	fromLocation?: number;
 	toLocation?: number;
+	requestStatus?: Request_status;
 	handledBy?: string;
 }
 
@@ -32,6 +36,7 @@ export interface OptionsGetChildTransferRequestsDTO {
 	childId?: number;
 	fromLocation?: number;
 	toLocation?: number;
+	requestStatus?: Request_status;
 	handledBy?: string;
 	deleteStatus?: boolean;
 }
