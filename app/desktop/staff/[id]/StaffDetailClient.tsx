@@ -182,13 +182,15 @@ export default function StaffDetailClient({ user }: StaffDetailClientProps) {
               <AlertCircle className="h-6 w-6" />
               คำเตือน: ยืนยันการมอบสิทธิ์สูงสุด?
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-md py-2 space-y-3">
-              <p>
-                คุณกำลังตรวจสอบปรับเปลี่ยนสิทธิ์ผู้ใช้นี้เป็น <span className="font-bold">Admin (สิทธิ์สูงสุด)</span> ยืนยันใช่หรือไม่?
-              </p>
-              <p className="p-3 bg-red-50 text-red-700 rounded-lg text-sm border border-red-100">
-                การมอบสิทธิ์ Admin จะทำให้บัญชีนี้มีสิทธิ์เทียบเท่าคุณและสามารถจัดการระบบได้ทั้งหมด รวมถึงการจัดการสมาชิกและข้อมูลสำคัญ คุณแน่ใจที่จะดำเนินการขั้นสุดท้ายหรือไม่?
-              </p>
+            <AlertDialogDescription className="text-md py-2 space-y-3" asChild>
+              <div>
+                <p>
+                  คุณกำลังตรวจสอบปรับเปลี่ยนสิทธิ์ผู้ใช้นี้เป็น <span className="font-bold">Admin (สิทธิ์สูงสุด)</span> ยืนยันใช่หรือไม่?
+                </p>
+                <p className="p-3 bg-red-50 text-red-700 rounded-lg text-sm border border-red-100">
+                  การมอบสิทธิ์ Admin จะทำให้บัญชีนี้มีสิทธิ์เทียบเท่าคุณและสามารถจัดการระบบได้ทั้งหมด รวมถึงการจัดการสมาชิกและข้อมูลสำคัญ คุณแน่ใจที่จะดำเนินการขั้นสุดท้ายหรือไม่?
+                </p>
+              </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
