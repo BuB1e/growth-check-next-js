@@ -9,6 +9,7 @@ import { getCurrentUserId } from "@/lib/auth/auth-guard";
 
 import { ChildDataAction } from "@/actions/ChildDataAction";
 import { Sex, Metric_type } from "@/types";
+import { calculateAge } from "@/lib/date-utils";
 
 // Utility to pad and clamp day/month
 function normalizeDay(day: string | FormDataEntryValue | null): string {
@@ -194,10 +195,7 @@ export async function createChildServerAction(
     // 2. Create ChildData for each measurement
     for (const m of measurements) {
       const measurementDate = new Date(m.date);
-      const totalMonths =
-        (measurementDate.getFullYear() - birthDate.getFullYear()) * 12 +
-        (measurementDate.getMonth() - birthDate.getMonth());
-      const ageMonthsTotal = Math.max(0, totalMonths);
+      const { years: ageYear, months: ageMonth } = calculateAge(birthDate, measurementDate);
 
       await ChildDataAction.createChildData({
         childId: childResponse.id,
@@ -209,7 +207,8 @@ export async function createChildServerAction(
         weightDevelopmentId: fallbackWeightDevId,
         userCreated: resolvedUserId,
         userUpdated: resolvedUserId,
-        age: ageMonthsTotal,
+        ageYear,
+        ageMonth,
       });
     }
 

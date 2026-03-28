@@ -110,6 +110,7 @@ export function GrowthChart({
   const latestHistoricalDate = historicalData[historicalData.length - 1]?.date;
   const predictionPoints = buildPredictionPoints(prediction, {
     anchorDate: latestHistoricalDate,
+    developments,
   });
 
   if (historicalData.length > 0 && predictionPoints.length > 0) {

@@ -66,6 +66,32 @@ export class AiPredictionAction {
     };
   }
 
+  static async getLatestPredictionByChildId(
+    childId: number | string,
+  ): Promise<AiPredictionResponse | null> {
+    let activeHeaders = undefined;
+    if (typeof window === "undefined") {
+      const { getForwardHeaders } = await import(
+        "@/lib/auth/header-utils.server"
+      );
+      activeHeaders = await getForwardHeaders();
+    }
+    try {
+      const response = await axios.get(
+        `${this.ACTION_ENDPOINT}/latest/${childId}`,
+        {
+          headers: activeHeaders,
+        },
+      );
+      return response.data;
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response?.status === 404) {
+        return null;
+      }
+      throw error;
+    }
+  }
+
   static async getPredictionById(id: string): Promise<AiPredictionResponse> {
     let activeHeaders = undefined;
     if (typeof window === 'undefined') {

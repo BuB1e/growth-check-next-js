@@ -1,4 +1,4 @@
-import type { AiPredictionResponse } from "@/dto";
+import type { AiPredictionResponse, DevelopmentResponse } from "@/dto";
 import { getGrowthColor } from "./growth-utils";
 
 type PredictionValue = number | number[];
@@ -43,6 +43,7 @@ export function buildPredictionPoints(
   prediction: AiPredictionResponse | null | undefined,
   options?: {
     anchorDate?: Date;
+    developments?: DevelopmentResponse[];
   },
 ): Array<{
   predictedDate: Date;
@@ -63,35 +64,60 @@ export function buildPredictionPoints(
   }
 
   const anchorBase = options?.anchorDate ? new Date(options.anchorDate) : null;
-  const dateTimeBase = new Date(prediction.dateTime);
   const createdAtBase = new Date(prediction.createdAt);
   const baseDate =
     anchorBase && !Number.isNaN(anchorBase.getTime())
       ? anchorBase
-      : Number.isNaN(dateTimeBase.getTime())
-        ? createdAtBase
-        : dateTimeBase;
+      : createdAtBase;
 
   if (Number.isNaN(baseDate.getTime())) {
     return [];
   }
 
-  const monthStep = Math.max(1, prediction.month || 1);
+  // Use month if available, otherwise default to 1
+  const monthStep = 1;
+  const developments = options?.developments || [];
 
   return Array.from({ length: maxLen }, (_, index) => {
     const predictedDate = new Date(baseDate);
     predictedDate.setMonth(predictedDate.getMonth() + monthStep * (index + 1));
 
-    // Map status colors for predictions if developments array is provided
-    const hDev = prediction.heightDevelopments?.[index];
-    const wDev = prediction.weightDevelopments?.[index];
+    // Resolve HA status/color
+    let hColor: string | undefined = undefined;
+    const hDevObj = prediction.heightDevelopmentList?.[index];
+    if (hDevObj) {
+      hColor = getGrowthColor("HA", hDevObj.status);
+    } else {
+      const hDevId = 
+        prediction.heightDevelopmentIdList?.[index] ?? 
+        prediction.heightDevelopmentIds?.[index];
+      if (hDevId && developments.length > 0) {
+        const found = developments.find(d => d.id === hDevId);
+        if (found) hColor = getGrowthColor("HA", found.status);
+      }
+    }
+
+    // Resolve WA status/color
+    let wColor: string | undefined = undefined;
+    const wDevObj = prediction.weightDevelopmentList?.[index];
+    if (wDevObj) {
+      wColor = getGrowthColor("WA", wDevObj.status);
+    } else {
+      const wDevId = 
+        prediction.weightDevelopmentIdList?.[index] ?? 
+        prediction.weightDevelopmentIds?.[index];
+      if (wDevId && developments.length > 0) {
+        const found = developments.find(d => d.id === wDevId);
+        if (found) wColor = getGrowthColor("WA", found.status);
+      }
+    }
 
     return {
       predictedDate,
       predictedHeight: heightSeries[index],
       predictedWeight: weightSeries[index],
-      heightColor: hDev ? getGrowthColor("HA", hDev.status) : undefined,
-      weightColor: wDev ? getGrowthColor("WA", wDev.status) : undefined,
+      heightColor: hColor,
+      weightColor: wColor,
     };
   });
 }

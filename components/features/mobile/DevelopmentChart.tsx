@@ -88,6 +88,7 @@ export function DevelopmentChart({
 
     const predictedData = buildPredictionPoints(prediction, {
       anchorDate: latestHistoricalDate,
+      developments,
     }).map((point, index) => {
       // Fallback color logic for predictions: 
       // 1. Point color from buildPredictionPoints (has arrays)

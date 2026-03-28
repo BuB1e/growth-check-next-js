@@ -58,11 +58,7 @@ const toSafeIsoString = (value: unknown): string => {
 
 const buildPredictionSignature = (item: AiPredictionResponse): string => {
   return JSON.stringify({
-    id: item.id,
     modelUsed: item.modelUsed,
-    modelVersion: item.modelVersion,
-    month: item.month,
-    dateTime: toSafeIsoString(item.dateTime),
     createdAt: toSafeIsoString(item.createdAt),
     height: item.height,
     weight: item.weight,
@@ -358,20 +354,40 @@ export function PredictionCard({
       return;
     }
 
+    // Handle immediate results from synchronous backend
+    if ("status" in result && result.status === "ready") {
+      const prediction = result.data as AiPredictionResponse;
+      setResolvedPrediction(prediction);
+      setUiState("success");
+      setSuccessMessage("ผลทำนายพร้อมใช้งานแล้ว");
+      pendingRequestRef.current = null;
+      clearPendingFromStorage();
+      router.refresh();
+      return;
+    }
+
+    // Handle polling case
+    const pollData = result.data as {
+      queuedAt: number;
+      baselineIds: number[];
+      baselineSignatures?: Record<string, string>;
+      poll: PollingPolicy;
+    };
+
     setUiState("queued");
     pendingRequestRef.current = {
       baselinePredictionId: pendingRequestRef.current?.baselinePredictionId ?? null,
       baselinePredictionSignature:
         pendingRequestRef.current?.baselinePredictionSignature ?? null,
-      queuedAt: Number(result.data.queuedAt) || Date.now(),
+      queuedAt: Number(pollData.queuedAt) || Date.now(),
     };
 
-    const initialMs = toValidPolicyNumber(result.data.poll?.initialMs, 1);
-    const backoffFactor = toValidPolicyNumber(result.data.poll?.backoffFactor, 1);
-    const maxMs = toValidPolicyNumber(result.data.poll?.maxMs, 1);
-    const timeoutMs = toValidPolicyNumber(result.data.poll?.timeoutMs, 1);
-    const hiddenMinMs = toValidPolicyNumber(result.data.poll?.hiddenMinMs, 1);
-    const jitterRatio = toValidPolicyNumber(result.data.poll?.jitterRatio, 0);
+    const initialMs = toValidPolicyNumber(pollData.poll?.initialMs, 1);
+    const backoffFactor = toValidPolicyNumber(pollData.poll?.backoffFactor, 1);
+    const maxMs = toValidPolicyNumber(pollData.poll?.maxMs, 1);
+    const timeoutMs = toValidPolicyNumber(pollData.poll?.timeoutMs, 1);
+    const hiddenMinMs = toValidPolicyNumber(pollData.poll?.hiddenMinMs, 1);
+    const jitterRatio = toValidPolicyNumber(pollData.poll?.jitterRatio, 0);
 
     if (
       initialMs === null ||
@@ -397,14 +413,18 @@ export function PredictionCard({
 
     savePendingToStorage({
       childId,
-      queuedAt: Number(result.data.queuedAt) || Date.now(),
-      baselineIds: Array.isArray(result.data.baselineIds) ? result.data.baselineIds : [],
-      baselineSignatures: result.data.baselineSignatures,
+      queuedAt: Number(pollData.queuedAt) || Date.now(),
+      baselineIds: Array.isArray(pollData.baselineIds) ? pollData.baselineIds : [],
+      baselineSignatures: pollData.baselineSignatures,
       poll: pollingPolicyRef.current,
       createdAt: Date.now(),
     });
 
-    await pollPredictionUntilReady(result.data);
+    await pollPredictionUntilReady({
+      queuedAt: pollData.queuedAt,
+      baselineIds: pollData.baselineIds,
+      baselineSignatures: pollData.baselineSignatures,
+    });
   };
 
   const isBusy = uiState === "submitting" || uiState === "queued" || uiState === "polling";
@@ -508,27 +528,27 @@ export function PredictionCard({
             </div>
             <div className="rounded-lg border bg-white p-3 md:col-span-2">
               <p className="text-xs text-slate-500">
-                โมเดล {resolvedPrediction.modelUsed} v{resolvedPrediction.modelVersion} • ข้อมูลย้อนหลัง {resolvedPrediction.dataMonthsUsed} เดือน
+                โมเดล {resolvedPrediction.modelUsed} • ข้อมูลย้อนหลัง {resolvedPrediction.dataMonthsUsed} เดือน
               </p>
               <p className="text-sm text-slate-700 mt-1">
-                วันที่ทำนาย {formatBE(resolvedPrediction.dateTime, "d MMM yyyy")}
+                วันที่ทำนาย {formatBE(resolvedPrediction.createdAt, "d MMM yyyy")}
               </p>
             </div>
           </div>
 
-          {/* TODO: Render development timelines from heightDevelopments/weightDevelopments */}
-          {(resolvedPrediction.heightDevelopments?.length ?? 0) > 0 ||
-          (resolvedPrediction.weightDevelopments?.length ?? 0) > 0 ? (
+          {/* Render development timelines from heightDevelopmentList/weightDevelopmentList */}
+          {(resolvedPrediction.heightDevelopmentList?.length ?? 0) > 0 ||
+          (resolvedPrediction.weightDevelopmentList?.length ?? 0) > 0 ? (
             <div className="rounded-lg border bg-white p-3 space-y-2">
               <p className="text-xs font-semibold text-slate-600">ประวัติพัฒนาการที่คาดการณ์</p>
-              {resolvedPrediction.heightDevelopments &&
-                resolvedPrediction.heightDevelopments.length > 0 && (
+              {resolvedPrediction.heightDevelopmentList &&
+                resolvedPrediction.heightDevelopmentList.length > 0 && (
                   <div>
                     <p className="text-[11px] font-medium text-slate-400 mb-1">ส่วนสูง (HA)</p>
                     <div className="flex flex-wrap gap-1.5">
-                      {resolvedPrediction.heightDevelopments.map((dev) => (
+                      {resolvedPrediction.heightDevelopmentList.map((dev, index) => (
                         <span
-                          key={dev.id}
+                          key={`ha-${dev.id}-${index}`}
                           className="inline-flex items-center rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10"
                         >
                           {DevelopmentStatusToThai[dev.status as DevelopmentStatus] || dev.status}
@@ -537,14 +557,14 @@ export function PredictionCard({
                     </div>
                   </div>
                 )}
-              {resolvedPrediction.weightDevelopments &&
-                resolvedPrediction.weightDevelopments.length > 0 && (
+              {resolvedPrediction.weightDevelopmentList &&
+                resolvedPrediction.weightDevelopmentList.length > 0 && (
                   <div>
                     <p className="text-[11px] font-medium text-slate-400 mb-1">น้ำหนัก (WA)</p>
                     <div className="flex flex-wrap gap-1.5">
-                      {resolvedPrediction.weightDevelopments.map((dev) => (
+                      {resolvedPrediction.weightDevelopmentList.map((dev, index) => (
                         <span
-                          key={dev.id}
+                          key={`wa-${dev.id}-${index}`}
                           className="inline-flex items-center rounded-full bg-orange-50 px-2 py-0.5 text-xs font-medium text-orange-700 ring-1 ring-inset ring-orange-700/10"
                         >
                           {DevelopmentStatusToThai[dev.status as DevelopmentStatus] || dev.status}

@@ -25,11 +25,11 @@ export const metadata = {
 };
 
 // Combined request type for unified table
-export type CombinedRequest = 
+export type CombinedRequest =
   | ({ type: "location"; userName?: string } & LocationCreateRequestResponse)
-  | ({ 
-      type: "transfer"; 
-      userName?: string; 
+  | ({
+      type: "transfer";
+      userName?: string;
       childName?: string;
       fromLocationName?: string;
       toLocationName?: string;
@@ -90,7 +90,7 @@ async function RequestsDataWrapper({
 }) {
   const sp = await searchParams;
   const { EnvConfig } = await import("@/configs/BackendConfig");
-  
+
   const parsedPage = Number(sp?.page);
   const parsedLimit = Number(sp?.limit);
   const page = Number.isFinite(parsedPage) && parsedPage > 0 ? parsedPage : 1;
@@ -109,12 +109,12 @@ async function RequestsDataWrapper({
 
   // Fetch both request types in parallel (without q to allow local filtering across all names)
   const [locationRes, transferRes] = await Promise.allSettled([
-    requestType === "transfer" 
+    requestType === "transfer"
       ? Promise.resolve({ data: [], meta: { total: 0, page: 1, limit, totalPages: 0 } })
       : LocationCreateRequestAction.getRequests({
           page: 1,
           limit: 1000, // Fetch all for merging and local search
-          requestStatus,
+          status: requestStatus,
         }),
     requestType === "location"
       ? Promise.resolve({ data: [], meta: { total: 0, page: 1, limit, totalPages: 0 } })
@@ -183,7 +183,7 @@ async function RequestsDataWrapper({
   if (requestStatus) {
     filteredData = enrichedCombinedData.filter((item) => {
       if (item.type === "location") {
-        return item.requestStatus === requestStatus;
+        return item.status === requestStatus;
       } else {
         if (item.requestStatus) return item.requestStatus === requestStatus;
         if (requestStatus === Request_status.WAITING) return !item.handledBy;

@@ -30,19 +30,9 @@ async function ChildProfileContent({
 
   let latestPrediction: AiPredictionResponse | null = null;
   try {
-    const predictionRes = await AiPredictionAction.getPredictions({
-      childId,
-      page: 1,
-      limit: 10,
-    });
-
-    latestPrediction =
-      [...predictionRes.data].sort(
-        (a, b) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-      )[0] ?? null;
+    latestPrediction = await AiPredictionAction.getLatestPredictionByChildId(childId);
   } catch (error) {
-    console.error("Failed to load mobile predictions:", error);
+    console.error("Failed to load mobile latest prediction:", error);
   }
 
   const history = childDataResponse || [];

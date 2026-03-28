@@ -21,9 +21,6 @@ const toSafeIsoString = (value: unknown): string => {
 const buildPredictionSignature = (item: AiPredictionResponse): string => {
   return JSON.stringify({
     modelUsed: item.modelUsed,
-    modelVersion: item.modelVersion,
-    month: item.month,
-    dateTime: toSafeIsoString(item.dateTime),
     createdAt: toSafeIsoString(item.createdAt),
     height: item.height,
     weight: item.weight,
@@ -147,6 +144,15 @@ export async function createChildDataAction(data: CreateChildDataDTO) {
 
     const created = await ChildDataAction.createChildData(payload);
 
+    // Trigger auto AI prediction if history exists
+    try {
+      if (latestRecords.length + 1 >= 3) {
+        await ChildAction.predictChild(data.childId.toString(), "lstm");
+      }
+    } catch (err) {
+      console.warn("Auto-prediction trigger failed (non-critical):", err);
+    }
+
     revalidatePath(`/children/${data.childId}`);
     revalidatePath(`/desktop/children/${data.childId}`);
     revalidatePath(`/mobile/staff/${data.childId}`);
@@ -200,8 +206,34 @@ export async function createChildPredictionQueueAction(
 
     await ChildAction.predictChild(childId.toString(), model);
 
+    // OPTIMIZATION: Check if the prediction finished synchronously
+    const immediateCheck = await AiPredictionAction.getPredictions({
+      childId,
+      page: 1,
+      limit: 10,
+    });
+
+    const baselineSet = new Set<number>(baselineIds);
+    const newPrediction = immediateCheck.data.find((item) => {
+      const isNewId = !baselineSet.has(item.id);
+      const isFresh = new Date(item.createdAt).getTime() >= queuedAt - 2000;
+      return isNewId && isFresh;
+    });
+
+    if (newPrediction) {
+      revalidatePath(`/desktop/children/${childId}`);
+      revalidatePath(`/mobile/staff/child/${childId}`);
+      
+      return {
+        success: true,
+        status: "ready" as const,
+        data: newPrediction,
+      };
+    }
+
     return {
       success: true,
+      status: "polling" as const,
       data: {
         queuedAt,
         baselineIds,
@@ -254,7 +286,8 @@ export async function pollChildPredictionAction({
         typeof previousSignature === "string" && previousSignature !== currentSignature;
 
       const t = new Date(item.createdAt).getTime();
-      const isFreshEnough = t >= queuedAt - 5_000;
+      // Increase tolerance for backend clock drift and latencies (2 minutes window)
+      const isFreshEnough = t >= queuedAt - 120_000;
 
       // Some backends may update an existing prediction row instead of inserting a new ID.
       return isNewId || isUpdatedInPlace || isFreshEnough;
@@ -290,7 +323,7 @@ export async function pollChildPredictionAction({
     })[0] as AiPredictionResponse;
 
     revalidatePath(`/desktop/children/${childId}`);
-    revalidatePath(`/mobile/staff/child_${childId}`);
+    revalidatePath(`/mobile/staff/child/${childId}`);
 
     return {
       success: true,

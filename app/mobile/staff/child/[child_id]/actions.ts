@@ -78,7 +78,18 @@ export async function createChildDataAction(
     ageMonth: data.ageMonth,
   };
 
-  return await ChildDataAction.createChildData(payload);
+  const created = await ChildDataAction.createChildData(payload);
+
+  // Trigger auto AI prediction if history exists
+  try {
+    if (latestRecords.length + 1 >= 3) {
+      await ChildAction.predictChild(data.childId.toString(), "lstm");
+    }
+  } catch (err) {
+    console.warn("Auto-prediction trigger failed (non-critical):", err);
+  }
+
+  return created;
 }
 
 export async function createPredictionForChildAction(

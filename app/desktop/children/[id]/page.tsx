@@ -121,18 +121,9 @@ async function ChildDetailContent({
 
   let latestPrediction: AiPredictionResponse | null = null;
   try {
-    const predictionRes = await AiPredictionAction.getPredictions({
-      childId,
-      page: 1,
-      limit: 10,
-    });
-
-    latestPrediction =
-      [...predictionRes.data].sort(
-        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-      )[0] ?? null;
+    latestPrediction = await AiPredictionAction.getLatestPredictionByChildId(childId);
   } catch (error) {
-    console.error("Failed to load child predictions:", error);
+    console.error("Failed to load child latest prediction:", error);
   }
 
   // Fetch developments for coloring the chart points
