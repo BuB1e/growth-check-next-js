@@ -74,8 +74,8 @@ export async function createChildDataAction(
     weightDevelopmentId: resolvedWeightDevelopmentId,
     userCreated: resolvedUserId,
     userUpdated: resolvedUserId,
-    // age is now a single number field
-    age: data.age ?? 0,
+    ageYear: data.ageYear,
+    ageMonth: data.ageMonth,
   };
 
   return await ChildDataAction.createChildData(payload);

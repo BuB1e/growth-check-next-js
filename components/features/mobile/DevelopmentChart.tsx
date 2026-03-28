@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { AiPredictionResponse, ChildDataResponse } from "@/dto";
+import { AiPredictionResponse, ChildDataResponse, DevelopmentResponse } from "@/dto";
+import { getGrowthColor } from "@/lib/growth-utils";
 import {
   LineChart,
   Line,
@@ -10,17 +11,32 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
+  Label,
 } from "recharts";
 import { formatBE } from "@/lib/date-utils";
 import { buildPredictionPoints } from "@/lib/prediction-utils";
 
 interface DevelopmentChartProps {
   history: ChildDataResponse[];
+  developments: DevelopmentResponse[];
   prediction?: AiPredictionResponse | null;
+}
+
+interface ChartDataPoint {
+  name: string;
+  dateOrder: number;
+  shortDate: string;
+  height?: number;
+  weight?: number;
+  heightColor?: string;
+  weightColor?: string;
+  predictedHeightTrend?: number;
+  predictedWeightTrend?: number;
 }
 
 export function DevelopmentChart({
   history,
+  developments,
   prediction = null,
 }: DevelopmentChartProps) {
   const [activeMetric, setActiveMetric] = useState<
@@ -50,12 +66,21 @@ export function DevelopmentChart({
     const historicalData = sortedHistory.map((record) => {
       const shortDate = formatBE(record.heightDate, "d MMM yy");
 
+      // Look up status for HA (Height-for-Age) and WA (Weight-for-Age)
+      const heightDev = developments.find(d => d.id === record.heightDevelopmentId);
+      const weightDev = developments.find(d => d.id === record.weightDevelopmentId);
+
+      const heightColor = heightDev ? getGrowthColor("HA", heightDev.status) : "#3b82f6";
+      const weightColor = weightDev ? getGrowthColor("WA", weightDev.status) : "#f97316";
+
       return {
         name: `ครั้งที่ ${record.id}`,
         dateOrder: new Date(record.heightDate).getTime(),
         shortDate,
         height: Number(record.height.toFixed(1)),
         weight: Number(record.weight.toFixed(1)),
+        heightColor,
+        weightColor,
         predictedHeightTrend: undefined as number | undefined,
         predictedWeightTrend: undefined as number | undefined,
       };
@@ -63,15 +88,35 @@ export function DevelopmentChart({
 
     const predictedData = buildPredictionPoints(prediction, {
       anchorDate: latestHistoricalDate,
-    }).map((point, index) => ({
-      name: `ทำนาย ${index + 1}`,
-      dateOrder: point.predictedDate.getTime(),
-      shortDate: formatBE(point.predictedDate, "d MMM yy"),
-      height: undefined as number | undefined,
-      weight: undefined as number | undefined,
-      predictedHeightTrend: point.predictedHeight,
-      predictedWeightTrend: point.predictedWeight,
-    }));
+    }).map((point, index) => {
+      // Fallback color logic for predictions: 
+      // 1. Point color from buildPredictionPoints (has arrays)
+      // 2. Lookup prediction's heightDevelopmentId if it's the first point
+      // 3. Line color fallback
+      let hColor = point.heightColor;
+      if (!hColor && index === 0 && prediction?.heightDevelopmentId) {
+        const dev = developments.find(d => d.id === prediction.heightDevelopmentId);
+        if (dev) hColor = getGrowthColor("HA", dev.status);
+      }
+
+      let wColor = point.weightColor;
+      if (!wColor && index === 0 && prediction?.weightDevelopmentId) {
+        const dev = developments.find(d => d.id === prediction.weightDevelopmentId);
+        if (dev) wColor = getGrowthColor("WA", dev.status);
+      }
+
+      return {
+        name: `ทำนาย ${index + 1}`,
+        dateOrder: point.predictedDate.getTime(),
+        shortDate: formatBE(point.predictedDate, "d MMM yy"),
+        height: undefined as number | undefined,
+        weight: undefined as number | undefined,
+        heightColor: hColor,
+        weightColor: wColor,
+        predictedHeightTrend: point.predictedHeight,
+        predictedWeightTrend: point.predictedWeight,
+      };
+    });
 
     if (historicalData.length > 0 && predictedData.length > 0) {
       const lastIndex = historicalData.length - 1;
@@ -86,7 +131,7 @@ export function DevelopmentChart({
     return [...historicalData, ...predictedData]
       .filter((point) => Number.isFinite(point.dateOrder))
       .sort((a, b) => a.dateOrder - b.dateOrder);
-  }, [history, latestHistoricalDate, prediction]);
+  }, [history, latestHistoricalDate, prediction, developments]);
 
   const formatNumber = (value: number): string =>
     Number.isInteger(value) ? `${value}` : value.toFixed(2);
@@ -201,7 +246,7 @@ export function DevelopmentChart({
         <ResponsiveContainer width="100%" height="100%">
           <LineChart
             data={chartData}
-            margin={{ top: 10, right: 8, left: 0, bottom: 8 }}
+            margin={{ top: 40, right: 8, left: 16, bottom: 8 }}
           >
             <CartesianGrid
               strokeDasharray="3 3"
@@ -221,33 +266,51 @@ export function DevelopmentChart({
             <YAxis
               yAxisId="left"
               orientation="left"
-              axisLine={{ stroke: "rgba(148, 163, 184, 0.8)" }}
-              tickLine
+              axisLine={{ stroke: activeMetric === "weight" ? "#f97316" : "#3b82f6" }}
+              tickLine={{ stroke: activeMetric === "weight" ? "#f97316" : "#3b82f6" }}
               tick={{
                 fill: activeMetric === "weight" ? "#ea580c" : "#2563eb",
                 fontSize: 11,
                 fontWeight: 600,
               }}
-              width={44}
+              width={48}
               domain={[0, leftTicks[leftTicks.length - 1]]}
               ticks={leftTicks}
               allowDecimals={false}
               tickFormatter={formatNumber}
-            />
+            >
+              <Label
+                value={activeMetric === "weight" ? "น้ำหนัก (กก.)" : "ส่วนสูง (ซม.)"}
+                position="top"
+                offset={20}
+                style={{
+                  fill: activeMetric === "weight" ? "#ea580c" : "#2563eb",
+                  fontSize: 10,
+                  fontWeight: 800
+                }}
+              />
+            </YAxis>
 
             <YAxis
               yAxisId="right"
               orientation="right"
-              axisLine={{ stroke: "rgba(148, 163, 184, 0.8)" }}
-              tickLine
+              axisLine={{ stroke: "#f97316" }}
+              tickLine={{ stroke: "#f97316" }}
               tick={{ fill: "#ea580c", fontSize: 11, fontWeight: 600 }}
-              width={44}
+              width={48}
               domain={[0, weightTicks[weightTicks.length - 1]]}
               ticks={weightTicks}
               allowDecimals={false}
               tickFormatter={formatNumber}
               hide={activeMetric !== "both"}
-            />
+            >
+              <Label
+                value="น้ำหนัก (กก.)"
+                position="top"
+                offset={20}
+                style={{ fill: "#ea580c", fontSize: 10, fontWeight: 800 }}
+              />
+            </YAxis>
 
             <Tooltip
               formatter={(value, name) => {
@@ -283,7 +346,21 @@ export function DevelopmentChart({
                 dataKey="height"
                 stroke="#3b82f6"
                 strokeWidth={2.5}
-                dot={{ r: 3, strokeWidth: 2, fill: "#fff" }}
+                dot={(props: { cx: number; cy: number; payload: ChartDataPoint }) => {
+                  const { cx, cy, payload } = props;
+                  if (typeof payload.height !== 'number') return <g />;
+                  return (
+                    <circle
+                      key={`dot-height-${payload.dateOrder}`}
+                      cx={cx}
+                      cy={cy}
+                      r={4}
+                      fill={payload.heightColor || "#3b82f6"}
+                      stroke="#fff"
+                      strokeWidth={2}
+                    />
+                  );
+                }}
                 activeDot={{ r: 5, strokeWidth: 0, fill: "#2563eb" }}
               />
             )}
@@ -297,7 +374,21 @@ export function DevelopmentChart({
                 stroke="#8b5cf6"
                 strokeWidth={2}
                 strokeDasharray="6 4"
-                dot={{ r: 2.5, strokeWidth: 0, fill: "#8b5cf6" }}
+                dot={(props: { cx: number; cy: number; payload: ChartDataPoint }) => {
+                  const { cx, cy, payload } = props;
+                  if (typeof payload.predictedHeightTrend !== 'number') return <g />;
+                  return (
+                    <circle
+                      key={`pred-dot-height-${payload.dateOrder}`}
+                      cx={cx}
+                      cy={cy}
+                      r={3.5}
+                      fill={payload.heightColor || "#8b5cf6"}
+                      stroke="#fff"
+                      strokeWidth={1}
+                    />
+                  );
+                }}
                 activeDot={{ r: 4, strokeWidth: 0, fill: "#7c3aed" }}
                 connectNulls
               />
@@ -311,7 +402,21 @@ export function DevelopmentChart({
                 dataKey="weight"
                 stroke="#f97316"
                 strokeWidth={2.5}
-                dot={{ r: 3, strokeWidth: 2, fill: "#fff" }}
+                dot={(props: { cx: number; cy: number; payload: ChartDataPoint }) => {
+                  const { cx, cy, payload } = props;
+                  if (typeof payload.weight !== 'number') return <g />;
+                  return (
+                    <circle
+                      key={`dot-weight-${payload.dateOrder}`}
+                      cx={cx}
+                      cy={cy}
+                      r={4}
+                      fill={payload.weightColor || "#f97316"}
+                      stroke="#fff"
+                      strokeWidth={2}
+                    />
+                  );
+                }}
                 activeDot={{ r: 5, strokeWidth: 0, fill: "#ea580c" }}
               />
             )}
@@ -325,7 +430,21 @@ export function DevelopmentChart({
                 stroke="#0ea5e9"
                 strokeWidth={2}
                 strokeDasharray="6 4"
-                dot={{ r: 2.5, strokeWidth: 0, fill: "#0ea5e9" }}
+                dot={(props: { cx: number; cy: number; payload: ChartDataPoint }) => {
+                  const { cx, cy, payload } = props;
+                  if (typeof payload.predictedWeightTrend !== 'number') return <g />;
+                  return (
+                    <circle
+                      key={`pred-dot-weight-${payload.dateOrder}`}
+                      cx={cx}
+                      cy={cy}
+                      r={3.5}
+                      fill={payload.weightColor || "#0ea5e9"}
+                      stroke="#fff"
+                      strokeWidth={1}
+                    />
+                  );
+                }}
                 activeDot={{ r: 4, strokeWidth: 0, fill: "#0284c7" }}
                 connectNulls
               />

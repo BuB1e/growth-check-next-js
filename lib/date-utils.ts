@@ -83,6 +83,40 @@ export function formatAgeThai(
 }
 
 /**
+ * Calculates the exact age in years and months between a birth date and a target date.
+ * Useful for child growth data entries.
+ */
+export function calculateAge(
+  birthDate: Date | number | string,
+  targetDate: Date | number | string = new Date(),
+): { years: number; months: number } {
+  const birth = new Date(birthDate);
+  const target = new Date(targetDate);
+
+  if (Number.isNaN(birth.getTime()) || Number.isNaN(target.getTime())) {
+    return { years: 0, months: 0 };
+  }
+
+  if (birth > target) {
+    return { years: 0, months: 0 };
+  }
+
+  let years = target.getFullYear() - birth.getFullYear();
+  let months = target.getMonth() - birth.getMonth();
+
+  if (target.getDate() < birth.getDate()) {
+    months -= 1;
+  }
+
+  if (months < 0) {
+    years -= 1;
+    months += 12;
+  }
+
+  return { years: Math.max(years, 0), months: Math.max(months, 0) };
+}
+
+/**
  * Format dynamic total month count to "X ปี Y เดือน" or "Y เดือน".
  * @param totalMonths Total age in months
  * @returns Formatted Thai age string

@@ -7,7 +7,7 @@ import { Loader2, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { formatBE } from "@/lib/date-utils";
+import { calculateAge, formatBE } from "@/lib/date-utils";
 import { createChildDataAction } from "@/app/desktop/children/actions";
 
 const measurementSchema = z.object({
@@ -19,11 +19,15 @@ const measurementSchema = z.object({
 interface MeasurementQuickAddCardProps {
   childId: number;
   locationId: number;
+  birthDate: Date;
+  userId: string;
 }
 
 export function MeasurementQuickAddCard({
   childId,
   locationId,
+  birthDate,
+  userId,
 }: MeasurementQuickAddCardProps) {
   const router = useRouter();
   const now = new Date();
@@ -77,20 +81,21 @@ export function MeasurementQuickAddCard({
     }
 
     setIsPending(true);
-    // TODO: Replace with backend-calculated development IDs and remove hardcoded 0 values.
-    // TODO: Remove placeholder user fields once user identity comes from authenticated session only.
-    // TODO: ageYear/ageMonth should be computed from child birthDate when passed as prop
+    const { years: ageYear, months: ageMonth } = calculateAge(
+      birthDate,
+      new Date(parsed.data.date),
+    );
+
     const result = await createChildDataAction({
       childId,
       locationId,
       height: parsed.data.height,
       weight: parsed.data.weight,
-      heightDevelopmentId: 0,
-      weightDevelopmentId: 0,
       heightDate: new Date(parsed.data.date),
-      userCreated: "current-user",
-      userUpdated: "current-user",
-      age: 0,
+      ageYear,
+      ageMonth,
+      userCreated: userId,
+      userUpdated: userId,
     });
 
     if (!result.success) {

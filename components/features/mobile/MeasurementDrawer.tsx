@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2, Save, Sparkles } from "lucide-react";
-import { formatBE } from "@/lib/date-utils";
+import { calculateAge, formatBE } from "@/lib/date-utils";
 
 const measurementSchema = z.object({
   height: z.number().positive("ส่วนสูงต้องมากกว่า 0"),
@@ -26,12 +26,18 @@ const measurementSchema = z.object({
 
 interface MeasurementDrawerProps {
   childId: number | null;
+  locationId: number;
+  birthDate: Date;
+  userId: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
 export function MeasurementDrawer({
   childId,
+  locationId,
+  birthDate,
+  userId,
   open,
   onOpenChange,
 }: MeasurementDrawerProps) {
@@ -98,18 +104,21 @@ export function MeasurementDrawer({
       const { createChildDataAction, createPredictionForChildAction } = await import(
         "@/app/mobile/staff/child/[child_id]/actions"
       );
-      // TODO: ageYear/ageMonth should be computed from child birthDate — wire when childBirthDate prop is available
+      const { years: ageYear, months: ageMonth } = calculateAge(
+        birthDate,
+        new Date(parsed.data.date),
+      );
+
       await createChildDataAction({
         childId: childId ?? 0,
-        locationId: 0, // TODO: Get from child's current location
+        locationId,
         height: parsed.data.height,
         weight: parsed.data.weight,
-        heightDevelopmentId: 0, // TODO: Calculate from growth standards
-        weightDevelopmentId: 0, // TODO: Calculate from growth standards
         heightDate: new Date(parsed.data.date),
-        userCreated: "current-user", // TODO: Get from session
-        userUpdated: "current-user", // TODO: Get from session
-        age: 0, // TODO: Calculate numeric age if needed
+        ageYear,
+        ageMonth,
+        userCreated: userId,
+        userUpdated: userId,
       });
 
       if (childId) {

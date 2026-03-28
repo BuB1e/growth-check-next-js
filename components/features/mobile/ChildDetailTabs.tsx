@@ -48,11 +48,13 @@ export function ChildDetailTabs({
   history,
   latestPrediction,
   developments,
+  userId,
 }: {
   child: ChildResponse;
   history: ChildDataResponse[];
   latestPrediction: AiPredictionResponse | null;
   developments: DevelopmentResponse[];
+  userId: string;
 }) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<"personal" | "development">(
@@ -350,7 +352,7 @@ export function ChildDetailTabs({
                 </div>
               ) : (
                 // Chart View
-                <DevelopmentChart history={history} prediction={latestPrediction} />
+                <DevelopmentChart history={history} developments={developments} prediction={latestPrediction} />
               )
             ) : (
               // Empty State

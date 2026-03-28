@@ -18,6 +18,7 @@ interface MobileChildListProps {
   waStatus?: string;
   locationId?: string;
   sex?: string;
+  userId: string;
 }
 
 export async function MobileChildList({
@@ -33,6 +34,7 @@ export async function MobileChildList({
   waStatus = "",
   locationId = "",
   sex = "",
+  userId,
 }: MobileChildListProps) {
   let listData: PaginatedResponseDTO<ChildResponse> = {
     data: [],
@@ -84,7 +86,11 @@ export async function MobileChildList({
     <div className="space-y-4 pb-24">
       <div className="space-y-3">
         {children.map((child: ChildResponse) => (
-          <MobileChildListItem key={child.id} child={child} />
+          <MobileChildListItem
+            key={child.id}
+            child={child}
+            userId={userId!}
+          />
         ))}
       </div>
 

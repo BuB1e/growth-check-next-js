@@ -3,6 +3,7 @@ import { ChildAction } from "@/actions/ChildAction";
 import { AiPredictionAction } from "@/actions/AiPredictionAction";
 import { ChildDataAction } from "@/actions/ChildDataAction";
 import { LocationAction } from "@/actions/LocationAction";
+import { DevelopmentAction } from "@/actions/DevelopmentAction";
 import { notFound } from "next/navigation";
 import {
   Card,
@@ -21,6 +22,7 @@ import { PredictionCard } from "@/components/features/desktop/PredictionCard";
 import { MeasurementQuickAddCard } from "@/components/features/desktop/MeasurementQuickAddCard";
 import { EnvConfig } from "@/configs/BackendConfig";
 import { formatAgeThai, formatBE } from "@/lib/date-utils";
+import { getCurrentSession } from "@/lib/auth/session.server";
 import type { AiPredictionResponse, LocationResponse } from "@/dto";
 
 export const metadata = {
@@ -133,6 +135,22 @@ async function ChildDetailContent({
     console.error("Failed to load child predictions:", error);
   }
 
+  // Fetch developments for coloring the chart points
+  let developments: import("@/dto").DevelopmentResponse[] = [];
+  try {
+    const devRes = await DevelopmentAction.getDevelopments({
+      page: 1,
+      limit: 2000,
+      deleteStatus: false,
+    });
+    developments = devRes.data;
+  } catch (error) {
+    console.error("Failed to load developments for chart coloring:", error);
+  }
+
+  const session = await getCurrentSession();
+  const userId = session?.user.id;
+
   return (
     <div className="mx-auto w-full max-w-6xl space-y-6">
       <Card>
@@ -155,7 +173,12 @@ async function ChildDetailContent({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <MeasurementQuickAddCard childId={childId} locationId={child.locationId} />
+          <MeasurementQuickAddCard
+            childId={childId}
+            locationId={child.locationId}
+            birthDate={new Date(child.birthDate)}
+            userId={userId!}
+          />
         </CardContent>
       </Card>
 
@@ -168,7 +191,7 @@ async function ChildDetailContent({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <GrowthChart childId={childId} data={childData} prediction={latestPrediction} />
+          <GrowthChart childId={childId} data={childData} developments={developments} prediction={latestPrediction} />
         </CardContent>
       </Card>
 

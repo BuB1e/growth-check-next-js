@@ -8,7 +8,13 @@ import { UserCircle2, Plus } from "lucide-react";
 import Link from "next/link";
 import { formatAgeThai } from "@/lib/date-utils";
 
-export function MobileChildListItem({ child }: { child: ChildResponse }) {
+export function MobileChildListItem({
+  child,
+  userId
+}: {
+  child: ChildResponse;
+  userId: string;
+}) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const sexText = SexToThai[child.sex] ?? "ไม่ระบุ";
 
@@ -60,6 +66,9 @@ export function MobileChildListItem({ child }: { child: ChildResponse }) {
 
       <MeasurementDrawer
         childId={child.id}
+        locationId={child.locationId}
+        birthDate={new Date(child.birthDate)}
+        userId={userId!}
         open={drawerOpen}
         onOpenChange={setDrawerOpen}
       />

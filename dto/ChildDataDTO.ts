@@ -30,7 +30,9 @@ export interface CreateChildDataDTO {
 	locationId: number;
 	height: number;
 	weight: number;
-	age: number;
+	// age: toMonths(body.ageYear, body.ageMonth) <= this is backend logic so we need to split age into ageYear and ageMonth
+	ageYear: number;
+	ageMonth: number;
 	heightDevelopmentId?: number;
 	weightDevelopmentId?: number;
 	heightDate: Date;

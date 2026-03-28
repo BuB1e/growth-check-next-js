@@ -7,6 +7,7 @@ import { ChildDetailTabs } from "@/components/features/mobile/ChildDetailTabs";
 import { notFound } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import type { AiPredictionResponse } from "@/dto";
+import { getCurrentSession } from "@/lib/auth/session.server";
 
 async function ChildProfileContent({
   paramsPromise,
@@ -24,7 +25,7 @@ async function ChildProfileContent({
     ChildAction.getChildById(p.child_id.replace("child_", "")),
     // Replace with real API call filtered by childId
     ChildDataAction.getChildDataList({ childId: childId }),
-    DevelopmentAction.getDevelopments({ page: 1, limit: 1000 }),
+    DevelopmentAction.getDevelopments({ page: 1, limit: 2000 }),
   ]);
 
   let latestPrediction: AiPredictionResponse | null = null;
@@ -37,7 +38,8 @@ async function ChildProfileContent({
 
     latestPrediction =
       [...predictionRes.data].sort(
-        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
       )[0] ?? null;
   } catch (error) {
     console.error("Failed to load mobile predictions:", error);
@@ -49,12 +51,16 @@ async function ChildProfileContent({
     notFound();
   }
 
+  const session = await getCurrentSession();
+  const userId = session?.user.id;
+
   return (
     <ChildDetailTabs
       child={child}
       history={history}
       latestPrediction={latestPrediction}
       developments={developmentsResponse.data}
+      userId={userId!}
     />
   );
 }

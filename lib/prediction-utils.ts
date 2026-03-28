@@ -1,4 +1,5 @@
 import type { AiPredictionResponse } from "@/dto";
+import { getGrowthColor } from "./growth-utils";
 
 type PredictionValue = number | number[];
 
@@ -47,6 +48,8 @@ export function buildPredictionPoints(
   predictedDate: Date;
   predictedHeight?: number;
   predictedWeight?: number;
+  heightColor?: string;
+  weightColor?: string;
 }> {
   if (!prediction) {
     return [];
@@ -79,10 +82,16 @@ export function buildPredictionPoints(
     const predictedDate = new Date(baseDate);
     predictedDate.setMonth(predictedDate.getMonth() + monthStep * (index + 1));
 
+    // Map status colors for predictions if developments array is provided
+    const hDev = prediction.heightDevelopments?.[index];
+    const wDev = prediction.weightDevelopments?.[index];
+
     return {
       predictedDate,
       predictedHeight: heightSeries[index],
       predictedWeight: weightSeries[index],
+      heightColor: hDev ? getGrowthColor("HA", hDev.status) : undefined,
+      weightColor: wDev ? getGrowthColor("WA", wDev.status) : undefined,
     };
   });
 }

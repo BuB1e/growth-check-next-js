@@ -6,9 +6,11 @@ import {
   LineChart,
   XAxis,
   YAxis,
+  Label,
 } from "recharts";
 import { formatBE } from "@/lib/date-utils";
 import { buildPredictionPoints } from "@/lib/prediction-utils";
+import { getGrowthColor } from "@/lib/growth-utils";
 
 import {
   ChartConfig,
@@ -21,7 +23,19 @@ import type { AiPredictionResponse, ChildDataResponse } from "@/dto";
 interface GrowthChartProps {
   childId: number;
   data?: ChildDataResponse[];
+  developments: import("@/dto").DevelopmentResponse[];
   prediction?: AiPredictionResponse | null;
+}
+
+interface ChartDataPoint {
+  date: Date;
+  weight?: number;
+  height?: number;
+  heightColor?: string;
+  weightColor?: string;
+  predictedWeightTrend?: number;
+  predictedHeightTrend?: number;
+  formattedDate: string;
 }
 
 const chartConfig = {
@@ -45,6 +59,7 @@ const chartConfig = {
 
 export function GrowthChart({
   data = [],
+  developments,
   prediction = null,
 }: GrowthChartProps) {
   const formatNumber = (value: number): string =>
@@ -72,14 +87,25 @@ export function GrowthChart({
       (a, b) =>
         new Date(a.heightDate).getTime() - new Date(b.heightDate).getTime(),
     )
-    .map((d) => ({
-      date: new Date(d.heightDate),
-      weight: d.weight,
-      height: d.height,
-      predictedWeightTrend: undefined as number | undefined,
-      predictedHeightTrend: undefined as number | undefined,
-      formattedDate: formatBE(d.heightDate, "d MMM yy"),
-    }));
+    .map((d) => {
+      // Look up status for HA and WA
+      const heightDev = developments.find(dev => dev.id === d.heightDevelopmentId);
+      const weightDev = developments.find(dev => dev.id === d.weightDevelopmentId);
+
+      const heightColor = heightDev ? getGrowthColor("HA", heightDev.status) : "#3b82f6";
+      const weightColor = weightDev ? getGrowthColor("WA", weightDev.status) : "#f97316";
+
+      return {
+        date: new Date(d.heightDate),
+        weight: d.weight,
+        height: d.height,
+        heightColor,
+        weightColor,
+        predictedWeightTrend: undefined as number | undefined,
+        predictedHeightTrend: undefined as number | undefined,
+        formattedDate: formatBE(d.heightDate, "d MMM yy"),
+      };
+    });
 
   const latestHistoricalDate = historicalData[historicalData.length - 1]?.date;
   const predictionPoints = buildPredictionPoints(prediction, {
@@ -98,14 +124,34 @@ export function GrowthChart({
 
   const chartData = [
     ...historicalData,
-    ...predictionPoints.map((point) => ({
-      date: point.predictedDate,
-      predictedWeight: point.predictedWeight,
-      predictedHeight: point.predictedHeight,
-      predictedWeightTrend: point.predictedWeight,
-      predictedHeightTrend: point.predictedHeight,
-      formattedDate: formatBE(point.predictedDate, "d MMM yy"),
-    })),
+    ...predictionPoints.map((point, index) => {
+      // Fallback color logic for predictions: 
+      // 1. Point color from buildPredictionPoints (has arrays)
+      // 2. Lookup prediction's heightDevelopmentId if it's the first point
+      // 3. Line color fallback
+      let hColor = point.heightColor;
+      if (!hColor && index === 0 && prediction?.heightDevelopmentId) {
+        const dev = developments.find(d => d.id === prediction.heightDevelopmentId);
+        if (dev) hColor = getGrowthColor("HA", dev.status);
+      }
+
+      let wColor = point.weightColor;
+      if (!wColor && index === 0 && prediction?.weightDevelopmentId) {
+        const dev = developments.find(d => d.id === prediction.weightDevelopmentId);
+        if (dev) wColor = getGrowthColor("WA", dev.status);
+      }
+
+      return {
+        date: point.predictedDate,
+        predictedWeight: point.predictedWeight,
+        predictedHeight: point.predictedHeight,
+        predictedWeightTrend: point.predictedWeight,
+        predictedHeightTrend: point.predictedHeight,
+        heightColor: hColor,
+        weightColor: wColor,
+        formattedDate: formatBE(point.predictedDate, "d MMM yy"),
+      };
+    }),
   ]
     .filter((d) => !Number.isNaN(d.date.getTime()))
     .sort((a, b) => a.date.getTime() - b.date.getTime());
@@ -189,11 +235,11 @@ export function GrowthChart({
         config={chartConfig}
         className="min-h-80 w-full rounded-xl border border-slate-200 bg-white p-2"
       >
-        <LineChart
-          accessibilityLayer
-          data={chartData}
-          margin={{ left: 12, right: 12, bottom: 0 }}
-        >
+          <LineChart
+            accessibilityLayer
+            data={chartData}
+            margin={{ top: 40, left: 40, right: 40, bottom: 0 }}
+          >
           <CartesianGrid
             vertical
             stroke="rgba(148, 163, 184, 0.35)"
@@ -212,36 +258,38 @@ export function GrowthChart({
             domain={weightDomain}
             ticks={weightTicks}
             allowDecimals={false}
-            tickLine
-            axisLine={{ stroke: "rgba(148, 163, 184, 0.7)" }}
-            tick={{ fontSize: 12, fill: "#9a3412" }}
+            tickLine={{ stroke: "#f97316" }}
+            axisLine={{ stroke: "#f97316" }}
+            tick={{ fontSize: 12, fill: "#ea580c", fontWeight: 600 }}
             width={52}
             tickFormatter={formatNumber}
-            label={{
-              value: "น้ำหนัก (กก.)",
-              angle: -90,
-              position: "insideLeft",
-              style: { fill: "#9a3412", fontSize: 12, fontWeight: 600 },
-            }}
-          />
+          >
+            <Label
+              value="น้ำหนัก (กก.)"
+              position="top"
+              offset={20}
+              style={{ fill: "#ea580c", fontSize: 11, fontWeight: 700 }}
+            />
+          </YAxis>
           <YAxis
             yAxisId="height"
             orientation="right"
             domain={heightDomain}
             ticks={heightTicks}
             allowDecimals={false}
-            tickLine
-            axisLine={{ stroke: "rgba(148, 163, 184, 0.7)" }}
-            tick={{ fontSize: 12, fill: "#1e40af" }}
+            tickLine={{ stroke: "#3b82f6" }}
+            axisLine={{ stroke: "#3b82f6" }}
+            tick={{ fontSize: 12, fill: "#2563eb", fontWeight: 600 }}
             width={52}
             tickFormatter={formatNumber}
-            label={{
-              value: "ส่วนสูง (ซม.)",
-              angle: 90,
-              position: "insideRight",
-              style: { fill: "#1e40af", fontSize: 12, fontWeight: 600 },
-            }}
-          />
+          >
+            <Label
+              value="ส่วนสูง (ซม.)"
+              position="top"
+              offset={20}
+              style={{ fill: "#2563eb", fontSize: 11, fontWeight: 700 }}
+            />
+          </YAxis>
           <ChartTooltip
             cursor={{ strokeDasharray: "3 3" }}
             content={
@@ -266,7 +314,21 @@ export function GrowthChart({
             dataKey="weight"
             stroke="var(--color-weight)"
             strokeWidth={3}
-            dot={{ r: 4, fill: "var(--color-weight)" }}
+            dot={(props: { cx: number; cy: number; payload: ChartDataPoint; index?: number }) => {
+              const { cx, cy, payload, index } = props;
+              if (typeof payload.weight !== 'number') return <g key={`dot-weight-null-${index}`} />;
+              return (
+                <circle
+                  key={`dot-weight-${payload.date.getTime()}`}
+                  cx={cx}
+                  cy={cy}
+                  r={4}
+                  fill={payload.weightColor || "#f97316"}
+                  stroke="#fff"
+                  strokeWidth={2}
+                />
+              );
+            }}
             activeDot={{ r: 6 }}
             name="น้ำหนักจริง"
           />
@@ -276,7 +338,21 @@ export function GrowthChart({
             dataKey="height"
             stroke="var(--color-height)"
             strokeWidth={3}
-            dot={{ r: 4, fill: "var(--color-height)" }}
+            dot={(props: { cx: number; cy: number; payload: ChartDataPoint; index?: number }) => {
+              const { cx, cy, payload, index } = props;
+              if (typeof payload.height !== 'number') return <g key={`dot-height-null-${index}`} />;
+              return (
+                <circle
+                  key={`dot-height-${payload.date.getTime()}`}
+                  cx={cx}
+                  cy={cy}
+                  r={4}
+                  fill={payload.heightColor || "#3b82f6"}
+                  stroke="#fff"
+                  strokeWidth={2}
+                />
+              );
+            }}
             activeDot={{ r: 6 }}
             name="ส่วนสูงจริง"
           />
@@ -287,7 +363,21 @@ export function GrowthChart({
             stroke="var(--color-predictedWeight)"
             strokeWidth={2}
             strokeDasharray="6 4"
-            dot={{ r: 3, fill: "var(--color-predictedWeight)" }}
+            dot={(props: { cx: number; cy: number; payload: ChartDataPoint; index?: number }) => {
+              const { cx, cy, payload, index } = props;
+              if (typeof payload.predictedWeightTrend !== 'number') return <g key={`pred-dot-weight-null-${index}`} />;
+              return (
+                <circle
+                  key={`pred-dot-weight-${payload.date.getTime()}`}
+                  cx={cx}
+                  cy={cy}
+                  r={3.5}
+                  fill={payload.weightColor || "#0ea5e9"}
+                  stroke="#fff"
+                  strokeWidth={1}
+                />
+              );
+            }}
             activeDot={{ r: 5 }}
             connectNulls
             name="น้ำหนักที่ทำนาย"
@@ -299,7 +389,21 @@ export function GrowthChart({
             stroke="var(--color-predictedHeight)"
             strokeWidth={2}
             strokeDasharray="6 4"
-            dot={{ r: 3, fill: "var(--color-predictedHeight)" }}
+            dot={(props: { cx: number; cy: number; payload: ChartDataPoint; index?: number }) => {
+              const { cx, cy, payload, index } = props;
+              if (typeof payload.predictedHeightTrend !== 'number') return <g key={`pred-dot-height-null-${index}`} />;
+              return (
+                <circle
+                  key={`pred-dot-height-${payload.date.getTime()}`}
+                  cx={cx}
+                  cy={cy}
+                  r={3.5}
+                  fill={payload.heightColor || "#8b5cf6"}
+                  stroke="#fff"
+                  strokeWidth={1}
+                />
+              );
+            }}
             activeDot={{ r: 5 }}
             connectNulls
             name="ส่วนสูงที่ทำนาย"

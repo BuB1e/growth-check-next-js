@@ -4,6 +4,7 @@ import { ChildListFilters } from "@/components/features/mobile/ChildListFilters"
 import Link from "next/link";
 import { UserPlus } from "lucide-react";
 import { EnvConfig } from "@/configs/BackendConfig";
+import { getCurrentSession } from "@/lib/auth/session.server";
 
 // A wrapper component that handles the asynchronous searchParams
 async function ChildListWrapper({
@@ -50,6 +51,9 @@ async function ChildListWrapper({
       ? parsedLimit
       : EnvConfig.PAGINATION_LIMIT_MOBILE_SIZE;
 
+  const session = await getCurrentSession();
+  const userId = session?.user.id;
+
   return (
     <MobileChildList
       page={page}
@@ -64,6 +68,7 @@ async function ChildListWrapper({
       locationId={locationId}
       sex={sex}
       limit={limit}
+      userId={userId!}
     />
   );
 }
