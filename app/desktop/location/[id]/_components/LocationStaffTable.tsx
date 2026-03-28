@@ -27,7 +27,7 @@ export function LocationStaffTable({ rawData }: LocationStaffTableProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  
+
   const [q, setQ] = useState(searchParams.get("staffQ") || "");
 
   const applySearch = useCallback(() => {
@@ -52,8 +52,8 @@ export function LocationStaffTable({ rawData }: LocationStaffTableProps) {
   const filteredStaff = useMemo(() => {
     const staffQ = searchParams.get("staffQ")?.toLowerCase();
     if (!staffQ) return staff;
-    
-    return staff.filter(user => 
+
+    return staff.filter(user =>
       user.firstName.toLowerCase().includes(staffQ) ||
       user.lastName.toLowerCase().includes(staffQ) ||
       user.email.toLowerCase().includes(staffQ)
@@ -91,7 +91,7 @@ export function LocationStaffTable({ rawData }: LocationStaffTableProps) {
           <TableBody>
             {filteredStaff.length > 0 ? (
               filteredStaff.map((user) => (
-                <TableRow key={user.id} className="text-base cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => router.push(`/desktop/users/${user.id}`)}>
+                <TableRow key={user.id} className="text-base cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => router.push(`/desktop/staff/${user.id}`)}>
                   <TableCell className="font-semibold text-lg py-4">
                     {user.firstName} {user.lastName}
                   </TableCell>
