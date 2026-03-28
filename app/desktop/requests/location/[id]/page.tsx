@@ -82,7 +82,7 @@ async function LocationRequestDetailContent({
   const userRole = session?.user?.role;
   const isAdmin = userRole === Role.ADMIN;
   const currentUserId = session?.user?.id;
-  
+
   const { id } = await params;
   const reqId = parseInt(id, 10);
 
@@ -131,16 +131,16 @@ async function LocationRequestDetailContent({
           <CardContent className="space-y-6">
             <div className="flex items-center justify-between">
               <div
-                className={`inline-flex items-center px-4 py-2 rounded-full border text-base font-bold shadow-sm ${STATUS_CLASS[request.requestStatus] ?? STATUS_CLASS[Request_status.WAITING]}`}
+                className={`inline-flex items-center px-4 py-2 rounded-full border text-base font-bold shadow-sm ${STATUS_CLASS[request.status] ?? STATUS_CLASS[Request_status.WAITING]}`}
               >
-                {STATUS_LABEL[request.requestStatus] ?? request.requestStatus}
+                {STATUS_LABEL[request.status] ?? request.status}
               </div>
 
-              {isAdmin && request.requestStatus === Request_status.WAITING && currentUserId && (
-                <RequestActionButtons 
-                  id={request.id} 
-                  type="location" 
-                  handlerId={currentUserId} 
+              {isAdmin && request.status === Request_status.WAITING && currentUserId && (
+                <RequestActionButtons
+                  id={request.id}
+                  type="location"
+                  handlerId={currentUserId}
                 />
               )}
             </div>

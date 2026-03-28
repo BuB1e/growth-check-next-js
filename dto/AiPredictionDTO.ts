@@ -1,9 +1,12 @@
-// Aligned with real backend API spec
+import { DevelopmentResponse } from "./DevelopmentDTO";
+
+// Aligned with real backend API spec (2026-03-27 handoff + hotfix March 28)
 export interface AiPredictionResponse {
   id: number;
 	childId: number;
-	heightDevelopmentId: number;
-	weightDevelopmentId: number;
+	// Backward compatibility/convenience fields (last item in the array or null)
+	heightDevelopmentId?: number;
+	weightDevelopmentId?: number;
 	dataMonthsUsed: number;
 	modelUsed: string;
 	modelVersion: string;
@@ -12,12 +15,19 @@ export interface AiPredictionResponse {
 	height: number | number[];
 	weight: number | number[];
 	createdAt: Date;
+	// New arrays for many-to-many developments
+	heightDevelopmentIds?: number[];
+	weightDevelopmentIds?: number[];
+	heightDevelopments?: DevelopmentResponse[];
+	weightDevelopments?: DevelopmentResponse[];
 }
 
 export interface CreateAiPredictionDTO {
 	childId: number;
-	heightDevelopmentId: number;
-	weightDevelopmentId: number;
+	heightDevelopmentIds?: number[];
+	weightDevelopmentIds?: number[];
+	heightDevelopmentId?: number;
+	weightDevelopmentId?: number;
 	dataMonthsUsed: number;
 	modelUsed: string;
 	modelVersion: string;
@@ -29,6 +39,8 @@ export interface CreateAiPredictionDTO {
 
 export interface UpdateAiPredictionDTO {
 	childId?: number;
+	heightDevelopmentIds?: number[];
+	weightDevelopmentIds?: number[];
 	heightDevelopmentId?: number;
 	weightDevelopmentId?: number;
 	dataMonthsUsed?: number;

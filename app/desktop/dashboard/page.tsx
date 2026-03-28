@@ -140,12 +140,12 @@ async function DashboardDataWrapper({
       LocationCreateRequestAction.getRequests(),
       LocationCreateRequestAction.getRequests({ requestStatus: Request_status.WAITING }),
       AdminDashboardAction.getDashboardChartData({
-        startDate: typeof params.from === "string" ? params.from : undefined,
-        endDate: typeof params.to === "string" ? params.to : undefined,
-        locationId: typeof params.locationId === "string" ? params.locationId : undefined,
-        minAge: typeof params.minAge === "string" ? params.minAge : undefined,
-        maxAge: typeof params.maxAge === "string" ? params.maxAge : undefined,
-        sex: typeof params.sex === "string" ? params.sex : undefined,
+        startDate: typeof params.from === "string" ? new Date(params.from) : undefined,
+        endDate: typeof params.to === "string" ? new Date(params.to) : undefined,
+        locationId: typeof params.locationId === "string" && params.locationId ? parseInt(params.locationId) : undefined,
+        minAge: typeof params.minAge === "string" && params.minAge ? parseInt(params.minAge) : undefined,
+        maxAge: typeof params.maxAge === "string" && params.maxAge ? parseInt(params.maxAge) : undefined,
+        sex: typeof params.sex === "string" && params.sex ? (params.sex as import("@/types").Sex) : undefined,
       }),
     ]);
 

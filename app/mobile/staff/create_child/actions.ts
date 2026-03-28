@@ -193,6 +193,12 @@ export async function createChildServerAction(
 
     // 2. Create ChildData for each measurement
     for (const m of measurements) {
+      const measurementDate = new Date(m.date);
+      const totalMonths =
+        (measurementDate.getFullYear() - birthDate.getFullYear()) * 12 +
+        (measurementDate.getMonth() - birthDate.getMonth());
+      const ageMonthsTotal = Math.max(0, totalMonths);
+
       await ChildDataAction.createChildData({
         childId: childResponse.id,
         locationId: parseInt(locationId),
@@ -203,6 +209,7 @@ export async function createChildServerAction(
         weightDevelopmentId: fallbackWeightDevId,
         userCreated: resolvedUserId,
         userUpdated: resolvedUserId,
+        age: ageMonthsTotal,
       });
     }
 

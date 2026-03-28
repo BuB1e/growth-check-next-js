@@ -49,11 +49,11 @@ export async function createChildDataAction(
   const resolvedLocationId =
     data.locationId > 0 ? data.locationId : (child?.locationId ?? 0);
   const resolvedHeightDevelopmentId =
-    data.heightDevelopmentId > 0
+    data.heightDevelopmentId && data.heightDevelopmentId > 0
       ? data.heightDevelopmentId
       : (latestWithDev?.heightDevelopmentId ?? fallbackHeightDevId ?? 0);
   const resolvedWeightDevelopmentId =
-    data.weightDevelopmentId > 0
+    data.weightDevelopmentId && data.weightDevelopmentId > 0
       ? data.weightDevelopmentId
       : (latestWithDev?.weightDevelopmentId ?? fallbackWeightDevId ?? 0);
 
@@ -74,6 +74,8 @@ export async function createChildDataAction(
     weightDevelopmentId: resolvedWeightDevelopmentId,
     userCreated: resolvedUserId,
     userUpdated: resolvedUserId,
+    // age is now a single number field
+    age: data.age ?? 0,
   };
 
   return await ChildDataAction.createChildData(payload);

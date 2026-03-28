@@ -8,11 +8,12 @@ import {
 } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 import { UserAction } from "@/actions/UserAction";
-import { UserResponse } from "@/dto";
-import { DataTable } from "@/components/features/desktop/data-table";
+import { UserCreateStatusAction } from "@/actions/UserCreateStatusAction";
+import { UserResponse, UserCreateStatusResponse, PaginatedMetaDTO } from "@/dto";
 import { columns } from "@/components/features/desktop/columns";
+import { StaffTable } from "@/components/features/desktop/StaffTable";
 import StaffFilters from "@/components/features/desktop/StaffFilters";
-import { Role } from "@/types";
+import { Role, Request_status } from "@/types/Enums";
 import { EnvConfig } from "@/configs/BackendConfig";
 
 export const metadata = {
@@ -85,34 +86,49 @@ async function StaffDataWrapper({
       : undefined;
 
   let users: UserResponse[] = [];
+  let meta: PaginatedMetaDTO | undefined;
 
   try {
-    users = await UserAction.getUsers({
+    // 1. Fetch only APPROVED user statuses from the backend.
+    const statusesResponse = await UserCreateStatusAction.getStatuses({
       page,
       limit,
       q,
-      role,
-      deleteStatus: false,
+      role: role as string,
+      status: Request_status.APPROVE,
     });
 
-    // Fallback for environments where /users may be restricted and team endpoint is still required.
-    if (!users.length) {
-      users = await UserAction.getUsersByTeam(1, {
-        page,
-        limit,
-        q,
-        role,
-        deleteStatus: false,
+    meta = statusesResponse.meta;
+
+    if (statusesResponse.data && statusesResponse.data.length > 0) {
+      // 2. Fetch details ONLY for the users in the current page.
+      const userIds = Array.from(new Set(statusesResponse.data.map(s => s.userId)));
+      const userResults = await Promise.allSettled(
+        userIds.map(id => UserAction.getUserById(id))
+      );
+      
+      const userMap = new Map<string, UserResponse>();
+      userResults.forEach((res, index) => {
+        if (res.status === "fulfilled" && res.value) {
+          userMap.set(userIds[index], res.value);
+        }
       });
+      
+      users = statusesResponse.data
+        .map((status: UserCreateStatusResponse) => userMap.get(status.userId))
+        .filter((user: UserResponse | undefined): user is UserResponse => !!user);
     }
   } catch (error) {
     console.error("Failed to fetch staff data:", error);
   }
 
-  if (!users.length) {
+  if (!meta || meta.total === 0) {
     return (
-      <div className="text-center py-16 text-muted-foreground">
-        ไม่พบข้อมูลเจ้าหน้าที่
+      <div className="space-y-4">
+        <StaffFilters />
+        <div className="text-center py-16 text-muted-foreground">
+          ไม่พบข้อมูลเจ้าหน้าที่
+        </div>
       </div>
     );
   }
@@ -120,7 +136,7 @@ async function StaffDataWrapper({
   return (
     <div className="space-y-4">
       <StaffFilters />
-      <DataTable columns={columns} data={users} />
+      <StaffTable data={users} meta={meta} />
     </div>
   );
 }

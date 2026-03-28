@@ -17,6 +17,7 @@ export async function updateUserRequestStatusAction(
     await UserCreateStatusAction.updateStatus(id.toString(), data);
     
     revalidatePath("/desktop/user-requests");
+    revalidatePath("/desktop/staff");
     revalidatePath(`/desktop/user-requests/${id}`);
     
     return { success: true };
@@ -57,6 +58,7 @@ export async function bulkUpdateUserRequestStatusAction(
     }
 
     revalidatePath("/desktop/user-requests");
+    revalidatePath("/desktop/staff");
     
     return { 
       success: failures.length === 0, 

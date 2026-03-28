@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import {
   Sidebar,
   SidebarContent,
@@ -19,6 +20,8 @@ import {
   Baby,
   FileText,
   UserPlus,
+  BarChart2,
+  Sparkles,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -66,15 +69,36 @@ const sidebarNavItems = [
     icon: UserPlus,
     type: ESidebar.USER_REQUEST,
   },
+  {
+    title: ESidebarToThai[ESidebar.GROWTH_REFERENCE],
+    url: "/desktop/growth-references",
+    icon: BarChart2,
+    type: ESidebar.GROWTH_REFERENCE,
+  },
+  {
+    title: ESidebarToThai[ESidebar.DEVELOPMENT],
+    url: "/desktop/development",
+    icon: Sparkles,
+    type: ESidebar.DEVELOPMENT,
+  },
 ];
 
 export default function DesktopSidebar() {
   const pathname = usePathname();
+  const [isMounted, setIsMounted] = useState(false);
   const { data: session } = authClient.useSession();
   const userRole = (session as CustomSession)?.user?.role;
 
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   const filteredNavItems = sidebarNavItems.filter((item) => {
-    if (item.type === ESidebar.USER_REQUEST) {
+    if (
+      item.type === ESidebar.USER_REQUEST ||
+      item.type === ESidebar.GROWTH_REFERENCE ||
+      item.type === ESidebar.DEVELOPMENT
+    ) {
       return userRole === Role.ADMIN;
     }
     return true;
@@ -89,7 +113,7 @@ export default function DesktopSidebar() {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-              {filteredNavItems.map((item) => (
+              {isMounted && filteredNavItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton
                     asChild

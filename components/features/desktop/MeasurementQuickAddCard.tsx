@@ -79,6 +79,7 @@ export function MeasurementQuickAddCard({
     setIsPending(true);
     // TODO: Replace with backend-calculated development IDs and remove hardcoded 0 values.
     // TODO: Remove placeholder user fields once user identity comes from authenticated session only.
+    // TODO: ageYear/ageMonth should be computed from child birthDate when passed as prop
     const result = await createChildDataAction({
       childId,
       locationId,
@@ -89,6 +90,7 @@ export function MeasurementQuickAddCard({
       heightDate: new Date(parsed.data.date),
       userCreated: "current-user",
       userUpdated: "current-user",
+      age: 0,
     });
 
     if (!result.success) {

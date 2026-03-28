@@ -112,17 +112,19 @@ export async function createChildDataAction(data: CreateChildDataDTO) {
     const resolvedLocationId =
       data.locationId > 0 ? data.locationId : (child?.locationId ?? 0);
     const resolvedHeightDevelopmentId =
-      data.heightDevelopmentId > 0
+      data.heightDevelopmentId && data.heightDevelopmentId > 0
         ? data.heightDevelopmentId
         : (latestWithDev?.heightDevelopmentId ?? fallbackHeightDevId ?? 0);
     const resolvedWeightDevelopmentId =
-      data.weightDevelopmentId > 0
+      data.weightDevelopmentId && data.weightDevelopmentId > 0
         ? data.weightDevelopmentId
         : (latestWithDev?.weightDevelopmentId ?? fallbackWeightDevId ?? 0);
 
     if (
       resolvedLocationId <= 0 ||
+      !resolvedHeightDevelopmentId ||
       resolvedHeightDevelopmentId <= 0 ||
+      !resolvedWeightDevelopmentId ||
       resolvedWeightDevelopmentId <= 0
     ) {
       return {
@@ -139,6 +141,8 @@ export async function createChildDataAction(data: CreateChildDataDTO) {
       weightDevelopmentId: resolvedWeightDevelopmentId,
       userCreated: resolvedUserId,
       userUpdated: resolvedUserId,
+      // age is now a single number field
+      age: data.age ?? 0,
     };
 
     const created = await ChildDataAction.createChildData(payload);

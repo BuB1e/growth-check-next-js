@@ -1,23 +1,28 @@
 import { Child_status } from "@/types";
 import { DevelopmentResponse } from "./DevelopmentDTO";
 
+// TODO: age object returned by backend GET endpoints (age.year / age.month)
+export interface ChildAgeObject {
+  year: number;
+  month: number;
+}
+
 export interface ChildDataResponse {
   id: number;
 	childId: number;
 	locationId: number;
 	height: number;
 	weight: number;
+	age: number | ChildAgeObject;
 	heightDevelopmentId: number;
 	weightDevelopmentId: number;
 	heightDate: Date;
 	userCreated: string;
 	userUpdated: string;
-  createdAt: Date;
-  updatedAt: Date;
-  deleteStatus: boolean;
-  status: Child_status;
-  weightDevelopment?: DevelopmentResponse;
-  heightDevelopment?: DevelopmentResponse;
+	createdAt: Date;
+	updatedAt: Date;
+	deleteStatus: boolean;
+	status: Child_status;
 }
 
 export interface CreateChildDataDTO {
@@ -25,8 +30,9 @@ export interface CreateChildDataDTO {
 	locationId: number;
 	height: number;
 	weight: number;
-	heightDevelopmentId: number;
-	weightDevelopmentId: number;
+	age: number;
+	heightDevelopmentId?: number;
+	weightDevelopmentId?: number;
 	heightDate: Date;
 	userCreated: string;
 	userUpdated: string;
@@ -38,6 +44,7 @@ export interface UpdateChildDataDTO {
 	locationId?: number;
 	height?: number;
 	weight?: number;
+	age?: number;
 	heightDevelopmentId?: number;
 	weightDevelopmentId?: number;
 	heightDate?: Date;
@@ -51,4 +58,5 @@ export interface OptionsGetChildDataDTO {
 	locationId?: number;
 	status?: Child_status;
 	deleteStatus?: boolean;
+	age?: number;
 }

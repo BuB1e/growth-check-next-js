@@ -8,7 +8,7 @@ import { Request_status } from "@/types";
 export async function approveLocationRequestAction(id: number, handlerId: string) {
   try {
     await LocationCreateRequestAction.updateRequest(id, {
-      requestStatus: Request_status.APPROVE,
+      status: Request_status.APPROVE,
       handledBy: handlerId
     });
     revalidatePath(`/desktop/requests/location/${id}`);
@@ -23,7 +23,7 @@ export async function approveLocationRequestAction(id: number, handlerId: string
 export async function rejectLocationRequestAction(id: number, handlerId: string) {
   try {
     await LocationCreateRequestAction.updateRequest(id, {
-      requestStatus: Request_status.REJECT,
+      status: Request_status.REJECT,
       handledBy: handlerId
     });
     revalidatePath(`/desktop/requests/location/${id}`);

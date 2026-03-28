@@ -6,6 +6,8 @@ export enum ESidebar {
     REQUEST = "Request",
     USER_REQUEST = "UserRequest",
     HISTORY = "History",
+    GROWTH_REFERENCE = "GrowthReference",
+    DEVELOPMENT = "Development",
 }
 
 export enum ESidebarThai {
@@ -16,6 +18,8 @@ export enum ESidebarThai {
     REQUEST = "คำร้องขอ",
     USER_REQUEST = "คำร้องเปิดบัญชี",
     HISTORY = "ประวัติ",
+    GROWTH_REFERENCE = "เกณฑ์มาตรฐานการเจริญเติบโต",
+    DEVELOPMENT = "คำแนะนำพัฒนาการ",
 }
 
 export const ESidebarToThai: Record<ESidebar, string> = {
@@ -26,4 +30,6 @@ export const ESidebarToThai: Record<ESidebar, string> = {
   [ESidebar.REQUEST]: ESidebarThai.REQUEST,
   [ESidebar.USER_REQUEST]: ESidebarThai.USER_REQUEST,
   [ESidebar.HISTORY]: ESidebarThai.HISTORY,
+  [ESidebar.GROWTH_REFERENCE]: ESidebarThai.GROWTH_REFERENCE,
+  [ESidebar.DEVELOPMENT]: ESidebarThai.DEVELOPMENT,
 };

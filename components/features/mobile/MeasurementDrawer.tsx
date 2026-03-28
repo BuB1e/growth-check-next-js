@@ -98,6 +98,7 @@ export function MeasurementDrawer({
       const { createChildDataAction, createPredictionForChildAction } = await import(
         "@/app/mobile/staff/child/[child_id]/actions"
       );
+      // TODO: ageYear/ageMonth should be computed from child birthDate — wire when childBirthDate prop is available
       await createChildDataAction({
         childId: childId ?? 0,
         locationId: 0, // TODO: Get from child's current location
@@ -108,6 +109,7 @@ export function MeasurementDrawer({
         heightDate: new Date(parsed.data.date),
         userCreated: "current-user", // TODO: Get from session
         userUpdated: "current-user", // TODO: Get from session
+        age: 0, // TODO: Calculate numeric age if needed
       });
 
       if (childId) {

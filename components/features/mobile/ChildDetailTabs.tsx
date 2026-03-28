@@ -13,6 +13,7 @@ import {
   Child_statusToThai,
   SexToThai,
 } from "@/types";
+import { DevelopmentStatusToThai, DevelopmentStatus } from "@/types/Enums";
 import { DevelopmentCard } from "./DevelopmentCard";
 import { DevelopmentChart } from "./DevelopmentChart"; // <-- Added Chart Import
 import {
@@ -39,18 +40,7 @@ function getChildStatusKey(status: unknown): Child_status | null {
 
 function toThaiDevelopmentStatus(status?: string | null): string {
   if (!status) return "-";
-
-  const normalized = status.toLowerCase();
-  const map: Record<string, string> = {
-    normal: "ปกติ",
-    stunted: "เตี้ย",
-    underweight: "น้ำหนักน้อยกว่าเกณฑ์",
-    overweight: "น้ำหนักมากกว่าเกณฑ์",
-    risk_overweight: "เสี่ยงน้ำหนักมากเกินเกณฑ์",
-    risk_wasting: "เสี่ยงน้ำหนักน้อยกว่าเกณฑ์",
-  };
-
-  return map[normalized] ?? status;
+  return DevelopmentStatusToThai[status as DevelopmentStatus] || status.trim();
 }
 
 export function ChildDetailTabs({
@@ -83,10 +73,10 @@ export function ChildDetailTabs({
   const ageText = formatAgeThai(child.birthDate);
   const latestRecord = history[0];
   const latestWeightStatus = toThaiDevelopmentStatus(
-    latestRecord?.weightDevelopment?.status,
+    developments.find((d) => d.id === latestRecord?.weightDevelopmentId)?.status,
   );
   const latestHeightStatus = toThaiDevelopmentStatus(
-    latestRecord?.heightDevelopment?.status,
+    developments.find((d) => d.id === latestRecord?.heightDevelopmentId)?.status,
   );
   const latestWeightValue =
     typeof latestRecord?.weight === "number" ? `${latestRecord.weight.toFixed(1)} กก.` : "-";
@@ -242,7 +232,7 @@ export function ChildDetailTabs({
 
         {activeTab === "development" && (
           <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
-            <div className="rounded-2xl border border-sky-100 bg-sky-50/70 p-3">
+            <div className="rounded-2xl border border-sky-100 bg-linear-to-r from-sky-50 to-white p-3">
               <button
                 type="button"
                 onClick={handleManualPrediction}
@@ -298,45 +288,16 @@ export function ChildDetailTabs({
                   </div>
                 )}
 
-                <div className="rounded-3xl border border-sky-100 bg-linear-to-br from-sky-50 via-cyan-50 to-white p-4 shadow-sm ring-1 ring-sky-100/60">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <h3 className="text-[16px] font-bold text-slate-800 tracking-tight">
-                        ข้อมูลล่าสุด
-                      </h3>
-                      <p className="mt-0.5 text-xs font-medium text-slate-500">
-                        บันทึกล่าสุดวันที่ {latestRecordedDate}
-                      </p>
-                    </div>
-                    <span className="inline-flex rounded-full border border-sky-200 bg-white/80 px-2.5 py-1 text-xs font-semibold text-sky-700">
-                      ล่าสุด
-                    </span>
-                  </div>
+                <LatestRecord
+                  latestRecordedDate={latestRecordedDate}
+                  latestWeightValue={latestWeightValue}
+                  latestWeightStatus={latestWeightStatus}
+                  latestHeightValue={latestHeightValue}
+                  latestHeightStatus={latestHeightStatus}
+                />
 
-                  <div className="mt-4 grid grid-cols-2 gap-3">
-                    <div className="rounded-2xl bg-white p-3 shadow-sm border border-slate-100">
-                      <p className="text-xs font-semibold text-slate-400">น้ำหนัก</p>
-                      <p className="mt-1 flex items-center gap-1 text-[20px] font-extrabold text-slate-900">
-                        <Weight className="h-4 w-4 text-emerald-600" />
-                        {latestWeightValue}
-                      </p>
-                      <p className="mt-1 text-xs font-medium text-slate-500">
-                        สถานะ: {latestWeightStatus}
-                      </p>
-                    </div>
-
-                    <div className="rounded-2xl bg-white p-3 shadow-sm border border-slate-100">
-                      <p className="text-xs font-semibold text-slate-400">ส่วนสูง</p>
-                      <p className="mt-1 flex items-center gap-1 text-[20px] font-extrabold text-slate-900">
-                        <Ruler className="h-4 w-4 text-blue-600" />
-                        {latestHeightValue}
-                      </p>
-                      <p className="mt-1 text-xs font-medium text-slate-500">
-                        สถานะ: {latestHeightStatus}
-                      </p>
-                    </div>
-                  </div>
-                </div>
+                {/* Total Measurement Count Card */}
+                <TotalMeasurementCard count={history.length} />
 
                 <div className="flex items-center justify-between px-1">
                   <p className="text-sm font-bold text-gray-800 tracking-tight">
@@ -377,10 +338,11 @@ export function ChildDetailTabs({
                 // List View
                 <div className="space-y-4">
                   {
-                    history.sort((a, b) => b.id - a.id).map((record) => (
+                    history.sort((a, b) => b.id - a.id).map((record, i) => (
                       <DevelopmentCard
                         key={record.id}
                         data={record}
+                        index={history.length - i}
                         developments={developments}
                       />
                     ))
@@ -408,5 +370,77 @@ export function ChildDetailTabs({
         )}
       </div>
     </div>
+  );
+}
+
+function LatestRecord({latestRecordedDate, latestWeightValue, latestWeightStatus, latestHeightValue, latestHeightStatus}: {latestRecordedDate: string, latestWeightValue: string, latestWeightStatus: string, latestHeightValue: string, latestHeightStatus: string}) {
+  return(
+    <div className="rounded-3xl border border-sky-100 bg-linear-to-br from-sky-50 via-cyan-50 to-white p-4 shadow-sm ring-1 ring-sky-100/60">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <h3 className="text-[16px] font-bold text-slate-800 tracking-tight">
+                        ข้อมูลล่าสุด
+                      </h3>
+                      <p className="mt-0.5 text-xs font-medium text-slate-500">
+                        บันทึกล่าสุดวันที่ {latestRecordedDate}
+                      </p>
+                    </div>
+                    <span className="inline-flex rounded-full border border-sky-200 bg-white/80 px-2.5 py-1 text-xs font-semibold text-sky-700">
+                      ล่าสุด
+                    </span>
+                  </div>
+
+                  <div className="mt-4 grid grid-cols-2 gap-3">
+                    <div className="rounded-2xl bg-white p-3 shadow-sm border border-slate-100">
+                      <p className="text-xs font-semibold text-slate-400">น้ำหนัก</p>
+                      <p className="mt-1 flex items-center gap-1 text-[20px] font-extrabold text-slate-900">
+                        <Weight className="h-4 w-4 text-emerald-600" />
+                        {latestWeightValue}
+                      </p>
+                      <p className="mt-1 text-xs font-medium text-slate-500">
+                        สถานะ: {latestWeightStatus}
+                      </p>
+                    </div>
+
+                    <div className="rounded-2xl bg-white p-3 shadow-sm border border-slate-100">
+                      <p className="text-xs font-semibold text-slate-400">ส่วนสูง</p>
+                      <p className="mt-1 flex items-center gap-1 text-[20px] font-extrabold text-slate-900">
+                        <Ruler className="h-4 w-4 text-blue-600" />
+                        {latestHeightValue}
+                      </p>
+                      <p className="mt-1 text-xs font-medium text-slate-500">
+                        สถานะ: {latestHeightStatus}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+  );
+}
+
+function TotalMeasurementCard({ count }: { count: number }) {
+  return (
+    <div className="bg-white rounded-3xl p-5 shadow-sm border border-gray-100/60 ring-1 ring-black/5 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="bg-orange-50 p-2.5 rounded-2xl text-orange-600 shadow-sm border border-orange-100">
+                  <Activity className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-gray-900">
+                    จำนวนครั้งที่วัดทั้งหมด
+                  </p>
+                  <p className="text-xs text-gray-500 font-medium mt-0.5">
+                    ประวัติการเจริญเติบโตในระบบ
+                  </p>
+                </div>
+              </div>
+              <div className="text-right">
+                <span className="text-2xl font-black text-orange-600">
+                  {count}
+                </span>
+                <span className="ml-1 text-sm font-bold text-gray-400 uppercase tracking-wider">
+                  ครั้ง
+                </span>
+              </div>
+            </div>
   );
 }

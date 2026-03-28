@@ -36,6 +36,7 @@ function Badge({
   const Comp = asChild ? Slot.Root : "span"
 
   return (
+    // @ts-expect-error - Radix Slot ref types are fundamentally incompatible with ComponentProps<"span"> ref type in React 19
     <Comp
       data-slot="badge"
       data-variant={variant}

@@ -9,7 +9,7 @@ export interface LocationCreateRequestResponse {
 	district: string;
 	sub_district: string;
 	zip_code: string;
-	requestStatus: Request_status;
+	status: Request_status;
 	handledBy: string;
 	createdAt: Date;
 	updatedAt: Date;
@@ -34,7 +34,7 @@ export interface UpdateLocationRequestDTO {
 	district?: string;
 	sub_district?: string;
 	zip_code?: string;
-	requestStatus?: Request_status;
+	status?: Request_status;
 	handledBy?: string;
 }
 
@@ -47,7 +47,7 @@ export interface OptionsLocationCreateRequestDTO {
 	district?: string;
 	sub_district?: string;
 	zip_code?: string;
-	requestStatus?: Request_status;
+	status?: Request_status;
 	handledBy?: string;
 	deleteStatus?: boolean;
 }

@@ -62,34 +62,58 @@ export const Child_statusToThai: Record<Child_status, string> = {
 // Child location status, not child's growth status
 export type Child_status = (typeof Child_status)[keyof typeof Child_status];
 
-// export const DevelopmentStatus = {
-//   NORMAL: 'normal',
-//   STUNTED: 'stunted',
-//   UNDERWEIGHT: 'underweight',
-//   OVERWEIGHT: 'overweight',
-//   RISK_OVERWEIGHT: 'risk_overweight',
-//   RISK_WASTING: 'risk_wasting',
-// }
+export const DevelopmentStatus = {
+  WA_UNDERWEIGHT_FOR_AGE: 'WA_UNDERWEIGHT_FOR_AGE',
+  WA_NORMAL_WEIGHT_FOR_AGE: 'WA_NORMAL_WEIGHT_FOR_AGE',
+  WA_OVERWEIGHT_FOR_AGE: 'WA_OVERWEIGHT_FOR_AGE',
+  HA_STUNTED_FOR_AGE: 'HA_STUNTED_FOR_AGE',
+  HA_NORMAL_HEIGHT_FOR_AGE: 'HA_NORMAL_HEIGHT_FOR_AGE',
+  HA_TALL_FOR_AGE: 'HA_TALL_FOR_AGE',
+  WH_WASTED_FOR_HEIGHT: 'WH_WASTED_FOR_HEIGHT',
+  WH_NORMAL: 'WH_NORMAL',
+  WH_OVERWEIGHT: 'WH_OVERWEIGHT',
+  WH_OBESE: 'WH_OBESE',
+  BMI_THIN: 'BMI_THIN',
+  BMI_NORMAL: 'BMI_NORMAL',
+  BMI_OVERWEIGHT: 'BMI_OVERWEIGHT',
+  BMI_OBESE: 'BMI_OBESE'
+} as const
 
-// export const DevelopmentStatusTH = {
-//   NORMAL: 'ปกติ',
-//   STUNTED: 'เตี้ย',
-//   UNDERWEIGHT: 'น้ำหนักน้อยกว่าเกณฑ์',
-//   OVERWEIGHT: 'น้ำหนักมากกว่าเกณฑ์',
-//   RISK_OVERWEIGHT: 'เสี่ยงน้ำหนักมากเกินเกณฑ์',
-//   RISK_WASTING: 'เสี่ยงน้ำหนักน้อยกว่าเกณฑ์',
-// }
+export const DevelopmentStatusTH = {
+  WA_UNDERWEIGHT_FOR_AGE: 'น้ำหนักต่ำกว่าเกณฑ์ตามอายุ',
+  WA_NORMAL_WEIGHT_FOR_AGE: 'น้ำหนักตามเกณฑ์อายุ',
+  WA_OVERWEIGHT_FOR_AGE: 'น้ำหนักมากกว่าเกณฑ์ตามอายุ',
+  HA_STUNTED_FOR_AGE: 'เตี้ยกว่าเกณฑ์ตามอายุ',
+  HA_NORMAL_HEIGHT_FOR_AGE: 'ส่วนยาว/สูงปกติ',
+  HA_TALL_FOR_AGE: 'สูงกว่าเกณฑ์ตามอายุ',
+  WH_WASTED_FOR_HEIGHT: 'ผอม/น้ำหนักต่ำกว่าเกณฑ์',
+  WH_NORMAL: 'สมส่วน',
+  WH_OVERWEIGHT: 'น้ำหนักเกิน',
+  WH_OBESE: 'อ้วน',
+  BMI_THIN: 'ผอม',
+  BMI_NORMAL: 'ปกติ',
+  BMI_OVERWEIGHT: 'น้ำหนักเกิน',
+  BMI_OBESE: 'อ้วน'
+} as const
 
-// export const DevelopmentStatusToThai : Record<DevelopmentStatus, string> = {
-//   [DevelopmentStatus.NORMAL]: DevelopmentStatusTH.NORMAL,
-//   [DevelopmentStatus.STUNTED]: DevelopmentStatusTH.STUNTED,
-//   [DevelopmentStatus.UNDERWEIGHT]: DevelopmentStatusTH.UNDERWEIGHT,
-//   [DevelopmentStatus.OVERWEIGHT]: DevelopmentStatusTH.OVERWEIGHT,
-//   [DevelopmentStatus.RISK_OVERWEIGHT]: DevelopmentStatusTH.RISK_OVERWEIGHT,
-//   [DevelopmentStatus.RISK_WASTING]: DevelopmentStatusTH.RISK_WASTING,
-// }
+export const DevelopmentStatusToThai: Record<DevelopmentStatus, string> = {
+  [DevelopmentStatus.WA_UNDERWEIGHT_FOR_AGE]: DevelopmentStatusTH.WA_UNDERWEIGHT_FOR_AGE,
+  [DevelopmentStatus.WA_NORMAL_WEIGHT_FOR_AGE]: DevelopmentStatusTH.WA_NORMAL_WEIGHT_FOR_AGE,
+  [DevelopmentStatus.WA_OVERWEIGHT_FOR_AGE]: DevelopmentStatusTH.WA_OVERWEIGHT_FOR_AGE,
+  [DevelopmentStatus.HA_STUNTED_FOR_AGE]: DevelopmentStatusTH.HA_STUNTED_FOR_AGE,
+  [DevelopmentStatus.HA_NORMAL_HEIGHT_FOR_AGE]: DevelopmentStatusTH.HA_NORMAL_HEIGHT_FOR_AGE,
+  [DevelopmentStatus.HA_TALL_FOR_AGE]: DevelopmentStatusTH.HA_TALL_FOR_AGE,
+  [DevelopmentStatus.WH_WASTED_FOR_HEIGHT]: DevelopmentStatusTH.WH_WASTED_FOR_HEIGHT,
+  [DevelopmentStatus.WH_NORMAL]: DevelopmentStatusTH.WH_NORMAL,
+  [DevelopmentStatus.WH_OVERWEIGHT]: DevelopmentStatusTH.WH_OVERWEIGHT,
+  [DevelopmentStatus.WH_OBESE]: DevelopmentStatusTH.WH_OBESE,
+  [DevelopmentStatus.BMI_THIN]: DevelopmentStatusTH.BMI_THIN,
+  [DevelopmentStatus.BMI_NORMAL]: DevelopmentStatusTH.BMI_NORMAL,
+  [DevelopmentStatus.BMI_OVERWEIGHT]: DevelopmentStatusTH.BMI_OVERWEIGHT,
+  [DevelopmentStatus.BMI_OBESE]: DevelopmentStatusTH.BMI_OBESE,
+}
 
-// export type DevelopmentStatus = (typeof DevelopmentStatus)[keyof typeof DevelopmentStatus]
+export type DevelopmentStatus = (typeof DevelopmentStatus)[keyof typeof DevelopmentStatus]
 
 export const Metric_type = {
   WA: "WA",

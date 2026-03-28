@@ -13,3 +13,4 @@ export * from "./TeamDTO";
 export * from "./UserCreateStatusDTO";
 export * from "./PaginatedResponse";
 export * from "./AdminDTO";
+export * from "./GrowthReferenceDTO";

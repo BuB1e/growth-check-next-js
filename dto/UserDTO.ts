@@ -29,6 +29,7 @@ export interface UpdateUserDto {
 	lastName?: string;
 	image?: string | null;
 	teamId?: number | null;
+	role?: Role;
 }
 
 export interface UpdatePrivateUserDto {

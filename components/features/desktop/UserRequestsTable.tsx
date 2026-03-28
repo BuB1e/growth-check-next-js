@@ -35,6 +35,7 @@ import {
   Clock,
   CheckCircle2,
   XCircle,
+  Loader2,
 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -441,24 +442,81 @@ export function UserRequestsTable({ rawData, usersMap = new Map() }: UserRequest
 
       {/* Bulk Action Confirmation Dialog */}
       <AlertDialog open={!!confirmAction} onOpenChange={() => setConfirmAction(null)}>
-        <AlertDialogContent>
+        <AlertDialogContent className="sm:max-w-[500px] border-2 shadow-xl">
           <AlertDialogHeader>
-            <AlertDialogTitle>
-              {confirmAction === Request_status.APPROVE ? "ยืนยันการอนุมัติ" : "ยืนยันการปฏิเสธ"}
+            <AlertDialogTitle className="text-xl font-bold flex items-center gap-2">
+              {confirmAction === Request_status.APPROVE ? (
+                <CheckCircle2 className="h-6 w-6 text-green-600" />
+              ) : (
+                <XCircle className="h-6 w-6 text-red-600" />
+              )}
+              {confirmAction === Request_status.APPROVE ? "ยืนยันการอนุมัติรายชื่อ" : "ยืนยันการปฏิเสธรายชื่อ"}
             </AlertDialogTitle>
-            <AlertDialogDescription>
-              คุณต้องการ{confirmAction === Request_status.APPROVE ? "อนุมัติ" : "ปฏิเสธ"} {selectedIds.size} คำร้องใช่หรือไม่?
-              {confirmAction === Request_status.REJECT && " ผู้ใช้งานจะได้รับแจ้งว่าคำร้องถูกปฏิเสธ"}
-            </AlertDialogDescription>
+            <AlertDialogDescription asChild className="text-base text-slate-600 pt-2">
+              <div className="text-slate-600">
+                คุณต้องการ{confirmAction === Request_status.APPROVE ? "อนุมัติ" : "ปฏิเสธ"} {selectedIds.size} คำร้องที่เลือกไว้ใช่หรือไม่?
+                
+                <div className="mt-4 p-4 border-2 border-slate-100 rounded-xl bg-slate-50/50 max-h-[220px] overflow-y-auto custom-scrollbar shadow-inner">
+                  <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 flex items-center gap-2">
+                    <div className="w-1 h-1 rounded-full bg-slate-400" />
+                    รายชื่อเจ้าหน้าที่ที่เลือก ({selectedIds.size})
+                  </div>
+                  <div className="space-y-2">
+                  {Array.from(selectedIds).map((id) => {
+                    const user = usersMap.get(id);
+                    const req = rawData.data.find(r => r.userId === id) as any;
+                    
+                    let name = `User ID: ${id.substring(0, 8)}`;
+                    if (user) {
+                      name = `${user.firstName} ${user.lastName}`.trim();
+                    } else if (req && (req.firstName || req.user?.firstName)) {
+                      const fName = req.firstName || req.user?.firstName || "";
+                      const lName = req.lastName || req.user?.lastName || "";
+                      name = `${fName} ${lName}`.trim();
+                    }
+                    
+                    return (
+                      <div key={id} className="text-sm font-semibold text-slate-700 bg-white p-2 rounded-lg border border-slate-100 shadow-sm flex items-center gap-2">
+                        <div className="w-1.5 h-1.5 rounded-full bg-slate-300" />
+                        {name}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+              
+              {confirmAction === Request_status.REJECT && (
+                <div className="mt-4 p-3 rounded-lg bg-red-50 border border-red-100 flex items-start gap-2 animate-in fade-in slide-in-from-top-1 duration-300">
+                  <Clock className="h-4 w-4 text-red-500 mt-0.5" />
+                  <p className="text-sm font-medium text-red-700 italic">
+                    หมายเหตุ: ผู้ใช้งานจะได้รับแจ้งว่าคำร้องถูกปฏิเสธจากระบบ
+                  </p>
+                </div>
+              )}
+            </div>
+          </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>ยกเลิก</AlertDialogCancel>
+          <AlertDialogFooter className="mt-8 gap-3 sm:gap-2">
+            <AlertDialogCancel className="font-bold border-2 h-11 px-6 hover:bg-slate-100 transition-colors">
+              ยกเลิก
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleBulkAction}
               disabled={isProcessing}
-              className={confirmAction === Request_status.APPROVE ? "bg-green-600 hover:bg-green-700" : "bg-red-600 hover:bg-red-700"}
+              className={`font-bold h-11 px-8 min-w-[140px] transition-all duration-300 shadow-lg ${
+                confirmAction === Request_status.APPROVE 
+                  ? "bg-green-600 hover:bg-green-700 shadow-green-200" 
+                  : "bg-red-600 hover:bg-red-700 shadow-red-200"
+              }`}
             >
-              {isProcessing ? "กำลังดำเนินการ..." : confirmAction === Request_status.APPROVE ? "อนุมัติ" : "ปฏิเสธ"}
+              {isProcessing ? (
+                <div className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  กำลังดำเนินการ...
+                </div>
+              ) : (
+                confirmAction === Request_status.APPROVE ? "ยืนยันอนุมัติทั้งหมด" : "ยืนยันปฏิเสธทั้งหมด"
+              )}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

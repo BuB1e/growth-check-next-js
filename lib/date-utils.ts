@@ -81,3 +81,22 @@ export function formatAgeThai(
 
   return `${years} ปี ${months} เดือน`;
 }
+
+/**
+ * Format dynamic total month count to "X ปี Y เดือน" or "Y เดือน".
+ * @param totalMonths Total age in months
+ * @returns Formatted Thai age string
+ */
+export function formatAgeMonthsThai(totalMonths: number): string {
+  if (totalMonths < 0) return "-";
+  if (totalMonths < 12) return `${totalMonths} เดือน`;
+
+  const years = Math.floor(totalMonths / 12);
+  const months = totalMonths % 12;
+
+  if (months === 0) {
+    return `${years} ปี`;
+  }
+
+  return `${years} ปี ${months} เดือน`;
+}

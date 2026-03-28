@@ -15,6 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { PredictionModel } from "@/app/desktop/children/actions";
+import { DevelopmentStatusToThai, DevelopmentStatus } from "@/types/Enums";
 
 interface PredictionCardProps {
   childId: number;
@@ -491,27 +492,69 @@ export function PredictionCard({
       )}
 
       {resolvedPrediction ? (
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-          <div className="rounded-lg border bg-white p-3">
-            <p className="text-xs text-slate-500">ส่วนสูงที่คาดการณ์</p>
-            <p className="text-lg font-bold text-slate-900 mt-1">
-              {predictedHeight !== null ? `${predictedHeight.toFixed(1)} ซม.` : "-"}
-            </p>
+        <div className="space-y-3">
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+            <div className="rounded-lg border bg-white p-3">
+              <p className="text-xs text-slate-500">ส่วนสูงที่คาดการณ์</p>
+              <p className="text-lg font-bold text-slate-900 mt-1">
+                {predictedHeight !== null ? `${predictedHeight.toFixed(1)} ซม.` : "-"}
+              </p>
+            </div>
+            <div className="rounded-lg border bg-white p-3">
+              <p className="text-xs text-slate-500">น้ำหนักที่คาดการณ์</p>
+              <p className="text-lg font-bold text-slate-900 mt-1">
+                {predictedWeight !== null ? `${predictedWeight.toFixed(1)} กก.` : "-"}
+              </p>
+            </div>
+            <div className="rounded-lg border bg-white p-3 md:col-span-2">
+              <p className="text-xs text-slate-500">
+                โมเดล {resolvedPrediction.modelUsed} v{resolvedPrediction.modelVersion} • ข้อมูลย้อนหลัง {resolvedPrediction.dataMonthsUsed} เดือน
+              </p>
+              <p className="text-sm text-slate-700 mt-1">
+                วันที่ทำนาย {formatBE(resolvedPrediction.dateTime, "d MMM yyyy")}
+              </p>
+            </div>
           </div>
-          <div className="rounded-lg border bg-white p-3">
-            <p className="text-xs text-slate-500">น้ำหนักที่คาดการณ์</p>
-            <p className="text-lg font-bold text-slate-900 mt-1">
-              {predictedWeight !== null ? `${predictedWeight.toFixed(1)} กก.` : "-"}
-            </p>
-          </div>
-          <div className="rounded-lg border bg-white p-3 md:col-span-2">
-            <p className="text-xs text-slate-500">
-              โมเดล {resolvedPrediction.modelUsed} v{resolvedPrediction.modelVersion} • ข้อมูลย้อนหลัง {resolvedPrediction.dataMonthsUsed} เดือน
-            </p>
-            <p className="text-sm text-slate-700 mt-1">
-              วันที่ทำนาย {formatBE(resolvedPrediction.dateTime, "d MMM yyyy")}
-            </p>
-          </div>
+
+          {/* TODO: Render development timelines from heightDevelopments/weightDevelopments */}
+          {(resolvedPrediction.heightDevelopments?.length ?? 0) > 0 ||
+          (resolvedPrediction.weightDevelopments?.length ?? 0) > 0 ? (
+            <div className="rounded-lg border bg-white p-3 space-y-2">
+              <p className="text-xs font-semibold text-slate-600">ประวัติพัฒนาการที่คาดการณ์</p>
+              {resolvedPrediction.heightDevelopments &&
+                resolvedPrediction.heightDevelopments.length > 0 && (
+                  <div>
+                    <p className="text-[11px] font-medium text-slate-400 mb-1">ส่วนสูง (HA)</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {resolvedPrediction.heightDevelopments.map((dev) => (
+                        <span
+                          key={dev.id}
+                          className="inline-flex items-center rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10"
+                        >
+                          {DevelopmentStatusToThai[dev.status as DevelopmentStatus] || dev.status}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              {resolvedPrediction.weightDevelopments &&
+                resolvedPrediction.weightDevelopments.length > 0 && (
+                  <div>
+                    <p className="text-[11px] font-medium text-slate-400 mb-1">น้ำหนัก (WA)</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {resolvedPrediction.weightDevelopments.map((dev) => (
+                        <span
+                          key={dev.id}
+                          className="inline-flex items-center rounded-full bg-orange-50 px-2 py-0.5 text-xs font-medium text-orange-700 ring-1 ring-inset ring-orange-700/10"
+                        >
+                          {DevelopmentStatusToThai[dev.status as DevelopmentStatus] || dev.status}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+            </div>
+          ) : null}
         </div>
       ) : (
         <div className="rounded-lg border border-dashed bg-white p-3 text-sm text-slate-600">

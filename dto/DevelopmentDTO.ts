@@ -1,8 +1,8 @@
-import { Metric_type } from "@/types";
+import { DevelopmentStatus, Metric_type } from "@/types";
 
 export interface DevelopmentResponse {
-  id: number;
-	status: string;
+	id: number;
+	status: DevelopmentStatus;
 	metric: Metric_type;
 	detail?: string | null;
 	minAge: number;
@@ -14,7 +14,7 @@ export interface DevelopmentResponse {
 }
 
 export interface CreateDevelopmentDTO {
-	status: string;
+	status: DevelopmentStatus;
 	metric: Metric_type;
 	detail?: string;
 	minAge: number;
@@ -23,7 +23,7 @@ export interface CreateDevelopmentDTO {
 }
 
 export interface UpdateDevelopmentDTO {
-	status?: string;
+	status?: DevelopmentStatus;
 	metric?: Metric_type;
 	detail?: string;
 	minAge?: number;
@@ -34,7 +34,7 @@ export interface UpdateDevelopmentDTO {
 
 export interface OptionsGetDevelopmentsDTO {
 	q?: string;
-	status?: string;
+	status?: DevelopmentStatus;
 	metric?: Metric_type;
 	deleteStatus?: boolean;
 }
