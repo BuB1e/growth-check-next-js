@@ -4,6 +4,13 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { DateRangePicker } from "./date-range-picker";
 import { LocationResponse } from "@/dto";
 import { Sex, SexToThai } from "@/types";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export function DashboardFilters({
   locations,
@@ -31,13 +38,13 @@ export function DashboardFilters({
         params.delete("minAge");
         params.delete("maxAge");
       }
-      if (value) {
+      if (value && value !== "all") {
         params.set("ageRange", value);
       } else {
         params.delete("ageRange");
       }
     } else {
-      if (value) {
+      if (value && value !== "all") {
         params.set(key, value);
       } else {
         params.delete(key);
@@ -48,43 +55,54 @@ export function DashboardFilters({
   };
 
   return (
-    <div className="flex flex-wrap items-center gap-2">
+    <div className="flex flex-wrap items-center gap-3">
       <DateRangePicker />
 
-      <select
-        className="h-10 rounded-md border border-input bg-white px-3 py-2 text-sm ring-offset-background"
-        value={searchParams.get("locationId") || ""}
-        onChange={(e) => handleFilterChange("locationId", e.target.value)}
+      <Select
+        value={searchParams.get("locationId") || "all"}
+        onValueChange={(val) => handleFilterChange("locationId", val)}
       >
-        <option value="">ทุกเขตพื้นที่</option>
-        {locations.map((loc) => (
-          <option key={loc.id} value={loc.id.toString()}>
-            {loc.name}
-          </option>
-        ))}
-      </select>
+        <SelectTrigger className="w-[180px] h-10 bg-white border-slate-200 rounded-xl shadow-sm">
+          <SelectValue placeholder="ทุกเขตพื้นที่" />
+        </SelectTrigger>
+        <SelectContent className="rounded-xl border-slate-200">
+          <SelectItem value="all">ทุกเขตพื้นที่</SelectItem>
+          {locations.map((loc) => (
+            <SelectItem key={loc.id} value={loc.id.toString()}>
+              {loc.name}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
 
-      <select
-        className="h-10 rounded-md border border-input bg-white px-3 py-2 text-sm ring-offset-background"
-        value={searchParams.get("ageRange") || ""}
-        onChange={(e) => handleFilterChange("ageRange", e.target.value)}
+      <Select
+        value={searchParams.get("ageRange") || "all"}
+        onValueChange={(val) => handleFilterChange("ageRange", val)}
       >
-        <option value="">ทุกช่วงอายุ</option>
-        <option value="0-1">เด็กทารก (0-1 ปี)</option>
-        {/* เด็กวัยหัดเดิน == Toddler */}
-        <option value="1-3">เด็กวัยหัดเดิน (1-3 ปี)</option>
-        <option value="3-5">เด็กวัยก่อนเรียน (3-5 ปี)</option>
-      </select>
+        <SelectTrigger className="w-[180px] h-10 bg-white border-slate-200 rounded-xl shadow-sm">
+          <SelectValue placeholder="ทุกช่วงอายุ" />
+        </SelectTrigger>
+        <SelectContent className="rounded-xl border-slate-200">
+          <SelectItem value="all">ทุกช่วงอายุ</SelectItem>
+          <SelectItem value="0-1">เด็กทารก (0-1 ปี)</SelectItem>
+          <SelectItem value="1-3">เด็กวัยหัดเดิน (1-3 ปี)</SelectItem>
+          <SelectItem value="3-5">เด็กวัยก่อนเรียน (3-5 ปี)</SelectItem>
+        </SelectContent>
+      </Select>
 
-      <select
-        className="h-10 rounded-md border border-input bg-white px-3 py-2 text-sm ring-offset-background"
-        value={searchParams.get("sex") || ""}
-        onChange={(e) => handleFilterChange("sex", e.target.value)}
+      <Select
+        value={searchParams.get("sex") || "all"}
+        onValueChange={(val) => handleFilterChange("sex", val)}
       >
-        <option value="">ทุกเพศ</option>
-        <option value={Sex.MALE}>{SexToThai[Sex.MALE]}</option>
-        <option value={Sex.FEMALE}>{SexToThai[Sex.FEMALE]}</option>
-      </select>
+        <SelectTrigger className="w-[140px] h-10 bg-white border-slate-200 rounded-xl shadow-sm">
+          <SelectValue placeholder="ทุกเพศ" />
+        </SelectTrigger>
+        <SelectContent className="rounded-xl border-slate-200">
+          <SelectItem value="all">ทุกเพศ</SelectItem>
+          <SelectItem value={Sex.MALE}>{SexToThai[Sex.MALE]}</SelectItem>
+          <SelectItem value={Sex.FEMALE}>{SexToThai[Sex.FEMALE]}</SelectItem>
+        </SelectContent>
+      </Select>
     </div>
   );
 }

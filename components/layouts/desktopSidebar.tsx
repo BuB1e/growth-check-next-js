@@ -128,14 +128,14 @@ export default function DesktopSidebar() {
                       tooltip={item.title}
                       className={cn(
                         "h-14 px-4 rounded-xl transition-all duration-300",
-                        isActive 
-                          ? "data-active:bg-primary! data-active:text-white! shadow-lg shadow-primary/20" 
-                          : "text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface"
+                        isActive
+                          ? "data-active:bg-primary! data-active:text-white! shadow-lg shadow-primary/20"
+                          : "text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface",
                       )}
                     >
                       <Link href={item.url} className="flex items-center gap-4">
                         <item.icon className={cn("size-6", isActive ? "text-white!" : "text-primary")} />
-                        <span className={cn("text-body-lg font-bold", isActive ? "text-white!" : "text-on-surface-variant")}>
+                        <span className={cn("text-2xl font-bold", isActive ? "text-white!" : "text-on-surface-variant")}>
                           {item.title}
                         </span>
                       </Link>

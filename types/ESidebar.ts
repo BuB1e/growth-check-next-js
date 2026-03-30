@@ -18,7 +18,7 @@ export enum ESidebarThai {
     REQUEST = "คำร้องขอ",
     USER_REQUEST = "คำร้องเปิดบัญชี",
     HISTORY = "ประวัติ",
-    GROWTH_REFERENCE = "เกณฑ์มาตรฐานการเจริญเติบโต",
+    GROWTH_REFERENCE = "มาตรฐานการเติบโต",
     DEVELOPMENT = "คำแนะนำพัฒนาการ",
 }
 
