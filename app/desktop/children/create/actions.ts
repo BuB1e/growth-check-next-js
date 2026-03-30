@@ -213,7 +213,8 @@ export async function createChildServerAction(
         weightDevelopmentId: fallbackWeightDevId,
         userCreated: resolvedUserId,
         userUpdated: resolvedUserId,
-        age: ageMonthsTotal,
+        ageYear,
+        ageMonth
       });
     }
 
