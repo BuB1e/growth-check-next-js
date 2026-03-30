@@ -7,6 +7,7 @@ export interface UserSession {
   image?: string | null;
   role: Role;
   teamId?: string | number;
+  provider: string;
 }
 
 export interface Session {

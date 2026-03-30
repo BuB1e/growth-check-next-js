@@ -188,6 +188,7 @@ export function UserRequestsTable({ rawData, usersMap = new Map() }: UserRequest
         <Checkbox
           checked={selectedIds.size === rawData.data.length && rawData.data.length > 0}
           onCheckedChange={toggleAll}
+          className="h-6 w-6 border-slate-400 border-2 data-[state=checked]:border-primary"
           aria-label="เลือกทั้งหมด"
         />
       ),
@@ -196,6 +197,7 @@ export function UserRequestsTable({ rawData, usersMap = new Map() }: UserRequest
           checked={selectedIds.has(row.original.userId)}
           onCheckedChange={() => toggleRow(row.original.userId)}
           onClick={(e) => e.stopPropagation()}
+          className="h-6 w-6 border-slate-400 border-2 data-[state=checked]:border-primary"
           aria-label="เลือกรายการ"
         />
       ),

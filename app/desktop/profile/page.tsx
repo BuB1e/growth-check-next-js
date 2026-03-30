@@ -36,12 +36,14 @@ async function ProfileContent() {
     <div className="space-y-6">
       <ProfileCard user={user} teamName={teamName} />
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className={`grid gap-6 ${user.provider === "email" ? "lg:grid-cols-2" : ""}`}>
         <ProfileEditForm
           user={user}
           onSubmit={updateProfileAction}
         />
-        <ChangePasswordForm onSubmit={changePasswordAction} />
+        {user.provider === "email" && (
+          <ChangePasswordForm onSubmit={changePasswordAction} />
+        )}
       </div>
     </div>
   );

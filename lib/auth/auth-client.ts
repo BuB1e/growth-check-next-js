@@ -2,6 +2,7 @@
 
 import { EnvConfig } from "@/configs/BackendConfig";
 import { createAuthClient } from "better-auth/react";
+import { lastLoginMethodClient } from "better-auth/client/plugins";
 
 // The baseURL is relative to the current origin.
 // Next.js middleware will rewrite /api/auth requests to the BACKEND_ENDPOINT.
@@ -18,4 +19,5 @@ const getBaseURL = () => {
 
 export const authClient = createAuthClient({
   baseURL: getBaseURL(),
+  plugins: [lastLoginMethodClient()],
 });

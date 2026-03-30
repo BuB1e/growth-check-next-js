@@ -36,7 +36,7 @@ async function ProfileContent() {
   return (
     <div className="space-y-10">
       <ProfileCard user={user} teamName={teamName} />
-      
+
       <div className="space-y-8 px-2">
         <div className="space-y-6">
           <h2 className="text-headline-sm font-bold text-on-surface tracking-tight">
@@ -48,16 +48,18 @@ async function ProfileContent() {
           />
         </div>
 
-        <div className="space-y-6">
-          <h2 className="text-headline-sm font-bold text-on-surface tracking-tight">
-            ความปลอดภัย
-          </h2>
-          <ChangePasswordForm onSubmit={changePasswordAction} />
-        </div>
+        {user.provider === "email" && (
+          <div className="space-y-6">
+            <h2 className="text-headline-sm font-bold text-on-surface tracking-tight">
+              ความปลอดภัย {user.provider}
+            </h2>
+            <ChangePasswordForm onSubmit={changePasswordAction} />
+          </div>
+        )}
 
         <div className="pt-8">
-          <SignOutButton 
-            variant="destructive" 
+          <SignOutButton
+            variant="destructive"
             className="w-full h-16 rounded-2xl text-headline-sm font-bold shadow-2xl shadow-error/10"
           />
         </div>
