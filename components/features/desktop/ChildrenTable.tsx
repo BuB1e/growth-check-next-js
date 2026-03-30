@@ -19,7 +19,6 @@ import { ChildResponse, PaginatedResponseDTO } from "@/dto";
 import { Child_status, Child_statusToThai, Sex, SexToThai } from "@/types";
 import { Button } from "@/components/ui/button";
 import {
-  ArrowUpDown,
   ChevronLeft,
   ChevronRight,
   CheckCircle2,
@@ -51,57 +50,19 @@ export function ChildrenTable({ rawData, locationMap = {} }: ChildrenTableProps)
     router.push(`${pathname}?${params.toString()}`);
   };
 
-  const handleSort = (columnKey: keyof ChildResponse) => {
-    const currentOrder = searchParams.get("orderBy");
-    const currentDir = searchParams.get("orderDirection");
-
-    let newDir = "desc";
-    if (currentOrder === columnKey && currentDir === "desc") {
-      newDir = "asc";
-    }
-
-    updateURLParams({ orderBy: columnKey, orderDirection: newDir });
-  };
 
   const columns: ColumnDef<ChildResponse>[] = [
     {
       accessorKey: "firstName",
-      header: () => (
-        <Button
-          variant="ghost"
-          onClick={() => handleSort("firstName")}
-          className="-ml-4 h-8 data-[state=open]:bg-accent"
-        >
-          ชื่อจริง
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      ),
+      header: "ชื่อจริง",
     },
     {
       accessorKey: "lastName",
-      header: () => (
-        <Button
-          variant="ghost"
-          onClick={() => handleSort("lastName")}
-          className="-ml-4 h-8 data-[state=open]:bg-accent"
-        >
-          นามสกุล
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      ),
+      header: "นามสกุล",
     },
     {
       accessorKey: "sex",
-      header: () => (
-        <Button
-          variant="ghost"
-          onClick={() => handleSort("sex")}
-          className="-ml-4 h-8 data-[state=open]:bg-accent"
-        >
-          เพศ
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      ),
+      header: "เพศ",
       cell: ({ row }) => {
         const sex = row.original.sex as Sex;
         return SexToThai[sex] ?? sex;
@@ -109,16 +70,7 @@ export function ChildrenTable({ rawData, locationMap = {} }: ChildrenTableProps)
     },
     {
       accessorKey: "birthDate",
-      header: () => (
-        <Button
-          variant="ghost"
-          onClick={() => handleSort("birthDate")}
-          className="-ml-4 h-8 data-[state=open]:bg-accent"
-        >
-          วันเกิด
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      ),
+      header: "วันเกิด",
       cell: ({ row }) => {
         return formatBE(row.original.birthDate, "d MMM yyyy");
       },
@@ -163,16 +115,7 @@ export function ChildrenTable({ rawData, locationMap = {} }: ChildrenTableProps)
     },
     {
       accessorKey: "updatedAt",
-      header: () => (
-        <Button
-          variant="ghost"
-          onClick={() => handleSort("updatedAt")}
-          className="-ml-4 h-8 data-[state=open]:bg-accent"
-        >
-          วันที่แก้ไขล่าสุด
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      ),
+      header: "วันที่แก้ไขล่าสุด",
       cell: ({ row }) => {
         return formatBE(row.original.updatedAt, "d MMM yyyy");
       },

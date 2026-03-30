@@ -122,7 +122,7 @@ export function ChildDetailTabs({
   return (
     <div className="w-full">
       {/* Sticky Tabs Header */}
-      <div className="sticky top-18.25 z-40 flex border-b border-gray-100 bg-white/80 px-2 pb-0 pt-2 backdrop-blur-md">
+      <div className="sticky top-20 z-40 flex border-b border-gray-100 bg-white/80 px-2 pb-0 pt-2 backdrop-blur-md">
 
         {/* Development Tab */}
         <button

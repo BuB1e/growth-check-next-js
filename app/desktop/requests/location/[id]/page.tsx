@@ -103,7 +103,7 @@ async function LocationRequestDetailContent({
   const fullAddress = `ต.${request.sub_district} อ.${request.district} จ.${request.province} ${request.zip_code}`;
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8">
+    <div className="w-full space-y-8">
       <Card className="shadow-md">
           <CardHeader className="pb-6 border-b">
             <CardTitle className="text-3xl font-bold">ข้อมูลสถานที่ที่ร้องขอ</CardTitle>

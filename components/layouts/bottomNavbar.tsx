@@ -6,6 +6,7 @@ import { Home, User } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
+import { cn } from "@/lib/utils";
 
 export default function BottomNavbar() {
   const { selectedTab, setSelectedTab } = useMobilePageStore();
@@ -18,29 +19,21 @@ export default function BottomNavbar() {
       icon: Home,
       href: "/mobile/staff/home",
     },
-    // Not use now
-    // {
-    //   id: EMobilePage.LOCATION,
-    //   label: EMobilePageToThai[EMobilePage.LOCATION],
-    //   icon: MapPin,
-    //   href: "/mobile/staff/location", // Example future route
-    // },
     {
       id: EMobilePage.PROFILE,
       label: EMobilePageToThai[EMobilePage.PROFILE],
       icon: User,
-      href: "/mobile/staff/profile", // Example future route
+      href: "/mobile/staff/profile",
     },
   ];
 
-  // Auto-sync tab state based on URL if user reloads directly or navigates via link
   useEffect(() => {
     if (pathname.includes("/home")) setSelectedTab(EMobilePage.HOME);
     if (pathname.includes("/profile")) setSelectedTab(EMobilePage.PROFILE);
   }, [pathname, setSelectedTab]);
 
   return (
-    <div className="fixed bottom-0 w-full bg-white border-t border-gray-100 flex justify-around items-center pb-safe pt-2 px-2 z-50 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+    <nav className="fixed bottom-0 w-full bg-surface/85 backdrop-blur-xl border-t-0 flex justify-around items-center pb-safe pt-3 px-6 z-50 shadow-[0_-4px_32px_rgba(25,28,30,0.06)] h-20">
       {tabs.map((tab) => {
         const Icon = tab.icon;
         const isActive = selectedTab === tab.id;
@@ -50,25 +43,29 @@ export default function BottomNavbar() {
             href={tab.href}
             key={tab.id}
             onClick={() => setSelectedTab(tab.id)}
-            className={`flex flex-col items-center justify-center p-2 rounded-xl transition-all flex-1 space-y-1 ${
-              isActive
-                ? "text-blue-600"
-                : "text-gray-400 hover:text-gray-600 hover:bg-gray-50"
-            }`}
+            className={cn(
+              "flex flex-col items-center justify-center p-2 rounded-2xl transition-all flex-1 gap-1 relative overflow-hidden",
+              isActive ? "text-primary bg-primary-fixed/30" : "text-on-surface-variant hover:bg-surface-container-low"
+            )}
           >
+            {isActive && (
+              <span className="absolute top-0 w-12 h-1 bg-primary rounded-full transition-all" />
+            )}
             <Icon
-              className={`w-6 h-6 transition-all ${isActive ? "scale-110 stroke-[2.5px]" : "stroke-2"}`}
+              className={cn(
+                "size-6 transition-all duration-300",
+                isActive ? "scale-110" : "opacity-70"
+              )}
             />
-            <span
-              className={`text-[16px] font-medium transition-colors ${
-                isActive ? "text-blue-600 font-semibold" : "text-gray-500"
-              }`}
-            >
+            <span className={cn(
+              "text-label-md font-bold transition-all",
+              isActive ? "text-primary" : "text-on-surface-variant font-medium"
+            )}>
               {tab.label}
             </span>
           </Link>
         );
       })}
-    </div>
+    </nav>
   );
 }

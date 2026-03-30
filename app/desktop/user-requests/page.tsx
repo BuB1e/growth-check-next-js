@@ -25,24 +25,24 @@ export default async function UserRequestsPage({
   searchParams: Promise<{ [key: string]: string | undefined }>;
 }) {
   return (
-    <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-      <div className="flex items-center justify-between space-y-2">
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight">คำร้องเปิดบัญชี</h2>
-          <p className="text-muted-foreground mt-1">
-            รายการคำร้องขอเปิดบัญชีผู้ใช้งานใหม่จากพนักงานและเจ้าหน้าที่
-          </p>
-        </div>
+    <div className="flex-1 space-y-10 p-4 md:p-8 pt-6">
+      <div className="space-y-2">
+        <h1 className="text-display-lg text-on-surface font-bold tracking-tight">
+          คำร้องเปิดบัญชีข้อมูลพนักงาน
+        </h1>
+        <p className="text-body-lg text-on-surface-variant max-w-2xl">
+          ตรวจสอบและอนุมัติสิทธิ์การเข้าถึงระบบสำหรับบุคลากรใหม่ เพื่อความปลอดภัยและความถูกต้องของข้อมูล
+        </p>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>รายการคำร้องขอ</CardTitle>
-          <CardDescription>
-            คลิกที่ปุ่มจัดการเพื่อดูรายละเอียดและอนุมัติคำร้อง
+      <Card className="border-0 shadow-lg mt-8">
+        <CardHeader className="px-8 pt-8">
+          <CardTitle className="text-headline-md font-bold">รายการที่รอดำเนินการ</CardTitle>
+          <CardDescription className="text-body-lg mt-1">
+            ท่านสามารถตรวจสอบประวัติหรือเลือกจัดการคำร้องได้จากตารางด้านล่าง
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-8 pb-8">
           <Suspense fallback={<TableLoadingSkeleton />}>
             <RequestsDataWrapper searchParams={searchParams} />
           </Suspense>

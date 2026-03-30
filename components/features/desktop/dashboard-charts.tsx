@@ -163,7 +163,7 @@ export function ChildHealthTrendChart({
 
       <ChartContainer
         config={chartConfig}
-        className="min-h-50 w-full md:min-h-65"
+        className="aspect-auto h-[450px] w-full"
       >
         <LineChart
           accessibilityLayer
@@ -287,7 +287,7 @@ export function ChildHealthStatusChart({
 
       <ChartContainer
         config={chartConfig}
-        className="min-h-50 w-full md:min-h-55"
+        className="aspect-auto h-[450px] w-full"
       >
         <BarChart
           accessibilityLayer

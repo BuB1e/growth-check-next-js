@@ -73,39 +73,64 @@ async function ChildListWrapper({
   );
 }
 
+async function GlobalGreeting() {
+  const session = await getCurrentSession();
+  const name = session?.user?.name || "เจ้าหน้าที่";
+  const hour = new Date().getHours();
+
+  let greeting = "สวัสดี";
+  if (hour >= 5 && hour < 12) greeting = "สวัสดีตอนเช้า";
+  else if (hour >= 12 && hour < 17) greeting = "สวัสดีตอนบ่าย";
+  else if (hour >= 17 && hour < 22) greeting = "สวัสดีตอนเย็น";
+  else greeting = "สวัสดียามค่ำคืน";
+
+  return (
+    <div className="mb-6 space-y-1">
+      <h2 className="text-display-lg font-bold text-on-surface tracking-tight">
+        {greeting},
+      </h2>
+      <p className="text-headline-md font-medium text-primary leading-none">
+        {name}
+      </p>
+    </div>
+  );
+}
+
 export default function StaffHomePage(props: {
   searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   return (
-    <div className="space-y-4 px-4 pt-6">
-      <div className="mb-2">
-        <h2 className="text-2xl font-bold tracking-tight text-gray-900">
-          รายชื่อเด็ก
-        </h2>
-        <p className="mt-1 text-[15px] text-gray-500">
-          ค้นหาและเพิ่มข้อมูลการเจริญเติบโต
-        </p>
+    <div className="flex flex-col gap-6 px-6 pt-8 pb-32">
+      <Suspense fallback={<div className="h-20 animate-pulse bg-surface-container-low rounded-2xl" />}>
+        <GlobalGreeting />
+      </Suspense>
+
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="text-headline-md font-bold text-on-surface">รายชื่อเด็ก</h3>
+          <span className="text-body-lg text-on-surface-variant font-medium">ดูทั้งหมด</span>
+        </div>
+
+        <Suspense
+          fallback={
+            <div className="h-14 animate-pulse bg-surface-container-low rounded-xl" />
+          }
+        >
+          <ChildListFilters />
+        </Suspense>
+
+        <Suspense fallback={<Loading />}>
+          <ChildListWrapper searchParamsPromise={props.searchParams} />
+        </Suspense>
       </div>
 
-      <Suspense
-        fallback={
-          <div className="h-20 animate-pulse bg-gray-100 rounded-2xl mb-4" />
-        }
-      >
-        <ChildListFilters />
-      </Suspense>
-
-      <Suspense fallback={<Loading />}>
-        <ChildListWrapper searchParamsPromise={props.searchParams} />
-      </Suspense>
-
-      {/* Floating Action Button */}
+      {/* Floating Action Button - Enhanced */}
       <Link
         href="/mobile/staff/create_child"
-        className="fixed right-5 bottom-24 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-blue-600 text-white shadow-lg shadow-blue-600/30 transition-transform active:scale-95 hover:bg-blue-700"
+        className="fixed right-6 bottom-28 z-50 flex size-16 items-center justify-center rounded-2xl bg-primary text-white shadow-2xl shadow-primary/40 transition-transform active:scale-90 hover:scale-105"
         aria-label="เพิ่มเด็กใหม่"
       >
-        <UserPlus className="h-6 w-6" />
+        <UserPlus className="size-8" />
       </Link>
     </div>
   );

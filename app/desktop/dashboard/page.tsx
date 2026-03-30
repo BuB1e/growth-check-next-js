@@ -54,24 +54,24 @@ export default function DashboardPage({
   searchParams: SearchParams;
 }) {
   return (
-    <div className="flex flex-col gap-6 p-4 md:p-8 w-full max-w-7xl mx-auto">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">
-            ภาพรวมระบบ (Dashboard)
+    <div className="flex-1 space-y-10 p-4 font-lexend md:p-8 pt-6">
+      <div className="flex flex-col md:flex-row justify-between items-end gap-6">
+        <div className="space-y-2">
+          <h1 className="text-display-lg text-on-surface font-bold tracking-tight">
+            ภาพรวมระบบ
           </h1>
           <Suspense
             fallback={
-              <p className="text-muted-foreground mt-1 animate-pulse bg-muted rounded w-fit">
-                กำลังโหลดข้อมูล...
-              </p>
+              <p className="text-on-surface-variant text-body-lg animate-pulse bg-surface-container-low rounded-lg w-48 h-6" />
             }
           >
             <DashboardHeaderDate searchParams={searchParams} />
           </Suspense>
         </div>
 
-        {/* Filters are now inside DashboardDataWrapper to access fetched locations */}
+        <div className="flex items-center gap-4">
+           {/* Filters will be rendered here by the wrapper */}
+        </div>
       </div>
 
       <Suspense fallback={<DashboardLoadingSkeleton />}>
@@ -83,31 +83,16 @@ export default function DashboardPage({
 
 function DashboardLoadingSkeleton() {
   return (
-    <div className="flex flex-col gap-6 animate-pulse">
-      {/* Top Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+    <div className="flex flex-col gap-10 animate-pulse">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         {[1, 2, 3, 4].map((i) => (
-          <Card key={i} className="shadow-sm border-slate-200/60">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <div className="w-24 h-5 bg-muted rounded" />
-              <div className="w-4 h-4 bg-muted rounded-full" />
-            </CardHeader>
-            <CardContent>
-              <div className="w-16 h-8 bg-muted rounded mb-2" />
-              <div className="w-32 h-4 bg-muted rounded" />
-            </CardContent>
-          </Card>
+          <div key={i} className="h-40 bg-surface-container-low rounded-lg" />
         ))}
       </div>
 
-      <div className="mt-4">
-        <Card className="shadow-sm border-slate-200/60">
-          <CardHeader>
-            <div className="w-48 h-6 bg-muted rounded mb-2" />
-            <div className="w-64 h-4 bg-muted rounded" />
-          </CardHeader>
-          <CardContent className="h-[300px] bg-slate-50 rounded-md mx-6 mb-6" />
-        </Card>
+      <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
+        <div className="h-96 bg-surface-container-low rounded-lg" />
+        <div className="h-96 bg-surface-container-low rounded-lg" />
       </div>
     </div>
   );
@@ -138,7 +123,7 @@ async function DashboardDataWrapper({
       UserAction.getUsers({ page: 1, limit: 5000, deleteStatus: false }),
       LocationAction.getLocations({ page: 1, limit: 5000, deleted: false }),
       LocationCreateRequestAction.getRequests(),
-      LocationCreateRequestAction.getRequests({ requestStatus: Request_status.WAITING }),
+      LocationCreateRequestAction.getRequests({ status: Request_status.WAITING }),
       AdminDashboardAction.getDashboardChartData({
         startDate: typeof params.from === "string" ? new Date(params.from) : undefined,
         endDate: typeof params.to === "string" ? new Date(params.to) : undefined,
@@ -190,8 +175,6 @@ async function DashboardDataWrapper({
     const idx = months.findIndex((m) => m.key === key);
     if (idx === -1) return;
 
-    // The backend returns daily snapshot counts. To avoid double-counting children across multiple days
-    // in the same month, we simply overwrite the month's data with the latest record in that month.
     trendDataWeight[idx].above = record.weightAbove;
     trendDataWeight[idx].normal = record.weightNormal;
     trendDataWeight[idx].below = record.weightBelow;
@@ -203,103 +186,111 @@ async function DashboardDataWrapper({
 
   return (
     <>
-      <div className="w-full flex justify-end mb-4">
+      <div className="w-full flex justify-end -mt-20 mb-10">
         <DashboardFilters locations={locations} />
       </div>
 
-      {/* KPI Cards Layer */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="shadow-sm border-slate-200/60">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <Card className="group hover:scale-[1.02] transition-all duration-300">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+            <CardTitle className="text-label-md font-bold text-on-surface-variant uppercase tracking-widest">
               เด็กในความดูแล
             </CardTitle>
-            <Baby className="h-4 w-4 text-primary" />
+            <div className="size-10 rounded-xl bg-primary-fixed flex items-center justify-center text-primary shadow-sm group-hover:bg-primary group-hover:text-white transition-colors">
+              <Baby className="size-6" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              {totalChildren}{" "}
-              <span className="text-sm font-normal text-muted-foreground mr-1">
+            <div className="text-display-lg font-bold text-on-surface">
+              {totalChildren}
+              <span className="text-headline-md font-medium text-on-surface-variant ml-2">
                 คน
               </span>
             </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              อัปเดตตามข้อมูลจริงจากระบบ
+            <p className="text-body-lg text-on-surface-variant mt-2">
+              ข้อมูลปัจจุบันในระบบ
             </p>
           </CardContent>
         </Card>
 
-        <Card className="shadow-sm border-slate-200/60">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              เจ้าหน้าที่ในระบบ
+        <Card className="group hover:scale-[1.02] transition-all duration-300">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+            <CardTitle className="text-label-md font-bold text-on-surface-variant uppercase tracking-widest">
+              เจ้าหน้าที่ทั้งหมด
             </CardTitle>
-            <Users className="h-4 w-4 text-emerald-500" />
+            <div className="size-10 rounded-xl bg-secondary-fixed flex items-center justify-center text-secondary shadow-sm group-hover:bg-secondary group-hover:text-white transition-colors">
+              <Users className="size-6" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              {totalStaff}{" "}
-              <span className="text-sm font-normal text-muted-foreground mr-1">
+            <div className="text-display-lg font-bold text-on-surface">
+              {totalStaff}
+              <span className="text-headline-md font-medium text-on-surface-variant ml-2">
                 คน
               </span>
             </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              ปฏิบัติงานครอบคลุมทุกพื้นที่
+            <p className="text-body-lg text-on-surface-variant mt-2">
+              ปฏิบัติงานในพื้นที่
             </p>
           </CardContent>
         </Card>
 
-        <Card className="shadow-sm border-slate-200/60">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              ชุมชนที่รับผิดชอบ
+        <Card className="group hover:scale-[1.02] transition-all duration-300">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+            <CardTitle className="text-label-md font-bold text-on-surface-variant uppercase tracking-widest">
+              พื้นที่รับผิดชอบ
             </CardTitle>
-            <MapPin className="h-4 w-4 text-amber-500" />
+            <div className="size-10 rounded-xl bg-primary-fixed-dim/20 flex items-center justify-center text-primary shadow-sm group-hover:bg-primary! group-hover:text-white transition-colors">
+              <MapPin className="size-6" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              {totalArea}{" "}
-              <span className="text-sm font-normal text-muted-foreground mr-1">
+            <div className="text-display-lg font-bold text-on-surface">
+              {totalArea}
+              <span className="text-headline-md font-medium text-on-surface-variant ml-2">
                 แห่ง
               </span>
             </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              ไม่มีพื้นที่เสี่ยงเพิ่ม
+            <p className="text-body-lg text-on-surface-variant mt-2">
+              ครอบคลุมทุกตำบล
             </p>
           </CardContent>
         </Card>
 
-        <Card className="shadow-sm border-slate-200/60">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
+        <Card className="group hover:scale-[1.02] transition-all duration-300">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+            <CardTitle className="text-label-md font-bold text-on-surface-variant uppercase tracking-widest">
               คำร้องรอดำเนินการ
             </CardTitle>
-            <Activity className="h-4 w-4 text-destructive" />
+            <div className="size-10 rounded-xl bg-tertiary-container flex items-center justify-center text-tertiary shadow-sm group-hover:bg-tertiary group-hover:text-white transition-colors animate-pulse">
+              <Activity className="size-6" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              {activeRequests}{" "}
-              <span className="text-sm font-normal text-muted-foreground mr-1">
+            <div className="text-display-lg font-bold text-tertiary">
+              {activeRequests}
+              <span className="text-headline-md font-medium text-tertiary/70 ml-2">
                 รายการ
               </span>
             </div>
-            <p className="text-xs text-destructive font-medium mt-1">
-              คำร้องที่ยังไม่ได้ดำเนินการ
+            <p className="text-body-lg text-tertiary/60 mt-2 font-bold">
+              ต้องการการตรวจสอบ
             </p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Charts Layer */}
-      <div className="grid gap-4 grid-cols-1 lg:grid-cols-2 mt-2">
-        <Card className="shadow-sm border-slate-200/60 flex flex-col">
-          <CardHeader>
-            <CardTitle>แนวโน้มน้ำหนัก (6 เดือนล่าสุด)</CardTitle>
-            <CardDescription>
-              จำนวนเด็กจำแนกตามเกณฑ์น้ำหนัก
+      <div className="grid gap-8 grid-cols-1 lg:grid-cols-2 mt-4">
+        <Card className="p-4">
+          <CardHeader className="px-4">
+            <CardTitle className="text-headline-md font-bold text-on-surface">
+              แนวโน้มภาวะโภชนาการ (น้ำหนัก)
+            </CardTitle>
+            <CardDescription className="text-body-lg">
+              จำนวนเด็กตามเกณฑ์น้ำหนัก
             </CardDescription>
           </CardHeader>
-          <CardContent className="flex-1 w-full flex items-center justify-center -ml-4 pr-6">
+          <CardContent className="mt-6">
             <ChildHealthTrendChart
               data={trendDataWeight}
               metric="weight"
@@ -307,14 +298,16 @@ async function DashboardDataWrapper({
           </CardContent>
         </Card>
 
-        <Card className="shadow-sm border-slate-200/60 flex flex-col">
-          <CardHeader>
-            <CardTitle>แนวโน้มส่วนสูง (6 เดือนล่าสุด)</CardTitle>
-            <CardDescription>
-              จำนวนเด็กจำแนกตามเกณฑ์ส่วนสูง
+        <Card className="p-4">
+          <CardHeader className="px-4">
+            <CardTitle className="text-headline-md font-bold text-on-surface">
+              แนวโน้มการเจริญเติบโต (ส่วนสูง)
+            </CardTitle>
+            <CardDescription className="text-body-lg">
+              จำนวนเด็กตามเกณฑ์ส่วนสูง
             </CardDescription>
           </CardHeader>
-          <CardContent className="flex-1 w-full flex items-center justify-center -ml-4 pr-6">
+          <CardContent className="mt-6">
             <ChildHealthTrendChart
               data={trendDataHeight}
               metric="height"

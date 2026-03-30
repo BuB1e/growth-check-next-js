@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
 
 interface CustomSession {
   user?: {
@@ -105,28 +106,43 @@ export default function DesktopSidebar() {
   });
 
   return (
-    <Sidebar>
-      <SidebarHeader className="p-4 border-b">
-        <div className="font-bold text-lg text-primary">Growth Check</div>
+    <Sidebar className="border-r-0 bg-surface/85 backdrop-blur-xl">
+      <SidebarHeader className="p-8 pb-4 border-0">
+        <div className="flex flex-col items-center justify-center w-full">
+          <span className="text-headline-md leading-tight text-primary font-bold text-center">
+            Growth Check
+          </span>
+        </div>
       </SidebarHeader>
-      <SidebarContent>
+      <SidebarContent className="px-6 py-4">
         <SidebarGroup>
           <SidebarGroupContent>
-            <SidebarMenu>
-              {isMounted && filteredNavItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={pathname.startsWith(item.url)}
-                    tooltip={item.title}
-                  >
-                    <Link href={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+            <SidebarMenu className="gap-2">
+              {isMounted && filteredNavItems.map((item) => {
+                const isActive = pathname.startsWith(item.url);
+                return (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={isActive}
+                      tooltip={item.title}
+                      className={cn(
+                        "h-14 px-4 rounded-xl transition-all duration-300",
+                        isActive 
+                          ? "data-active:bg-primary! data-active:text-white! shadow-lg shadow-primary/20" 
+                          : "text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface"
+                      )}
+                    >
+                      <Link href={item.url} className="flex items-center gap-4">
+                        <item.icon className={cn("size-6", isActive ? "text-white!" : "text-primary")} />
+                        <span className={cn("text-body-lg font-bold", isActive ? "text-white!" : "text-on-surface-variant")}>
+                          {item.title}
+                        </span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

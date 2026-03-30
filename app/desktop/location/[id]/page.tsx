@@ -116,7 +116,7 @@ async function LocationDetailContent({
   ]);
 
   return (
-    <div className="mx-auto w-full max-w-5xl space-y-8">
+    <div className="w-full space-y-8">
       <LocationDetailTabs
         activeTab={activeTab}
         infoContent={

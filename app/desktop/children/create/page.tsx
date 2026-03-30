@@ -106,7 +106,7 @@ export default function DesktopCreateChildPage() {
   }, []);
 
   return (
-    <div className="flex-1 space-y-4 p-4 md:p-8 pt-6 max-w-4xl mx-auto">
+    <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
       <div className="flex items-center space-x-2 pb-4">
         <Button variant="ghost" size="icon" asChild>
           <Link href="/desktop/children">

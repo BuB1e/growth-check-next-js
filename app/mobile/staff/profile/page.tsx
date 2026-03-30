@@ -34,15 +34,33 @@ async function ProfileContent() {
   }
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-10">
       <ProfileCard user={user} teamName={teamName} />
-      <ProfileEditForm
-        user={user}
-        onSubmit={updateProfileAction}
-      />
-      <ChangePasswordForm onSubmit={changePasswordAction} />
-      <div className="pt-4">
-        <SignOutButton variant="destructive" className="w-full h-14 text-lg" />
+      
+      <div className="space-y-8 px-2">
+        <div className="space-y-6">
+          <h2 className="text-headline-sm font-bold text-on-surface tracking-tight">
+            ข้อมูลส่วนตัว
+          </h2>
+          <ProfileEditForm
+            user={user}
+            onSubmit={updateProfileAction}
+          />
+        </div>
+
+        <div className="space-y-6">
+          <h2 className="text-headline-sm font-bold text-on-surface tracking-tight">
+            ความปลอดภัย
+          </h2>
+          <ChangePasswordForm onSubmit={changePasswordAction} />
+        </div>
+
+        <div className="pt-8">
+          <SignOutButton 
+            variant="destructive" 
+            className="w-full h-16 rounded-2xl text-headline-sm font-bold shadow-2xl shadow-error/10"
+          />
+        </div>
       </div>
     </div>
   );
@@ -53,13 +71,13 @@ async function ProfileContent() {
  */
 export default function MobileStaffProfilePage() {
   return (
-    <div className="px-4 py-6 pb-24">
-      <div className="mb-5">
-        <h1 className="text-2xl font-bold tracking-tight text-gray-900">
-          โปรไฟล์ของฉัน
+    <div className="min-h-screen bg-surface-container-lowest px-6 pt-10 pb-36">
+      <div className="mb-10 space-y-2">
+        <h1 className="text-display-lg font-bold text-on-surface tracking-tight">
+          โปรไฟล์
         </h1>
-        <p className="mt-1 text-[15px] text-gray-500">
-          จัดการข้อมูลส่วนตัวและรหัสผ่าน
+        <p className="text-body-lg text-on-surface-variant">
+          จัดการข้อมูลส่วนตัวและรหัสผ่านของคุณให้ทันสมัย
         </p>
       </div>
 

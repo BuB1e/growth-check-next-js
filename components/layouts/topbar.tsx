@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { LogOut, UserCircle } from "lucide-react";
+import { LogOut, Search, Bell, Settings, UserCircle } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { ESidebar, ESidebarToThai } from "@/types";
-import { SignOutButton } from "@/components/features/shared/SignOutButton";
+import { authClient } from "@/lib/auth/auth-client";
+import { cn } from "@/lib/utils";
 
 // Optional helper to get current page title from pathname
 function getPageTitle(pathname: string) {
@@ -26,34 +27,39 @@ function getPageTitle(pathname: string) {
 export default function TopbarDesktop() {
   const pathname = usePathname();
   const pageTitle = getPageTitle(pathname);
+  const { data: session } = authClient.useSession();
 
   return (
-    <header className="flex h-16 shrink-0 items-center justify-between gap-2 border-b bg-white px-6 shadow-sm sticky top-0 z-10 w-full">
-      <div className="flex items-center gap-2">
-        <SidebarTrigger className="-ml-2" />
-        <h1 className="text-lg font-semibold tracking-tight">{pageTitle}</h1>
+    <header className="flex bh-20 shrink-0 items-center justify-between gap-6 bg-surface/85 shadow-lg shadow-primary/10 backdrop-blur-xl px-8 sticky top-0 z-10 w-full border-b-0">
+      <div className="flex items-center gap-4 flex-1">
+        <SidebarTrigger className="-ml-2 size-10 hover:bg-surface-container-low transition-colors rounded-xl" />
+        <h1 className="text-headline-md text-on-surface font-bold tracking-tight hidden lg:block">
+          {pageTitle}
+        </h1>
       </div>
+
       <div className="flex items-center gap-4">
-        <SignOutButton
-          variant="outline"
-          className="flex items-center gap-2 hover:bg-red-50 p-2 rounded-xl transition-all text-red-600 border border-red-100 active:scale-95 group"
-        >
-          <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center group-hover:bg-red-200 transition-colors">
-            <LogOut className="w-4 h-4 text-red-600 group-hover:scale-110 transition-transform" />
-          </div>
-          <span className="text-sm font-bold hidden md:block">ออกจากระบบ</span>
-        </SignOutButton>
 
         <Link
           href="/desktop/profile"
-          className="flex items-center gap-2 hover:bg-slate-50 p-2 rounded-xl transition-colors ring-1 ring-slate-100"
+          className="flex items-center gap-4 hover:bg-surface-container-low p-2 pr-4 rounded-2xl transition-all group"
         >
-          <div className="w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center">
-            <UserCircle className="w-5 h-5 text-slate-500" />
+          <div className="hidden sm:flex flex-col items-end">
+            <span className="text-body-lg font-bold text-on-surface leading-none group-hover:text-primary transition-colors">
+              {session?.user?.name || "ผู้ใช้งาน"}
+            </span>
+            <span className="text-label-md text-on-surface-variant font-medium mt-1 uppercase tracking-wider">
+              {(session?.user as any)?.role || "เจ้าหน้าที่"}
+            </span>
           </div>
-          <span className="text-sm font-bold hidden md:block">โปรไฟล์</span>
+          <div className="size-12 bg-primary-fixed rounded-xl flex items-center justify-center shadow-lg shadow-primary/10 overflow-hidden group-hover:scale-105 transition-transform">
+             {session?.user?.image ? (
+                <img src={session.user.image} alt="Avatar" className="size-full object-cover" />
+             ) : (
+                <UserCircle className="size-8 text-primary shadow-sm" />
+             )}
+          </div>
         </Link>
-
       </div>
     </header>
   );

@@ -21,6 +21,7 @@ trigger: always_on
 - Optimize UX/UI.
 - Optimize best performance and don't leak API, ENV, Endpoint.
 - Add comment what to do with "TODO: " syntax (TODO tree).
+- Use Thai(TH) language on any user interface.
 - Backend is source-of-truth. Need to fetch pagination, filter, search, and other query params from server.
 - Security first for design any data and pattern.
 - Every chart has grid line, legends and label.

@@ -41,7 +41,7 @@ export default function CreateGrowthReferencePage() {
         </div>
       </div>
 
-      <Card className="max-w-2xl mx-auto">
+      <Card className="w-full">
         <CardHeader>
           <CardTitle>ข้อมูลเกณฑ์มาตรฐาน</CardTitle>
           <CardDescription>

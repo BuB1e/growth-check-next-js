@@ -349,7 +349,7 @@ export function DevelopmentChart({
                 strokeWidth={2.5}
                 dot={(props: { cx: number; cy: number; payload: ChartDataPoint }) => {
                   const { cx, cy, payload } = props;
-                  if (typeof payload.height !== 'number') return <g />;
+                  if (typeof payload.height !== 'number') return <g key={`dot-height-null-${payload.dateOrder}`} />;
                   return (
                     <circle
                       key={`dot-height-${payload.dateOrder}`}
@@ -377,7 +377,7 @@ export function DevelopmentChart({
                 strokeDasharray="6 4"
                 dot={(props: { cx: number; cy: number; payload: ChartDataPoint }) => {
                   const { cx, cy, payload } = props;
-                  if (typeof payload.predictedHeightTrend !== 'number') return <g />;
+                  if (typeof payload.predictedHeightTrend !== 'number') return <g key={`pred-dot-height-null-${payload.dateOrder}`} />;
                   return (
                     <circle
                       key={`pred-dot-height-${payload.dateOrder}`}
@@ -405,7 +405,7 @@ export function DevelopmentChart({
                 strokeWidth={2.5}
                 dot={(props: { cx: number; cy: number; payload: ChartDataPoint }) => {
                   const { cx, cy, payload } = props;
-                  if (typeof payload.weight !== 'number') return <g />;
+                  if (typeof payload.weight !== 'number') return <g key={`dot-weight-null-${payload.dateOrder}`} />;
                   return (
                     <circle
                       key={`dot-weight-${payload.dateOrder}`}
@@ -433,7 +433,7 @@ export function DevelopmentChart({
                 strokeDasharray="6 4"
                 dot={(props: { cx: number; cy: number; payload: ChartDataPoint }) => {
                   const { cx, cy, payload } = props;
-                  if (typeof payload.predictedWeightTrend !== 'number') return <g />;
+                  if (typeof payload.predictedWeightTrend !== 'number') return <g key={`pred-dot-weight-null-${payload.dateOrder}`} />;
                   return (
                     <circle
                       key={`pred-dot-weight-${payload.dateOrder}`}

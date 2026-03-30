@@ -143,7 +143,7 @@ async function ChildDetailContent({
   const userId = session?.user.id;
 
   return (
-    <div className="mx-auto w-full max-w-6xl space-y-6">
+    <div className="w-full space-y-6">
       <Card>
         <CardHeader>
           <CardTitle>ข้อมูลส่วนตัว</CardTitle>

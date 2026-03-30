@@ -26,26 +26,24 @@ export default function StaffPage({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   return (
-    <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-      <div className="flex items-center justify-between space-y-2">
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight">
-            ข้อมูลเจ้าหน้าที่
-          </h2>
-          <p className="text-muted-foreground mt-1">
-            จัดการข้อมูลเจ้าหน้าที่ หัวหน้า และแอดมินในระบบ
-          </p>
-        </div>
+    <div className="flex-1 space-y-10 p-4 md:p-8 pt-6">
+      <div className="space-y-2">
+        <h1 className="text-display-lg text-on-surface font-bold tracking-tight">
+          การจัดการบุคลากร
+        </h1>
+        <p className="text-body-lg text-on-surface-variant max-w-2xl">
+          บริหารจัดการข้อมูลเจ้าหน้าที่ หัวหน้างาน และผู้ดูแลระบบ เพื่อกำหนดสิทธิ์และขอบเขตความรับผิดชอบในแต่ละพื้นที่
+        </p>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>รายการเจ้าหน้าที่</CardTitle>
-          <CardDescription>
-            คลิกที่หัวคอลัมน์เพื่อจัดเรียง · ใช้ช่องค้นหาเพื่อกรองข้อมูล
+      <Card className="border-0 shadow-lg mt-4">
+        <CardHeader className="px-8 pt-8">
+          <CardTitle className="text-headline-md font-bold">บัญชีรายชื่อบุคลากร</CardTitle>
+          <CardDescription className="text-body-lg mt-1">
+            ท่านสามารถค้นหาตามชื่อ บทบาท หรือสถานะการปฏิบัติงานได้จากตารางด้านล่าง
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-8 pb-8">
           <Suspense fallback={<TableLoadingSkeleton />}>
             <StaffDataWrapper searchParams={searchParams} />
           </Suspense>

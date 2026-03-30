@@ -24,32 +24,34 @@ export default function ChildrenPage({
   searchParams: Promise<{ [key: string]: string | undefined }>;
 }) {
   return (
-    <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-      <div className="flex items-center justify-between space-y-2">
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight">ข้อมูลเด็ก</h2>
-          <p className="text-muted-foreground mt-1">
-            จัดการและดูข้อมูลพัฒนาการเด็กทั้งหมดในความดูแล
+    <div className="flex-1 space-y-10 p-4 md:p-8 pt-6">
+      <div className="flex flex-col md:flex-row justify-between items-end gap-6">
+        <div className="space-y-2">
+          <h1 className="text-display-lg text-on-surface font-bold tracking-tight">
+            ข้อมูลการเจริญเติบโตของเด็ก
+          </h1>
+          <p className="text-body-lg text-on-surface-variant max-w-2xl">
+            บันทึกและติดตามพัฒนาการของเด็กในความดูแลอย่างใกล้ชิด เพื่อประเมินภาวะโภชนาการและการเจริญเติบโตที่สมวัย
           </p>
         </div>
-        <div className="flex items-center space-x-2">
-          <Button asChild>
-            <Link href="/desktop/children/create">
-              <Plus className="mr-2 h-4 w-4" />
-              เพิ่มข้อมูลเด็ก
+        <div className="flex items-center gap-4">
+          <Button asChild size="lg" className="rounded-2xl px-8 shadow-lg shadow-primary/20">
+            <Link href="/desktop/children/create" className="flex items-center gap-3">
+              <Plus className="size-6" />
+              <span className="text-body-lg font-bold">เพิ่มข้อมูลเด็ก</span>
             </Link>
           </Button>
         </div>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>รายชื่อเด็ก</CardTitle>
-          <CardDescription>
-            คลิกที่รายชื่อเด็กเพื่อดูรายละเอียด หรือแก้ไขข้อมูล
+      <Card className="border-0 shadow-lg mt-4">
+        <CardHeader className="px-8 pt-8">
+          <CardTitle className="text-headline-md font-bold">บัญชีรายชื่อเด็ก</CardTitle>
+          <CardDescription className="text-body-lg mt-1">
+            ท่านสามารถค้นหา กรองข้อมูล หรือเลือกดูประวัติการเจริญเติบโตรายบุคคลได้จากตาราง
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-8 pb-8">
           <Suspense fallback={<TableLoadingSkeleton />}>
             <ChildrenDataWrapper searchParams={searchParams} />
           </Suspense>

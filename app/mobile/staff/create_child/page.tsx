@@ -123,368 +123,285 @@ export default function CreateChildPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-24">
-      <div className="p-4">
+    <div className="min-h-screen bg-surface-container-lowest pb-32">
+      <div className="px-6 pt-8 space-y-8">
+        <div className="space-y-2">
+          <h1 className="text-display-lg font-bold text-on-surface tracking-tight">
+            ลงทะเบียนเด็กใหม่
+          </h1>
+          <p className="text-body-lg text-on-surface-variant">
+            กรอกข้อมูลพื้นฐานและบันทึกการเจริญเติบโตเบื้องต้น เพื่อเริ่มการติดตามพัฒนาการ
+          </p>
+        </div>
+
         {state.message && (
-          <div className="mb-6 rounded-xl bg-red-50 p-4 border border-red-100">
-            <p className="text-sm text-red-600 font-medium">{state.message}</p>
+          <div className="rounded-2xl bg-error-container p-4 border-0 shadow-sm animate-shake">
+            <p className="text-body-md text-on-error-container font-bold">{state.message}</p>
           </div>
         )}
 
-        <form action={formAction} className="space-y-8">
-          {/* ข้อมูลเด็ก */}
-          <div className="bg-white rounded-3xl p-5 shadow-sm border border-gray-100 space-y-5">
-            <div className="flex items-center gap-2 pb-2 border-b border-gray-50">
-              <div className="bg-blue-50 p-2 rounded-xl text-blue-600">
-                <UserPlus className="h-5 w-5" />
+        <form action={formAction} className="space-y-10">
+          {/* ข้อมูลพื้นฐาน */}
+          <div className="bg-surface p-6 rounded-4xl shadow-[0_4px_32px_rgba(25,28,30,0.04)] space-y-6 relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-2 h-full bg-primary" />
+            
+            <div className="flex items-center gap-3 pb-2">
+              <div className="bg-primary-fixed p-2.5 rounded-xl text-primary shadow-sm">
+                <UserPlus className="size-6" />
               </div>
-              <h2 className="font-semibold text-gray-900 text-lg">
-                ข้อมูลเด็ก
+              <h2 className="text-headline-sm font-bold text-on-surface">
+                ข้อมูลพื้นฐาน
               </h2>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1.5 focus-within:text-blue-600 transition-colors">
+            <div className="grid grid-cols-1 gap-6">
+              <div className="space-y-2 group">
                 <Label
                   htmlFor="firstName"
-                  className="text-sm font-medium text-gray-700"
+                  className="text-label-lg font-bold text-on-surface-variant group-focus-within:text-primary transition-colors"
                 >
-                  ชื่อ
+                  ชื่อจริง
                 </Label>
                 <Input
                   id="firstName"
                   name="firstName"
-                  placeholder="ชื่อจริง"
-                  className="rounded-xl h-12 bg-gray-50 border-gray-200 focus:bg-white focus:ring-2 focus:ring-blue-600 transition-all"
+                  placeholder="เช่น สมชาย"
+                  className="rounded-2xl h-14 bg-surface-container-low border-0 focus:bg-surface focus:ring-4 focus:ring-primary/10 text-body-lg transition-all"
                 />
                 {state.errors?.firstName && (
-                  <p className="text-xs text-red-500 mt-1">
+                  <p className="text-body-sm text-error font-bold mt-1">
                     {state.errors.firstName[0]}
                   </p>
                 )}
               </div>
 
-              <div className="space-y-1.5 focus-within:text-blue-600 transition-colors">
+              <div className="space-y-2 group">
                 <Label
                   htmlFor="lastName"
-                  className="text-sm font-medium text-gray-700"
+                  className="text-label-lg font-bold text-on-surface-variant group-focus-within:text-primary transition-colors"
                 >
                   นามสกุล
                 </Label>
                 <Input
                   id="lastName"
                   name="lastName"
-                  placeholder="นามสกุล"
-                  className="rounded-xl h-12 bg-gray-50 border-gray-200 focus:bg-white focus:ring-2 focus:ring-blue-600 transition-all"
+                  placeholder="เช่น มีความสุข"
+                  className="rounded-2xl h-14 bg-surface-container-low border-0 focus:bg-surface focus:ring-4 focus:ring-primary/10 text-body-lg transition-all"
                 />
                 {state.errors?.lastName && (
-                  <p className="text-xs text-red-500 mt-1">
+                  <p className="text-body-sm text-error font-bold mt-1">
                     {state.errors.lastName[0]}
                   </p>
                 )}
               </div>
-              <div className="space-y-1.5 focus-within:text-blue-600 transition-colors">
-                <Label htmlFor="sex" className="text-sm font-medium text-gray-700">
-                  เพศ
-                </Label>
-                <select
-                  id="sex"
-                  name="sex"
-                  defaultValue=""
-                  className="w-full rounded-xl h-12 px-4 bg-gray-50 border border-gray-200 text-gray-900 focus:bg-white focus:ring-2 focus:ring-blue-600 focus:outline-none transition-all"
-                >
-                  <option value="" disabled>เลือกเพศ</option>
-                  <option value={Sex.MALE}>{SexToThai[Sex.MALE]}</option>
-                  <option value={Sex.FEMALE}>{SexToThai[Sex.FEMALE]}</option>
-                </select>
-                {state.errors?.sex && (
-                  <p className="text-xs text-red-500 mt-1">{state.errors.sex[0]}</p>
-                )}
-              </div>
-            </div>
 
-            <div className="space-y-1.5 pt-1 focus-within:text-blue-600 transition-colors">
-              <Label className="text-sm font-medium text-gray-700">
-                วัน/เดือน/ปีเกิด (พ.ศ.)
-              </Label>
-              <div className="flex gap-2 w-full">
-                <Input
-                  name="birthDateDay"
-                  placeholder="วว"
-                  maxLength={2}
-                  inputMode="numeric"
-                  onChange={(e) => {
-                    const cleaned = e.target.value.replace(/[^0-9]/g, "");
-                    const num = parseInt(cleaned, 10);
-                    // Clamp day to max 31 while typing
-                    e.target.value = !cleaned ? "" : num > 31 ? "31" : cleaned;
-                  }}
-                  onBlur={(e) => {
-                    let n = parseInt(e.target.value, 10);
-                    if (isNaN(n) || n < 1) n = 1;
-                    if (n > 31) n = 31;
-                    e.target.value = n.toString().padStart(2, "0");
-                  }}
-                  className="w-20 rounded-xl h-12 text-center bg-gray-50 border-gray-200 focus:bg-white focus:ring-2 focus:ring-blue-600 transition-all"
-                />
-                <span className="flex items-center justify-center text-gray-300 font-light text-xl">
-                  /
-                </span>
-                <Input
-                  name="birthDateMonth"
-                  placeholder="ดด"
-                  maxLength={2}
-                  inputMode="numeric"
-                  onChange={(e) => {
-                    const cleaned = e.target.value.replace(/[^0-9]/g, "");
-                    const num = parseInt(cleaned, 10);
-                    // Clamp month to max 12 while typing
-                    e.target.value = !cleaned ? "" : num > 12 ? "12" : cleaned;
-                  }}
-                  onBlur={(e) => {
-                    let n = parseInt(e.target.value, 10);
-                    if (isNaN(n) || n < 1) n = 1;
-                    if (n > 12) n = 12;
-                    e.target.value = n.toString().padStart(2, "0");
-                  }}
-                  className="w-20 rounded-xl h-12 text-center bg-gray-50 border-gray-200 focus:bg-white focus:ring-2 focus:ring-blue-600 transition-all"
-                />
-                <span className="flex items-center justify-center text-gray-300 font-light text-xl">
-                  /
-                </span>
-                <Input
-                  name="birthDateYear"
-                  placeholder="ปปปป"
-                  maxLength={4}
-                  inputMode="numeric"
-                  onChange={(e) => {
-                    const cleaned = e.target.value.replace(/[^0-9]/g, "");
-                    const num = parseInt(cleaned, 10);
-                    // Clamp year to max current Buddhist Era year
-                    const currentBEYear = new Date().getFullYear() + 543;
-                    e.target.value = !cleaned ? "" : num > currentBEYear ? String(currentBEYear) : cleaned;
-                  }}
-                  onBlur={(e) => {
-                    if (!e.target.value) return;
-                    let n = parseInt(e.target.value, 10);
-                    const currentBEYear = new Date().getFullYear() + 543;
-                    if (isNaN(n) || n < 1) n = 1;
-                    if (n > currentBEYear) n = currentBEYear;
-                    e.target.value = n.toString();
-                  }}
-                  className="flex-1 rounded-xl h-12 text-center bg-gray-50 border-gray-200 focus:bg-white focus:ring-2 focus:ring-blue-600 transition-all"
-                />
-              </div>
-              {(state.errors?.birthDateDay ||
-                state.errors?.birthDateMonth ||
-                state.errors?.birthDateYear) && (
-                <p className="text-xs text-red-500 mt-1">
-                  กรุณาระบุ วัน/เดือน/ปีเกิด ให้ครบถ้วนและถูกต้อง (เช่น
-                  15/05/2565)
-                </p>
-              )}
-              {state.errors?.measurementsJSON && (
-                <p className="text-xs text-red-500 mt-1">
-                  {state.errors.measurementsJSON[0]}
-                </p>
-              )}
-            </div>
-
-            <div className="pt-2 border-t border-gray-100 space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="font-semibold text-gray-800">ข้อมูลการเจริญเติบโต</h3>
-                <Button
-                  type="button"
-                  size="sm"
-                  onClick={addMeasurement}
-                  className="rounded-full h-10 px-4 text-sm font-semibold bg-blue-100 text-blue-700 hover:bg-blue-200 transition-colors"
-                >
-                  <Plus className="h-4 w-4 mr-1.5" />
-                  เพิ่มข้อมูล
-                </Button>
-              </div>
-
-              {measurements.map((m, index) => (
-                <div key={m.id} className="bg-gray-50 rounded-2xl p-4 border border-gray-100 shadow-sm flex flex-col gap-4">
-                  
-                  {/* Card Header & Delete Button */}
-                  <div className="flex justify-between items-center border-b border-gray-200/60 pb-2">
-                    <span className="text-sm font-semibold text-gray-700 bg-white px-3 py-1 rounded-full border border-gray-200 shadow-sm">
-                      ครั้งที่ {index + 1}
-                    </span>
-                    {measurements.length > 1 && (
-                      <button
-                        type="button"
-                        onClick={() => removeMeasurement(m.id)}
-                        className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors active:scale-95"
-                        aria-label="ลบข้อมูล"
-                      >
-                        <Trash2 className="h-5 w-5" />
-                      </button>
-                    )}
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-1.5 focus-within:text-blue-600 transition-colors">
-                      <Label className="text-sm font-medium text-gray-700">น้ำหนัก (ก.ก.)</Label>
-                      <div className="relative">
-                        <Input
-                          type="number"
-                          step="0.1"
-                          placeholder="0.0"
-                          value={m.weight}
-                          onChange={(e) => updateMeasurement(m.id, "weight", e.target.value)}
-                          className="rounded-xl h-12 pr-10 bg-white border-gray-200 focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all"
-                        />
-                        <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-gray-400 font-medium pointer-events-none">
-                          kg
-                        </span>
-                      </div>
-                    </div>
-                    
-                    <div className="space-y-1.5 focus-within:text-blue-600 transition-colors">
-                      <Label className="text-sm font-medium text-gray-700">ส่วนสูง (ซ.ม.)</Label>
-                      <div className="relative">
-                        <Input
-                          type="number"
-                          step="0.1"
-                          placeholder="0.0"
-                          value={m.height}
-                          onChange={(e) => updateMeasurement(m.id, "height", e.target.value)}
-                          className="rounded-xl h-12 pr-10 bg-white border-gray-200 focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all"
-                        />
-                        <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-gray-400 font-medium pointer-events-none">
-                          cm
-                        </span>
-                      </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2 group">
+                  <Label htmlFor="sex" className="text-label-lg font-bold text-on-surface-variant group-focus-within:text-primary transition-colors">
+                    เพศ
+                  </Label>
+                  <div className="relative">
+                    <select
+                      id="sex"
+                      name="sex"
+                      defaultValue=""
+                      className="w-full rounded-2xl h-14 px-5 bg-surface-container-low border-0 text-on-surface text-body-lg focus:bg-surface focus:ring-4 focus:ring-primary/10 focus:outline-none appearance-none transition-all"
+                    >
+                      <option value="" disabled>เลือกเพศ</option>
+                      <option value={Sex.MALE}>{SexToThai[Sex.MALE]}</option>
+                      <option value={Sex.FEMALE}>{SexToThai[Sex.FEMALE]}</option>
+                    </select>
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">
+                      <svg width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M1 1L6 6L11 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                      </svg>
                     </div>
                   </div>
-                  
-                  <div className="space-y-1.5 focus-within:text-blue-600 transition-colors">
-                    <Label className="text-sm font-medium text-gray-700">วันที่วัด (พ.ศ.)</Label>
-                    <div className="flex gap-2 w-full">
-                      <Input
-                        placeholder="วว"
-                        maxLength={2}
-                        inputMode="numeric"
-                        value={m.dateDay}
-                        onChange={(e) => {
-                          const cleaned = e.target.value.replace(/[^0-9]/g, "");
-                          const num = parseInt(cleaned, 10);
-                          const val = !cleaned ? "" : num > 31 ? "31" : cleaned;
-                          updateMeasurement(m.id, "dateDay", val);
-                        }}
-                        onBlur={(e) => {
-                          let n = parseInt(e.target.value, 10);
-                          if (isNaN(n) || n < 1) n = 1;
-                          if (n > 31) n = 31;
-                          updateMeasurement(m.id, "dateDay", n.toString().padStart(2, "0"));
-                        }}
-                        className="w-20 rounded-xl h-12 text-center bg-white border-gray-200 focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all"
-                      />
-                      <span className="flex items-center justify-center text-gray-300 font-light text-xl">
-                        /
-                      </span>
-                      <Input
-                        placeholder="ดด"
-                        maxLength={2}
-                        inputMode="numeric"
-                        value={m.dateMonth}
-                        onChange={(e) => {
-                          const cleaned = e.target.value.replace(/[^0-9]/g, "");
-                          const num = parseInt(cleaned, 10);
-                          const val = !cleaned ? "" : num > 12 ? "12" : cleaned;
-                          updateMeasurement(m.id, "dateMonth", val);
-                        }}
-                        onBlur={(e) => {
-                          let n = parseInt(e.target.value, 10);
-                          if (isNaN(n) || n < 1) n = 1;
-                          if (n > 12) n = 12;
-                          updateMeasurement(m.id, "dateMonth", n.toString().padStart(2, "0"));
-                        }}
-                        className="w-20 rounded-xl h-12 text-center bg-white border-gray-200 focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all"
-                      />
-                      <span className="flex items-center justify-center text-gray-300 font-light text-xl">
-                        /
-                      </span>
-                      <Input
-                        placeholder="ปปปป"
-                        maxLength={4}
-                        inputMode="numeric"
-                        value={m.dateYear}
-                        onChange={(e) => {
-                          const cleaned = e.target.value.replace(/[^0-9]/g, "");
-                          const num = parseInt(cleaned, 10);
-                          const currentBEYear = new Date().getFullYear() + 543;
-                          const val = !cleaned ? "" : num > currentBEYear ? String(currentBEYear) : cleaned;
-                          updateMeasurement(m.id, "dateYear", val);
-                        }}
-                        onBlur={(e) => {
-                          if (!e.target.value) return;
-                          let n = parseInt(e.target.value, 10);
-                          const currentBEYear = new Date().getFullYear() + 543;
-                          if (isNaN(n) || n < 1) n = 1;
-                          if (n > currentBEYear) n = currentBEYear;
-                          updateMeasurement(m.id, "dateYear", n.toString());
-                        }}
-                        className="flex-1 rounded-xl h-12 text-center bg-white border-gray-200 focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all"
-                      />
+                  {state.errors?.sex && (
+                    <p className="text-body-sm text-error font-bold mt-1">{state.errors.sex[0]}</p>
+                  )}
+                </div>
+
+                <div className="space-y-2 group">
+                  <Label
+                    htmlFor="locationId"
+                    className="text-label-lg font-bold text-on-surface-variant group-focus-within:text-primary transition-colors"
+                  >
+                    เขตพื้นที่
+                  </Label>
+                  <div className="relative">
+                    <select
+                      id="locationId"
+                      name="locationId"
+                      defaultValue=""
+                      className="w-full rounded-2xl h-14 px-5 bg-surface-container-low border-0 text-on-surface text-body-lg focus:bg-surface focus:ring-4 focus:ring-primary/10 focus:outline-none appearance-none transition-all"
+                    >
+                      <option value="" disabled>
+                        {isLoadingLocations ? "กำลังโหลด..." : "เลือกเขต"}
+                      </option>
+                      {!isLoadingLocations &&
+                        locations.map((location) => (
+                          <option key={location.id} value={location.id}>
+                            {location.name}
+                          </option>
+                        ))}
+                    </select>
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">
+                      <svg width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M1 1L6 6L11 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                      </svg>
                     </div>
                   </div>
                 </div>
-              ))}
-              <input type="hidden" name="measurementsJSON" value={JSON.stringify(measurements)} />
-            </div>
+              </div>
 
-            <div className="space-y-1.5 pt-1 focus-within:text-blue-600 transition-colors">
-              <Label
-                htmlFor="locationId"
-                className="text-sm font-medium text-gray-700"
-              >
-                เขต
-              </Label>
-              <select
-                id="locationId"
-                name="locationId"
-                defaultValue=""
-                className="w-full rounded-xl h-12 px-4 bg-gray-50 border border-gray-200 text-gray-900 focus:bg-white focus:ring-2 focus:ring-blue-600 focus:outline-none transition-all"
-              >
-                <option value="" disabled>
-                  {isLoadingLocations ? "กำลังโหลดข้อมูลเขต..." : "เลือกเขต"}
-                </option>
-                {!isLoadingLocations &&
-                  locations.map((location) => (
-                    <option key={location.id} value={location.id}>
-                      {location.name} ({location.district}, {location.province})
-                    </option>
-                  ))}
-              </select>
-              {locationLoadError && (
-                <p className="text-xs text-red-500 mt-1">{locationLoadError}</p>
-              )}
-              {state.errors?.locationId && (
-                <p className="text-xs text-red-500 mt-1">
-                  {state.errors.locationId[0]}
-                </p>
-              )}
+              <div className="space-y-3 group">
+                <Label className="text-label-lg font-bold text-on-surface-variant group-focus-within:text-primary transition-colors">
+                  วัน/เดือน/ปีเกิด (พ.ศ.)
+                </Label>
+                <div className="flex gap-3 items-center">
+                  <Input
+                    name="birthDateDay"
+                    placeholder="วว"
+                    maxLength={2}
+                    className="w-full text-center h-14 rounded-2xl bg-surface-container-low border-0 focus:bg-surface focus:ring-4 focus:ring-primary/10 text-body-lg"
+                  />
+                  <span className="text-on-surface-variant text-headline-sm">/</span>
+                  <Input
+                    name="birthDateMonth"
+                    placeholder="ดด"
+                    maxLength={2}
+                    className="w-full text-center h-14 rounded-2xl bg-surface-container-low border-0 focus:bg-surface focus:ring-4 focus:ring-primary/10 text-body-lg"
+                  />
+                  <span className="text-on-surface-variant text-headline-sm">/</span>
+                  <Input
+                    name="birthDateYear"
+                    placeholder="ปปปป"
+                    maxLength={4}
+                    className="w-full text-center h-14 rounded-2xl bg-surface-container-low border-0 focus:bg-surface focus:ring-4 focus:ring-primary/10 text-body-lg"
+                  />
+                </div>
+                {(state.errors?.birthDateDay || state.errors?.birthDateMonth || state.errors?.birthDateYear) && (
+                  <p className="text-body-sm text-error font-bold mt-1">ข้อมูลวันที่ไม่ถูกต้อง</p>
+                )}
+              </div>
             </div>
           </div>
 
-          <div className="pt-4">
+          {/* ข้อมูลการเจริญเติบโต */}
+          <div className="space-y-6">
+            <div className="flex items-center justify-between px-2">
+              <h3 className="text-headline-md font-bold text-on-surface tracking-tight">บันทึกการวัด</h3>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={addMeasurement}
+                className="text-primary font-bold text-body-lg hover:bg-primary-fixed/30 rounded-2xl px-4"
+              >
+                <Plus className="size-6 mr-2" />
+                เพิ่มครั้งใหม่
+              </Button>
+            </div>
+
+            <div className="space-y-6">
+              {measurements.map((m, index) => (
+                <div key={m.id} className="bg-surface p-7 rounded-4xl shadow-[0_4px_32px_rgba(25,28,30,0.04)] space-y-6 relative group overflow-hidden">
+                   <div className="absolute top-0 right-0 p-4">
+                     {measurements.length > 1 && (
+                       <button
+                         type="button"
+                         onClick={() => removeMeasurement(m.id)}
+                         className="size-10 flex items-center justify-center text-on-surface-variant hover:text-error hover:bg-error-container/20 rounded-xl transition-colors"
+                       >
+                         <Trash2 className="size-6" />
+                       </button>
+                     )}
+                   </div>
+
+                   <div className="flex items-center gap-4">
+                      <span className="size-12 flex items-center justify-center bg-primary-fixed text-primary rounded-2xl text-headline-sm font-black">
+                        {index + 1}
+                      </span>
+                      <div className="space-y-1">
+                        <p className="text-label-lg font-bold text-on-surface-variant uppercase tracking-widest">การบันทึกครั้งที่</p>
+                        <p className="text-headline-sm font-bold text-on-surface">ข้อมูลการเจริญเติบโต</p>
+                      </div>
+                   </div>
+
+                   <div className="grid grid-cols-2 gap-6">
+                      <div className="space-y-2">
+                         <Label className="text-label-lg font-bold text-on-surface-variant">น้ำหนัก (ก.ก.)</Label>
+                         <div className="relative">
+                            <Input
+                              type="number"
+                              step="0.1"
+                              placeholder="0.0"
+                              value={m.weight}
+                              onChange={(e) => updateMeasurement(m.id, "weight", e.target.value)}
+                              className="h-16 rounded-2xl bg-surface-container-low border-0 focus:bg-surface focus:ring-4 focus:ring-primary/10 text-headline-sm font-bold text-on-surface pr-14 pl-5 transition-all"
+                            />
+                            <span className="absolute right-5 top-1/2 -translate-y-1/2 text-body-lg font-bold text-on-surface-variant">kg</span>
+                         </div>
+                      </div>
+                      <div className="space-y-2">
+                         <Label className="text-label-lg font-bold text-on-surface-variant">ส่วนสูง (ซ.ม.)</Label>
+                         <div className="relative">
+                            <Input
+                              type="number"
+                              step="0.1"
+                              placeholder="0.0"
+                              value={m.height}
+                              onChange={(e) => updateMeasurement(m.id, "height", e.target.value)}
+                              className="h-16 rounded-2xl bg-surface-container-low border-0 focus:bg-surface focus:ring-4 focus:ring-primary/10 text-headline-sm font-bold text-on-surface pr-14 pl-5 transition-all"
+                            />
+                            <span className="absolute right-5 top-1/2 -translate-y-1/2 text-body-lg font-bold text-on-surface-variant">cm</span>
+                         </div>
+                      </div>
+                   </div>
+
+                   <div className="space-y-2">
+                      <Label className="text-label-lg font-bold text-on-surface-variant">วันที่ทำการวัด</Label>
+                      <div className="flex gap-3 items-center">
+                         <Input
+                           value={m.dateDay}
+                           onChange={(e) => updateMeasurement(m.id, "dateDay", e.target.value)}
+                           className="w-full text-center h-14 rounded-2xl bg-surface-container-low border-0 text-body-lg font-bold"
+                         />
+                         <span className="text-on-surface-variant text-headline-md">/</span>
+                         <Input
+                           value={m.dateMonth}
+                           onChange={(e) => updateMeasurement(m.id, "dateMonth", e.target.value)}
+                           className="w-full text-center h-14 rounded-2xl bg-surface-container-low border-0 text-body-lg font-bold"
+                         />
+                         <span className="text-on-surface-variant text-headline-md">/</span>
+                         <Input
+                           value={m.dateYear}
+                           onChange={(e) => updateMeasurement(m.id, "dateYear", e.target.value)}
+                           className="w-full text-center h-14 rounded-2xl bg-surface-container-low border-0 text-body-lg font-bold"
+                         />
+                      </div>
+                   </div>
+                </div>
+              ))}
+            </div>
+            <input type="hidden" name="measurementsJSON" value={JSON.stringify(measurements)} />
+          </div>
+
+          <div className="pt-8">
             <Button
               type="submit"
               disabled={isPending}
-              className="w-full h-14 rounded-2xl text-lg font-semibold bg-blue-600 hover:bg-blue-700 shadow-sm transition-all active:scale-[0.98]"
+              className="w-full h-16 rounded-[1.25rem] text-headline-sm font-bold bg-primary text-white shadow-2xl shadow-primary/30 hover:scale-[1.02] active:scale-[0.98] transition-all"
             >
               {isPending ? (
-                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                <Loader2 className="mr-3 size-6 animate-spin" />
               ) : (
-                <Save className="mr-2 h-5 w-5" />
+                <Save className="mr-3 size-6" />
               )}
-              บันทึกข้อมูลเด็กใหม่
+              ยืนยันการลงทะเบียน
             </Button>
-            <p className="text-center text-xs text-gray-400 mt-3 font-medium px-4">
-              กรุณาตรวจสอบความถูกต้องของข้อมูลก่อนกดยืนยัน
+            <p className="text-center text-body-md text-on-surface-variant mt-6 px-4 font-medium opacity-70">
+              ข้อมูลจะถูกบันทึกเข้าระบบส่วนกลางทันที เพื่อการติดตามพัฒนาการในอนาคต
             </p>
           </div>
         </form>
