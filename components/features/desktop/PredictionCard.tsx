@@ -536,45 +536,6 @@ export function PredictionCard({
             </div>
           </div>
 
-          {/* Render development timelines from heightDevelopmentList/weightDevelopmentList */}
-          {(resolvedPrediction.heightDevelopmentList?.length ?? 0) > 0 ||
-          (resolvedPrediction.weightDevelopmentList?.length ?? 0) > 0 ? (
-            <div className="rounded-lg border bg-white p-3 space-y-2">
-              <p className="text-xs font-semibold text-slate-600">ประวัติพัฒนาการที่คาดการณ์</p>
-              {resolvedPrediction.heightDevelopmentList &&
-                resolvedPrediction.heightDevelopmentList.length > 0 && (
-                  <div>
-                    <p className="text-[11px] font-medium text-slate-400 mb-1">ส่วนสูง (HA)</p>
-                    <div className="flex flex-wrap gap-1.5">
-                      {resolvedPrediction.heightDevelopmentList.map((dev, index) => (
-                        <span
-                          key={`ha-${dev.id}-${index}`}
-                          className="inline-flex items-center rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10"
-                        >
-                          {DevelopmentStatusToThai[dev.status as DevelopmentStatus] || dev.status}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              {resolvedPrediction.weightDevelopmentList &&
-                resolvedPrediction.weightDevelopmentList.length > 0 && (
-                  <div>
-                    <p className="text-[11px] font-medium text-slate-400 mb-1">น้ำหนัก (WA)</p>
-                    <div className="flex flex-wrap gap-1.5">
-                      {resolvedPrediction.weightDevelopmentList.map((dev, index) => (
-                        <span
-                          key={`wa-${dev.id}-${index}`}
-                          className="inline-flex items-center rounded-full bg-orange-50 px-2 py-0.5 text-xs font-medium text-orange-700 ring-1 ring-inset ring-orange-700/10"
-                        >
-                          {DevelopmentStatusToThai[dev.status as DevelopmentStatus] || dev.status}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-            </div>
-          ) : null}
         </div>
       ) : (
         <div className="rounded-lg border border-dashed bg-white p-3 text-sm text-slate-600">
