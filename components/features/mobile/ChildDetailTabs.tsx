@@ -29,6 +29,7 @@ import {
 } from "lucide-react";
 import { formatAgeThai, formatBE } from "@/lib/date-utils";
 import { getPredictionSummaryValue } from "@/lib/prediction-utils";
+import { toast } from "sonner";
 
 function getChildStatusKey(status: unknown): Child_status | null {
   if (typeof status !== "string") return null;
@@ -106,14 +107,18 @@ export function ChildDetailTabs({
 
       const result = await createPredictionForChildAction(child.id, "lstm");
       if (!result.success) {
-        setManualPredictError(result.error ?? "ทำนายไม่สำเร็จ กรุณาลองใหม่");
+        const message = result.error ?? "ทำนายไม่สำเร็จ กรุณาลองใหม่";
+        setManualPredictError(message);
+        toast.error(message);
         return;
       }
 
       setManualPredictMessage("ส่งคำขอทำนายผล 6 เดือนแล้ว ระบบกำลังประมวลผล");
+      toast.success("ส่งคำขอทำนายผล 6 เดือนแล้ว");
       router.refresh();
     } catch {
       setManualPredictError("ไม่สามารถทำนายได้ กรุณาลองใหม่อีกครั้ง");
+      toast.error("ไม่สามารถทำนายได้ กรุณาลองใหม่อีกครั้ง");
     } finally {
       setIsManualPredicting(false);
     }

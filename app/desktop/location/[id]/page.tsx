@@ -11,7 +11,7 @@ import { ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { LocationAction } from "@/actions/LocationAction";
-import { LocationDetailForm } from "@/components/features/desktop/LocationDetailForm";
+import { LocationDetailForm } from "@/app/desktop/location/[id]/_components/LocationDetailForm";
 import { formatBE } from "@/lib/date-utils";
 import { UserAction } from "@/actions/UserAction";
 import { ChildAction } from "@/actions/ChildAction";
@@ -89,8 +89,8 @@ async function LocationDetailContent({
   const page = Number.isFinite(parsedPage) && parsedPage > 0 ? parsedPage : 1;
   const q = sp?.q;
   const staffQ = sp?.staffQ;
-  const minAgeYears = sp?.minAgeYears;
-  const maxAgeYears = sp?.maxAgeYears;
+  const minAge = sp?.minAge;
+  const maxAge = sp?.maxAge;
   const haStatus = sp?.haStatus;
   const waStatus = sp?.waStatus;
   const activeTab = sp?.tab || "info";
@@ -108,8 +108,8 @@ async function LocationDetailContent({
       page,
       limit: 10,
       q,
-      minAgeYears,
-      maxAgeYears,
+      minAge,
+      maxAge,
       haStatus,
       waStatus,
     }),

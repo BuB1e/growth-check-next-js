@@ -7,6 +7,7 @@ import { DevelopmentAction } from "@/actions/DevelopmentAction";
 import { LocationAction } from "@/actions/LocationAction";
 import { redirect } from "next/navigation";
 import { Sex, Metric_type } from "@/types";
+import type { CreateChildDTO, CreateChildDataDTO } from "@/dto";
 
 // Utility to pad and clamp day/month
 function normalizeDay(day: string | FormDataEntryValue | null): string {
@@ -171,7 +172,7 @@ export async function createChildServerAction(
     const resolvedUserId = await getCurrentUserId();
 
     // 1. Create Child
-    const childResponse = await ChildAction.createChild({
+    const createChildPayload: CreateChildDTO = {
       firstName,
       lastName,
       sex: sex as import("@/types").Sex,
@@ -179,7 +180,9 @@ export async function createChildServerAction(
       locationId: parseInt(locationId),
       createdByUser: resolvedUserId,
       updatedByUser: resolvedUserId,
-    });
+    };
+
+    const childResponse = await ChildAction.createChild(createChildPayload);
 
     if (!childResponse || !childResponse.id) {
       throw new Error("Invalid child response");
@@ -203,7 +206,7 @@ export async function createChildServerAction(
       const ageYear = Math.floor(ageMonthsTotal / 12);
       const ageMonth = ageMonthsTotal % 12;
 
-      await ChildDataAction.createChildData({
+      const createChildDataPayload: CreateChildDataDTO = {
         childId: childResponse.id,
         locationId: parseInt(locationId),
         weight: m.weight,
@@ -215,7 +218,9 @@ export async function createChildServerAction(
         userUpdated: resolvedUserId,
         ageYear,
         ageMonth
-      });
+      };
+
+      await ChildDataAction.createChildData(createChildDataPayload);
     }
 
   } catch (error) {

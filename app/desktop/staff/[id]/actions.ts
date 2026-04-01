@@ -3,6 +3,7 @@
 import { UserAction } from "@/actions/UserAction";
 import { Role } from "@/types";
 import { revalidatePath } from "next/cache";
+import type { UpdateUserDto } from "@/dto";
 
 /**
  * Server action to update a user's role.
@@ -11,7 +12,8 @@ import { revalidatePath } from "next/cache";
  */
 export async function updateStaffRoleAction(userId: string, newRole: Role) {
   try {
-    await UserAction.updateUser(userId, { role: newRole });
+    const payload: UpdateUserDto = { role: newRole };
+    await UserAction.updateUser(userId, payload);
     
     // Revalidate paths to ensure UI is up to date
     revalidatePath("/desktop/staff");

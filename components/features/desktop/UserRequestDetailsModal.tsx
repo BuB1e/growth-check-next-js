@@ -17,6 +17,7 @@ import { formatBE } from "@/lib/date-utils";
 import { UserCreateStatusAction } from "@/actions/UserCreateStatusAction";
 import { Loader2, X, MapPin, Calendar, Clock } from "lucide-react";
 import { Request_status, Role, RoleTH } from "@/types";
+import { toast } from "sonner";
 
 interface ModalProps {
   request: UserCreateStatusResponse;
@@ -86,10 +87,11 @@ export function UserRequestDetailsModal({
         request.id.toString(),
         payload,
       );
+      toast.success("อนุมัติคำร้องเรียบร้อยแล้ว");
       onSuccess();
     } catch (error) {
       console.error(error);
-      alert("เกิดข้อผิดพลาดในการอนุมัติคำร้อง");
+      toast.error("เกิดข้อผิดพลาดในการอนุมัติคำร้อง");
     } finally {
       setIsSubmitting(false);
     }
@@ -97,7 +99,7 @@ export function UserRequestDetailsModal({
 
   const handleReject = async () => {
     if (!rejectReason.trim()) {
-      alert("กรุณากรอกเหตุผลในการปฏิเสธ");
+      toast.error("กรุณากรอกเหตุผลในการปฏิเสธ");
       return;
     }
     try {
@@ -111,10 +113,11 @@ export function UserRequestDetailsModal({
         request.id.toString(),
         payload,
       );
+      toast.success("ปฏิเสธคำร้องเรียบร้อยแล้ว");
       onSuccess();
     } catch (error) {
       console.error(error);
-      alert("เกิดข้อผิดพลาดในการปฏิเสธคำร้อง");
+      toast.error("เกิดข้อผิดพลาดในการปฏิเสธคำร้อง");
     } finally {
       setIsSubmitting(false);
     }

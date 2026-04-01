@@ -1,5 +1,7 @@
 import { Suspense } from "react";
 import { ChildAction } from "@/actions/ChildAction";
+import { ChildDataAction } from "@/actions/ChildDataAction";
+import { DevelopmentAction } from "@/actions/DevelopmentAction";
 import { LocationAction } from "@/actions/LocationAction";
 import {
   Card,
@@ -85,8 +87,6 @@ async function ChildrenDataWrapper({
       : EnvConfig.PAGINATION_LIMIT_DESKTOP_SIZE;
   const q = sp?.q;
   const status = sp?.status;
-  const minAgeYears = sp?.minAgeYears;
-  const maxAgeYears = sp?.maxAgeYears;
   const minAge = sp?.minAge;
   const maxAge = sp?.maxAge;
   const haStatus = sp?.haStatus;
@@ -95,6 +95,8 @@ async function ChildrenDataWrapper({
   const sex = sp?.sex;
   let data = null;
   let locationMap: Record<number, string> = {};
+  let heightCriteriaMap: Record<number, string> = {};
+  let weightCriteriaMap: Record<number, string> = {};
 
   try {
     const [childrenData, locationsData] = await Promise.all([
@@ -103,8 +105,6 @@ async function ChildrenDataWrapper({
         ...(limit ? { limit } : {}),
         q,
         status,
-        minAgeYears,
-        maxAgeYears,
         minAge,
         maxAge,
         haStatus,
@@ -123,6 +123,44 @@ async function ChildrenDataWrapper({
         return acc;
       }, {} as Record<number, string>);
     }
+
+    const childIds = (childrenData.data ?? []).map((child) => child.id);
+    if (childIds.length > 0) {
+      const latestChildDataPerChild = await Promise.all(
+        childIds.map(async (childId) => {
+          const latestList = await ChildDataAction.getLatestChildDataByChildId(childId);
+          return {
+            childId,
+            latest: latestList[0],
+          };
+        }),
+      );
+
+      const developmentsRes = await DevelopmentAction.getDevelopments({
+        page: 1,
+        limit: 2000,
+        deleteStatus: false,
+      });
+      const developmentStatusById = (developmentsRes.data ?? []).reduce(
+        (acc, dev) => {
+          acc[dev.id] = dev.status;
+          return acc;
+        },
+        {} as Record<number, string>,
+      );
+
+      heightCriteriaMap = latestChildDataPerChild.reduce((acc, item) => {
+        const devId = item.latest?.heightDevelopmentId;
+        acc[item.childId] = devId ? developmentStatusById[devId] ?? "-" : "-";
+        return acc;
+      }, {} as Record<number, string>);
+
+      weightCriteriaMap = latestChildDataPerChild.reduce((acc, item) => {
+        const devId = item.latest?.weightDevelopmentId;
+        acc[item.childId] = devId ? developmentStatusById[devId] ?? "-" : "-";
+        return acc;
+      }, {} as Record<number, string>);
+    }
   } catch (error) {
     console.error("Failed to load children", error);
   }
@@ -135,5 +173,12 @@ async function ChildrenDataWrapper({
     );
   }
 
-  return <ChildrenTable rawData={data} locationMap={locationMap} />;
+  return (
+    <ChildrenTable
+      rawData={data}
+      locationMap={locationMap}
+      heightCriteriaMap={heightCriteriaMap}
+      weightCriteriaMap={weightCriteriaMap}
+    />
+  );
 }

@@ -40,7 +40,7 @@ async function PendingApprovalContent() {
 
   // If already approved, go home
   if (authStatus.status === Request_status.APPROVE) {
-    redirect("/mobile/staff/home");
+    redirect("/");
   }
 
   // If not logged in, go login

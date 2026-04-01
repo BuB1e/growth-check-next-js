@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2, Save, Sparkles } from "lucide-react";
 import { calculateAge, formatBE } from "@/lib/date-utils";
+import { toast } from "sonner";
 
 const measurementSchema = z.object({
   height: z.number().positive("ส่วนสูงต้องมากกว่า 0"),
@@ -126,18 +127,23 @@ export function MeasurementDrawer({
         const predictionResult = await createPredictionForChildAction(childId, "lstm");
         if (predictionResult.success) {
           setPredictionMessage("บันทึกแล้วและส่งคำขอทำนายผล 6 เดือนเรียบร้อย");
+          toast.success("บันทึกข้อมูลและส่งคำขอทำนายเรียบร้อยแล้ว");
         } else {
           setPredictionError(
             predictionResult.error ?? "บันทึกสำเร็จ แต่ไม่สามารถส่งคำขอทำนายได้",
           );
+          toast.error(predictionResult.error ?? "บันทึกสำเร็จ แต่ไม่สามารถส่งคำขอทำนายได้");
         }
         setIsPredicting(false);
+      } else {
+        toast.success("บันทึกข้อมูลเรียบร้อยแล้ว");
       }
 
       setSaveSuccess(true);
       router.refresh();
     } catch {
       setIsError(true);
+      toast.error("บันทึกข้อมูลไม่สำเร็จ กรุณาลองใหม่");
     } finally {
       setIsPending(false);
       setIsPredicting(false);
@@ -161,13 +167,16 @@ export function MeasurementDrawer({
 
       if (!result.success) {
         setPredictionError(result.error ?? "ทำนายไม่สำเร็จ กรุณาลองใหม่");
+        toast.error(result.error ?? "ทำนายไม่สำเร็จ กรุณาลองใหม่");
         return;
       }
 
       setPredictionMessage("ส่งคำขอทำนายแล้ว ระบบกำลังประมวลผล");
+      toast.success("ส่งคำขอทำนายแล้ว ระบบกำลังประมวลผล");
       router.refresh();
     } catch {
       setPredictionError("ไม่สามารถทำนายได้ กรุณาลองใหม่อีกครั้ง");
+      toast.error("ไม่สามารถทำนายได้ กรุณาลองใหม่อีกครั้ง");
     } finally {
       setIsPredicting(false);
     }

@@ -3,6 +3,7 @@
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { DevelopmentAction } from "@/actions/DevelopmentAction";
+import type { UpdateDevelopmentDTO } from "@/dto";
 
 export type UpdateDevelopmentSuggestionState = {
   errors?: Record<string, string[]>;
@@ -31,7 +32,8 @@ export async function updateDevelopmentSuggestionAction(
   }
 
   try {
-    await DevelopmentAction.updateDevelopment(id, { suggestion });
+    const payload: UpdateDevelopmentDTO = { suggestion };
+    await DevelopmentAction.updateDevelopment(id, payload);
     // Revalidate the development list page so the UI stays fresh if reloaded
     revalidatePath("/desktop/development");
     return { success: true, message: "บันทึกเรียบร้อย" };

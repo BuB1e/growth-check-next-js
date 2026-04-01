@@ -6,7 +6,7 @@ import { ChildDataAction } from "@/actions/ChildDataAction";
 import { DevelopmentAction } from "@/actions/DevelopmentAction";
 import { EnvConfig } from "@/configs/BackendConfig";
 import { revalidatePath } from "next/cache";
-import type { AiPredictionResponse, CreateChildDataDTO } from "@/dto";
+import type { AiPredictionResponse, CreateChildDataDTO, UpdateChildDTO } from "@/dto";
 import { Metric_type } from "@/types";
 
 export type PredictionModel = "lstm";
@@ -41,11 +41,7 @@ const getPollingPolicy = () => {
 
 export async function updateChildAction(
   childId: number,
-  data: {
-    firstName: string;
-    lastName: string;
-    locationId: number;
-  },
+  data: UpdateChildDTO,
 ) {
   try {
     await ChildAction.updateChild(childId.toString(), data);

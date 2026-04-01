@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import type { LocationResponse } from "@/dto";
+import type { LocationResponse, UpdateLocationDTO } from "@/dto";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -18,6 +18,7 @@ import { Loader2 } from "lucide-react";
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { updateLocationAction } from "@/app/desktop/location/actions";
+import { toast } from "sonner";
 
 const locationFormSchema = z.object({
   name: z.string().min(2, { message: "ชื่อชุมชนต้องมีอย่างน้อย 2 ตัวอักษร" }),
@@ -30,6 +31,13 @@ const locationFormSchema = z.object({
     .regex(/^\d{5}$/, { message: "รหัสไปรษณีย์ต้องเป็นตัวเลข 5 หลัก" }),
 });
 
+type LocationFormValues = Required<
+  Pick<
+    UpdateLocationDTO,
+    "name" | "map" | "province" | "district" | "subDistrict" | "zipCode"
+  >
+>;
+
 interface LocationDetailFormProps {
   location: LocationResponse;
 }
@@ -38,7 +46,7 @@ export function LocationDetailForm({ location }: LocationDetailFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
-  const form = useForm<z.infer<typeof locationFormSchema>>({
+  const form = useForm<LocationFormValues>({
     resolver: zodResolver(locationFormSchema),
     defaultValues: {
       name: location.name,
@@ -50,11 +58,20 @@ export function LocationDetailForm({ location }: LocationDetailFormProps) {
     },
   });
 
-  async function onSubmit(data: z.infer<typeof locationFormSchema>) {
+  async function onSubmit(data: LocationFormValues) {
     startTransition(async () => {
-      const result = await updateLocationAction(location.id, data);
-      if (result.success) {
-        router.refresh();
+      try {
+        const payload: UpdateLocationDTO = data;
+        const result = await updateLocationAction(location.id, payload);
+        if (result.success) {
+          toast.success("บันทึกข้อมูลชุมชนเรียบร้อยแล้ว");
+          router.refresh();
+        } else {
+          toast.error(result.error ?? "บันทึกข้อมูลชุมชนไม่สำเร็จ");
+        }
+      } catch (error) {
+        console.error("Failed to submit location update:", error);
+        toast.error("บันทึกข้อมูลชุมชนไม่สำเร็จ กรุณาลองใหม่");
       }
     });
   }

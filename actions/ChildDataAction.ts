@@ -61,10 +61,50 @@ export class ChildDataAction {
     return response.data;
   }
 
+  static async getChildDataByChildId(
+    childId: number | string,
+  ): Promise<ChildDataResponse[]> {
+    let activeHeaders = undefined;
+    if (typeof window === "undefined") {
+      const { getForwardHeaders } = await import("@/lib/auth/header-utils.server");
+      activeHeaders = await getForwardHeaders();
+    }
+    const response = await axios.get(
+      `${this.ACTION_ENDPOINT}/by-child/${childId}`,
+      {
+        headers: activeHeaders,
+      },
+    );
+    return Array.isArray(response.data) ? response.data : [];
+  }
+
+  static async getLatestChildDataByChildId(
+    childId: number | string,
+  ): Promise<ChildDataResponse[]> {
+    let activeHeaders = undefined;
+    if (typeof window === "undefined") {
+      const { getForwardHeaders } = await import("@/lib/auth/header-utils.server");
+      activeHeaders = await getForwardHeaders();
+    }
+    const response = await axios.get(
+      `${this.ACTION_ENDPOINT}/latest/${childId}`,
+      {
+        headers: activeHeaders,
+      },
+    );
+    return Array.isArray(response.data) ? response.data : [];
+  }
+
   static async createChildData(
     data: CreateChildDataDTO,
   ): Promise<ChildDataResponse> {
-    const response = await axios.post(`${this.ACTION_ENDPOINT}/`, data);
+    const activeHeaders =
+      typeof window === "undefined"
+        ? await (await import("@/lib/auth/header-utils.server")).getForwardHeaders()
+        : undefined;
+    const response = await axios.post(`${this.ACTION_ENDPOINT}/`, data, {
+      headers: activeHeaders,
+    });
     return response.data;
   }
 
@@ -72,11 +112,23 @@ export class ChildDataAction {
     id: string,
     data: UpdateChildDataDTO,
   ): Promise<ChildDataResponse> {
-    const response = await axios.patch(`${this.ACTION_ENDPOINT}/${id}`, data);
+    const activeHeaders =
+      typeof window === "undefined"
+        ? await (await import("@/lib/auth/header-utils.server")).getForwardHeaders()
+        : undefined;
+    const response = await axios.patch(`${this.ACTION_ENDPOINT}/${id}`, data, {
+      headers: activeHeaders,
+    });
     return response.data;
   }
 
   static async deleteChildData(id: string): Promise<void> {
-    await axios.delete(`${this.ACTION_ENDPOINT}/${id}`);
+    const activeHeaders =
+      typeof window === "undefined"
+        ? await (await import("@/lib/auth/header-utils.server")).getForwardHeaders()
+        : undefined;
+    await axios.delete(`${this.ACTION_ENDPOINT}/${id}`, {
+      headers: activeHeaders,
+    });
   }
 }

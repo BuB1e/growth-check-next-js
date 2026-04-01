@@ -58,7 +58,13 @@ export class TeamAction {
   }
 
   static async createTeam(data: CreateTeamDto): Promise<TeamResponse> {
-    const response = await axios.post(`${this.ACTION_ENDPOINT}/`, data);
+    const activeHeaders =
+      typeof window === "undefined"
+        ? await (await import("@/lib/auth/header-utils.server")).getForwardHeaders()
+        : undefined;
+    const response = await axios.post(`${this.ACTION_ENDPOINT}/`, data, {
+      headers: activeHeaders,
+    });
     return response.data;
   }
 
@@ -66,11 +72,23 @@ export class TeamAction {
     id: number,
     data: UpdateTeamDto,
   ): Promise<TeamResponse> {
-    const response = await axios.patch(`${this.ACTION_ENDPOINT}/${id}`, data);
+    const activeHeaders =
+      typeof window === "undefined"
+        ? await (await import("@/lib/auth/header-utils.server")).getForwardHeaders()
+        : undefined;
+    const response = await axios.patch(`${this.ACTION_ENDPOINT}/${id}`, data, {
+      headers: activeHeaders,
+    });
     return response.data;
   }
 
   static async deleteTeam(id: number): Promise<void> {
-    await axios.delete(`${this.ACTION_ENDPOINT}/${id}`);
+    const activeHeaders =
+      typeof window === "undefined"
+        ? await (await import("@/lib/auth/header-utils.server")).getForwardHeaders()
+        : undefined;
+    await axios.delete(`${this.ACTION_ENDPOINT}/${id}`, {
+      headers: activeHeaders,
+    });
   }
 }

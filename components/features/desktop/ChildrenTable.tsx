@@ -16,24 +16,25 @@ import {
 } from "@/components/ui/table";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ChildResponse, PaginatedResponseDTO } from "@/dto";
-import { Child_status, Child_statusToThai, Sex, SexToThai } from "@/types";
+import { DevelopmentStatus, DevelopmentStatusToThai, Sex, SexToThai } from "@/types";
 import { Button } from "@/components/ui/button";
-import {
-  ChevronLeft,
-  ChevronRight,
-  CheckCircle2,
-  XCircle,
-  AlertCircle,
-} from "lucide-react"; // Assuming lucide-react as the source for these icons
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { formatBE } from "@/lib/date-utils";
 import { ChildListFilters } from "@/components/features/mobile/ChildListFilters";
 
 interface ChildrenTableProps {
   rawData: PaginatedResponseDTO<ChildResponse>;
   locationMap?: Record<number, string>;
+  heightCriteriaMap?: Record<number, string>;
+  weightCriteriaMap?: Record<number, string>;
 }
 
-export function ChildrenTable({ rawData, locationMap = {} }: ChildrenTableProps) {
+export function ChildrenTable({
+  rawData,
+  locationMap = {},
+  heightCriteriaMap = {},
+  weightCriteriaMap = {},
+}: ChildrenTableProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -48,6 +49,11 @@ export function ChildrenTable({ rawData, locationMap = {} }: ChildrenTableProps)
       }
     });
     router.push(`${pathname}?${params.toString()}`);
+  };
+
+  const getDevelopmentStatusLabel = (status?: string) => {
+    if (!status) return "-";
+    return DevelopmentStatusToThai[status as DevelopmentStatus] ?? status;
   };
 
 
@@ -84,34 +90,16 @@ export function ChildrenTable({ rawData, locationMap = {} }: ChildrenTableProps)
       },
     },
     {
-      accessorKey: "status",
-      header: "พัฒนาการ",
-      cell: ({ row }) => {
-        const status = row.original.status;
-        const thaiStatus = Child_statusToThai[status] ?? status;
-        switch (status) {
-          case Child_status.IN_AREA:
-            return (
-              <div className="flex items-center text-green-600 font-medium">
-                <CheckCircle2 className="mr-1.5 h-4 w-4" /> {thaiStatus}
-              </div>
-            );
-          case Child_status.OUT_AREA:
-            return (
-              <div className="flex items-center text-yellow-500 font-medium">
-                <AlertCircle className="mr-1.5 h-4 w-4" /> {thaiStatus}
-              </div>
-            );
-          case Child_status.UNKNOWN:
-          case Child_status.DIED:
-          default:
-            return (
-              <div className="flex items-center text-red-500 font-medium">
-                <XCircle className="mr-1.5 h-4 w-4" /> {thaiStatus}
-              </div>
-            );
-        }
-      },
+      accessorKey: "haStatus",
+      header: "เกณฑ์ส่วนสูง",
+      cell: ({ row }) =>
+        getDevelopmentStatusLabel(heightCriteriaMap[row.original.id]),
+    },
+    {
+      accessorKey: "waStatus",
+      header: "เกณฑ์น้ำหนัก",
+      cell: ({ row }) =>
+        getDevelopmentStatusLabel(weightCriteriaMap[row.original.id]),
     },
     {
       accessorKey: "updatedAt",

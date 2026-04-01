@@ -82,7 +82,13 @@ export class GrowthReferenceAction {
   static async createGrowthReference(
     data: CreateGrowthReferenceDTO,
   ): Promise<GrowthReferenceResponse> {
-    const response = await axios.post(`${this.ACTION_ENDPOINT}/`, data);
+    const activeHeaders =
+      typeof window === "undefined"
+        ? await (await import("@/lib/auth/header-utils.server")).getForwardHeaders()
+        : undefined;
+    const response = await axios.post(`${this.ACTION_ENDPOINT}/`, data, {
+      headers: activeHeaders,
+    });
     return response.data;
   }
 
@@ -90,11 +96,23 @@ export class GrowthReferenceAction {
     id: string,
     data: UpdateGrowthReferenceDTO,
   ): Promise<GrowthReferenceResponse> {
-    const response = await axios.patch(`${this.ACTION_ENDPOINT}/${id}`, data);
+    const activeHeaders =
+      typeof window === "undefined"
+        ? await (await import("@/lib/auth/header-utils.server")).getForwardHeaders()
+        : undefined;
+    const response = await axios.patch(`${this.ACTION_ENDPOINT}/${id}`, data, {
+      headers: activeHeaders,
+    });
     return response.data;
   }
 
   static async deleteGrowthReference(id: string): Promise<void> {
-    await axios.delete(`${this.ACTION_ENDPOINT}/${id}`);
+    const activeHeaders =
+      typeof window === "undefined"
+        ? await (await import("@/lib/auth/header-utils.server")).getForwardHeaders()
+        : undefined;
+    await axios.delete(`${this.ACTION_ENDPOINT}/${id}`, {
+      headers: activeHeaders,
+    });
   }
 }

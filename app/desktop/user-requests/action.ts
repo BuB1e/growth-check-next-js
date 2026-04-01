@@ -49,7 +49,10 @@ export async function bulkUpdateUserRequestStatusAction(
     
     // Process in parallel on the server
     const results = await Promise.allSettled(
-      ids.map(id => UserCreateStatusAction.updateStatus(id.toString(), { requestStatus: status }))
+      ids.map((id) => {
+        const payload: UpdateUserCreateStatusDto = { requestStatus: status };
+        return UserCreateStatusAction.updateStatus(id.toString(), payload);
+      })
     );
     
     const failures = results.filter(r => r.status === "rejected");

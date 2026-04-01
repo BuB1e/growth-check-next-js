@@ -7,6 +7,7 @@ import { Search, Info, Check, X, Loader2 } from "lucide-react";
 import type { DevelopmentResponse } from "@/dto";
 import { updateDevelopmentSuggestionAction } from "./actions";
 import { DevelopmentStatusToThai, DevelopmentStatus } from "@/types/Enums";
+import { toast } from "sonner";
 
 interface DevelopmentGridProps {
   defaultDevelopments: DevelopmentResponse[];
@@ -83,6 +84,7 @@ export function DevelopmentGrid({ defaultDevelopments }: DevelopmentGridProps) {
     });
 
     if (result.success) {
+      toast.success("บันทึกคำแนะนำเรียบร้อยแล้ว");
       setSuccessIds((prev) => new Set(prev).add(id));
       setTimeout(() => {
         setSuccessIds((prev) => {
@@ -92,6 +94,7 @@ export function DevelopmentGrid({ defaultDevelopments }: DevelopmentGridProps) {
         });
       }, 2000); // clear success mark after 2 seconds
     } else {
+      toast.error(result.error ?? "บันทึกคำแนะนำไม่สำเร็จ");
       setErrorIds((prev) => new Set(prev).add(id));
       // Revert optimistic update
       setData((prev) =>
@@ -195,7 +198,7 @@ export function DevelopmentGrid({ defaultDevelopments }: DevelopmentGridProps) {
                         }
                       }}
                     >
-                      <div className="w-full h-full flex items-center px-4 min-h-[44px]">
+                      <div className="w-full h-full flex items-center px-4 min-h-11">
                         {isEditing ? (
                           <div className="absolute inset-0 z-20 shadow-[0_0_0_2px_#3b82f6] bg-white flex items-center p-1">
                             <Input

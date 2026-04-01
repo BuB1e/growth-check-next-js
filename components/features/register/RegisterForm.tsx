@@ -19,6 +19,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { TeamResponse } from "@/dto";
 import { authClient } from "@/lib/auth/auth-client";
 import { TermsAndPrivacyModal } from "./TermsAndPrivacyModal";
+import { toast } from "sonner";
 
 interface RegisterFormProps {
   teams: TeamResponse[];
@@ -121,6 +122,7 @@ export function RegisterForm({ teams }: RegisterFormProps) {
       }
 
       setError(null);
+      toast.success("ลงทะเบียนเรียบร้อยแล้ว กรุณารอการอนุมัติ");
       
       // Clear all fields on success as requested
       setEmail("");
@@ -136,6 +138,7 @@ export function RegisterForm({ teams }: RegisterFormProps) {
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : "เกิดข้อผิดพลาดในการลงทะเบียน";
       setError(errorMessage);
+      toast.error(errorMessage === "Password too short" ? "รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร" : errorMessage);
     } finally {
       setIsLoading(false);
     }

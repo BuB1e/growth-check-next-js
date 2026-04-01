@@ -9,7 +9,9 @@ export class VerificationAction {
   static ACTION_ENDPOINT = typeof window === 'undefined' ? (this.BACKEND_ENDPOINT + this.API_ENDPOINT) : ("/api" + this.API_ENDPOINT);
 
   static async getVerifications(): Promise<VerificationResponse[]> {
-    const response = await axios.get(this.ACTION_ENDPOINT);
-    return response.data as VerificationResponse[];
+    void axios;
+    throw new Error(
+      "VerificationAction.getVerifications is not compatible with current backend API contract (/verifications not found in OpenAPI).",
+    );
   }
 }

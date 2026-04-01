@@ -35,10 +35,16 @@ export function LocationChildrenTable({ rawData }: LocationChildrenTableProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const queryMinAge = searchParams.get("minAge");
+  const queryMaxAge = searchParams.get("maxAge");
 
   const [q, setQ] = useState(searchParams.get("q") || "");
-  const [minAgeYears, setMinAgeYears] = useState(searchParams.get("minAgeYears") || "");
-  const [maxAgeYears, setMaxAgeYears] = useState(searchParams.get("maxAgeYears") || "");
+  const [minAgeYears, setMinAgeYears] = useState(
+    queryMinAge ? String(Math.floor(Number(queryMinAge) / 12)) : "",
+  );
+  const [maxAgeYears, setMaxAgeYears] = useState(
+    queryMaxAge ? String(Math.floor(Number(queryMaxAge) / 12)) : "",
+  );
   const [haStatus, setHaStatus] = useState(searchParams.get("haStatus") || "all");
   const [waStatus, setWaStatus] = useState(searchParams.get("waStatus") || "all");
   const [showFilters, setShowFilters] = useState(false);
@@ -47,8 +53,20 @@ export function LocationChildrenTable({ rawData }: LocationChildrenTableProps) {
     const params = new URLSearchParams(searchParams.toString());
 
     if (q) params.set("q", q); else params.delete("q");
-    if (minAgeYears) params.set("minAgeYears", minAgeYears); else params.delete("minAgeYears");
-    if (maxAgeYears) params.set("maxAgeYears", maxAgeYears); else params.delete("maxAgeYears");
+    if (minAgeYears) {
+      const minMonths = Math.max(0, (Number(minAgeYears) || 0) * 12);
+      params.set("minAge", String(minMonths));
+    } else {
+      params.delete("minAge");
+    }
+    if (maxAgeYears) {
+      const maxMonths = Math.max(0, (Number(maxAgeYears) || 0) * 12 + 11);
+      params.set("maxAge", String(maxMonths));
+    } else {
+      params.delete("maxAge");
+    }
+    params.delete("minAgeYears");
+    params.delete("maxAgeYears");
     if (haStatus !== "all") params.set("haStatus", haStatus); else params.delete("haStatus");
     if (waStatus !== "all") params.set("waStatus", waStatus); else params.delete("waStatus");
 

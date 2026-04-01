@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { ChildResponse, LocationResponse } from "@/dto";
+import type { UpdateChildDTO } from "@/dto";
 import { Button } from "@/components/ui/button";
 import { updateChildAction } from "../../../app/desktop/children/actions";
 import {
@@ -26,6 +27,7 @@ import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { formatAgeThai, formatBE } from "@/lib/date-utils";
+import { toast } from "sonner";
 
 // Minimal schema logic mapping the data points we want Head to securely edit
 const profileFormSchema = z.object({
@@ -40,6 +42,12 @@ const profileFormSchema = z.object({
   }),
 });
 
+type ChildProfileFormValues = {
+  firstName: string;
+  lastName: string;
+  locationId: string;
+};
+
 interface ChildProfileFormProps {
   child: ChildResponse;
   locations: LocationResponse[];
@@ -51,7 +59,7 @@ export function ChildProfileForm({ child, locations }: ChildProfileFormProps) {
   const ageText = formatAgeThai(child.birthDate);
   const birthDateText = formatBE(child.birthDate, "d MMM yy");
 
-  const form = useForm<z.infer<typeof profileFormSchema>>({
+  const form = useForm<ChildProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
     defaultValues: {
       firstName: child.firstName,
@@ -60,17 +68,20 @@ export function ChildProfileForm({ child, locations }: ChildProfileFormProps) {
     },
   });
 
-  async function onSubmit(data: z.infer<typeof profileFormSchema>) {
+  async function onSubmit(data: ChildProfileFormValues) {
     startTransition(async () => {
       try {
-        await updateChildAction(child.id, {
+        const payload: UpdateChildDTO = {
           ...data,
           locationId: parseInt(data.locationId, 10),
-        });
+        };
+        await updateChildAction(child.id, payload);
+        toast.success("บันทึกข้อมูลเด็กเรียบร้อยแล้ว");
         // Refresh server components
         router.refresh();
       } catch (error) {
         console.error("Failed to update child profile:", error);
+        toast.error("บันทึกข้อมูลเด็กไม่สำเร็จ กรุณาลองใหม่");
       }
     });
   }

@@ -1,6 +1,6 @@
-import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { UserAction } from "@/actions/UserAction";
+import { Suspense } from "react";
 import {
   Card,
   CardContent,
@@ -21,7 +21,36 @@ interface PageProps {
   params: Promise<{ id: string }>;
 }
 
+const UUID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
 export default function StaffDetailPage({ params }: PageProps) {
+  return (
+    <Suspense fallback={<DetailLoadingSkeleton />}>
+      <StaffDetailContent params={params} />
+    </Suspense>
+  );
+}
+
+async function StaffDetailContent({ params }: PageProps) {
+  const { id } = await params;
+  if (!UUID_PATTERN.test(id)) {
+    notFound();
+  }
+
+  let user;
+
+  try {
+    user = await UserAction.getUserById(id);
+  } catch (error) {
+    console.error("Failed to fetch staff member:", error);
+    notFound();
+  }
+
+  if (!user) {
+    notFound();
+  }
+
   return (
     <div className="flex-1 space-y-6 p-4 md:p-8 pt-6">
       <div className="space-y-4">
@@ -40,34 +69,6 @@ export default function StaffDetailPage({ params }: PageProps) {
         </div>
       </div>
 
-      <div className="w-full">
-        <Suspense fallback={<DetailLoadingSkeleton />}>
-          <StaffDataWrapper params={params} />
-        </Suspense>
-      </div>
-    </div>
-  );
-}
-
-function DetailLoadingSkeleton() {
-  return (
-    <div className="flex flex-col items-center justify-center p-24 text-muted-foreground animate-pulse bg-white border rounded-xl">
-      <Loader2 className="h-10 w-10 animate-spin mb-4 text-primary opacity-50" />
-      <p className="text-lg">กำลังโหลดข้อมูลเจ้าหน้าที่...</p>
-    </div>
-  );
-}
-
-async function StaffDataWrapper({ params }: { params: Promise<{ id: string }> }) {
-  try {
-    const { id } = await params;
-    const user = await UserAction.getUserById(id);
-
-    if (!user) {
-      notFound();
-    }
-
-    return (
       <div className="space-y-6">
         {/* Basic Info Card */}
         <Card className="shadow-sm">
@@ -94,9 +95,15 @@ async function StaffDataWrapper({ params }: { params: Promise<{ id: string }> })
         {/* Role & Permissions Card (Client Side Editor) */}
         <StaffDetailClient user={user} />
       </div>
-    );
-  } catch (error) {
-    console.error("Failed to fetch staff member:", error);
-    notFound();
-  }
+    </div>
+  );
+}
+
+function DetailLoadingSkeleton() {
+  return (
+    <div className="flex flex-col items-center justify-center p-24 text-muted-foreground animate-pulse bg-white border rounded-xl">
+      <Loader2 className="h-10 w-10 animate-spin mb-4 text-primary opacity-50" />
+      <p className="text-lg">กำลังโหลดข้อมูลเจ้าหน้าที่...</p>
+    </div>
+  );
 }

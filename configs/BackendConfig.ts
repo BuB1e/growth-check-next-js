@@ -1,5 +1,9 @@
 import { createEnv } from "@t3-oss/env-nextjs";
 import { z } from "zod";
+import axios from "axios";
+
+// Global HTTP client policy for Better Auth session-based APIs.
+axios.defaults.withCredentials = true;
 
 // Server-only env schema
 const serverEnvSchema = {

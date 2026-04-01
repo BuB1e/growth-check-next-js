@@ -75,15 +75,15 @@ function LoginContent() {
         setError("อีเมลหรือรหัสผ่านไม่ถูกต้อง");
         return;
       }
-      console.log("[Login] Native SignIn Success, redirecting to /mobile/staff/home");
-      router.push("/mobile/staff/home");
+      console.log("[Login] Native SignIn Success, redirecting to root for role-based routing");
+      router.push("/");
 
     } else {
       setIsLoading(true);
       try {
         await authClient.signIn.social({
           provider: method.toLowerCase() as "google" | "line",
-          callbackURL: window.location.origin + "/mobile/staff/home",
+          callbackURL: window.location.origin + "/",
           errorCallbackURL: window.location.origin + "/login",
         });
       } catch (err) {

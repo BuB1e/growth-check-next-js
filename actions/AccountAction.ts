@@ -9,7 +9,9 @@ export class AccountAction {
   static ACTION_ENDPOINT = typeof window === 'undefined' ? (this.BACKEND_ENDPOINT + this.API_ENDPOINT) : ("/api" + this.API_ENDPOINT);
 
   static async getAccounts(): Promise<AccountResponse[]> {
-    const response = await axios.get(this.ACTION_ENDPOINT);
-    return response.data as AccountResponse[];
+    void axios;
+    throw new Error(
+      "AccountAction.getAccounts is not compatible with current backend API contract (/accounts not found in OpenAPI).",
+    );
   }
 }

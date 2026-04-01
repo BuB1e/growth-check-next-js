@@ -50,6 +50,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { formatBE } from "@/lib/date-utils";
 import { bulkUpdateUserRequestStatusAction } from "@/app/desktop/user-requests/action";
+import { toast } from "sonner";
 
 interface UserRequestsTableProps {
   rawData: PaginatedResponseDTO<UserCreateStatusResponse>;
@@ -164,18 +165,16 @@ export function UserRequestsTable({ rawData, usersMap = new Map() }: UserRequest
       
       if (result.success) {
         console.log(`[Bulk Action] Success: Updated ${selectedIds.size} requests`);
+        toast.success("อัปเดตคำร้องแบบกลุ่มเรียบร้อยแล้ว");
         setSelectedIds(new Set());
       } else {
         console.error(`[Bulk Action] Error: ${result.error || "Unknown error"}`);
-        alert(result.error || "เกิดข้อผิดพลาดในการดำเนินการแบบกลุ่ม");
+        toast.error(result.error || "เกิดข้อผิดพลาดในการดำเนินการแบบกลุ่ม");
       }
     } catch (error) {
       console.error(`[Bulk Action] Unexpected error:`, error);
-      alert("เกิดข้อผิดพลาดที่ไม่คาดคิด");
+      toast.error("เกิดข้อผิดพลาดที่ไม่คาดคิด");
     } finally {
-      setIsProcessing(true); // Keep processing true until next navigation? No, result.success handled it.
-      // Wait, result.success will trigger revalidatePath on server.
-      // The component will re-render with new data if the parent (page) re-fetches.
       setIsProcessing(false);
       setConfirmAction(null);
     }
@@ -444,7 +443,7 @@ export function UserRequestsTable({ rawData, usersMap = new Map() }: UserRequest
 
       {/* Bulk Action Confirmation Dialog */}
       <AlertDialog open={!!confirmAction} onOpenChange={() => setConfirmAction(null)}>
-        <AlertDialogContent className="sm:max-w-[500px] border-2 shadow-xl">
+        <AlertDialogContent className="sm:max-w-125 border-2 shadow-xl">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-xl font-bold flex items-center gap-2">
               {confirmAction === Request_status.APPROVE ? (
@@ -458,7 +457,7 @@ export function UserRequestsTable({ rawData, usersMap = new Map() }: UserRequest
               <div className="text-slate-600">
                 คุณต้องการ{confirmAction === Request_status.APPROVE ? "อนุมัติ" : "ปฏิเสธ"} {selectedIds.size} คำร้องที่เลือกไว้ใช่หรือไม่?
                 
-                <div className="mt-4 p-4 border-2 border-slate-100 rounded-xl bg-slate-50/50 max-h-[220px] overflow-y-auto custom-scrollbar shadow-inner">
+                <div className="mt-4 p-4 border-2 border-slate-100 rounded-xl bg-slate-50/50 max-h-55 overflow-y-auto custom-scrollbar shadow-inner">
                   <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 flex items-center gap-2">
                     <div className="w-1 h-1 rounded-full bg-slate-400" />
                     รายชื่อเจ้าหน้าที่ที่เลือก ({selectedIds.size})
@@ -505,7 +504,7 @@ export function UserRequestsTable({ rawData, usersMap = new Map() }: UserRequest
             <AlertDialogAction
               onClick={handleBulkAction}
               disabled={isProcessing}
-              className={`font-bold h-11 px-8 min-w-[140px] transition-all duration-300 shadow-lg ${
+              className={`font-bold h-11 px-8 min-w-35 transition-all duration-300 shadow-lg ${
                 confirmAction === Request_status.APPROVE 
                   ? "bg-green-600 hover:bg-green-700 shadow-green-200" 
                   : "bg-red-600 hover:bg-red-700 shadow-red-200"

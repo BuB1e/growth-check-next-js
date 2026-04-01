@@ -64,7 +64,10 @@ const normalizeLocationsResponse = (
 export class LocationAction {
   static BACKEND_ENDPOINT = EnvConfig.BACKEND_ENDPOINT || "";
   static API_ENDPOINT = "/locations";
-  static ACTION_ENDPOINT =this.BACKEND_ENDPOINT + this.API_ENDPOINT;
+  static ACTION_ENDPOINT =
+    typeof window === "undefined"
+      ? this.BACKEND_ENDPOINT + this.API_ENDPOINT
+      : "/api" + this.API_ENDPOINT;
 
   static async getLocations(
     params: GetLocationsParams = {},
@@ -109,7 +112,13 @@ export class LocationAction {
   static async createLocation(
     data: CreateLocationDTO,
   ): Promise<LocationResponse> {
-    const response = await axios.post(`${this.ACTION_ENDPOINT}/`, data);
+    const activeHeaders =
+      typeof window === "undefined"
+        ? await (await import("@/lib/auth/header-utils.server")).getForwardHeaders()
+        : undefined;
+    const response = await axios.post(`${this.ACTION_ENDPOINT}/`, data, {
+      headers: activeHeaders,
+    });
     return response.data;
   }
 
@@ -117,11 +126,23 @@ export class LocationAction {
     id: string,
     data: UpdateLocationDTO,
   ): Promise<LocationResponse> {
-    const response = await axios.patch(`${this.ACTION_ENDPOINT}/${id}`, data);
+    const activeHeaders =
+      typeof window === "undefined"
+        ? await (await import("@/lib/auth/header-utils.server")).getForwardHeaders()
+        : undefined;
+    const response = await axios.patch(`${this.ACTION_ENDPOINT}/${id}`, data, {
+      headers: activeHeaders,
+    });
     return response.data;
   }
 
   static async deleteLocation(id: string): Promise<void> {
-    await axios.delete(`${this.ACTION_ENDPOINT}/${id}`);
+    const activeHeaders =
+      typeof window === "undefined"
+        ? await (await import("@/lib/auth/header-utils.server")).getForwardHeaders()
+        : undefined;
+    await axios.delete(`${this.ACTION_ENDPOINT}/${id}`, {
+      headers: activeHeaders,
+    });
   }
 }

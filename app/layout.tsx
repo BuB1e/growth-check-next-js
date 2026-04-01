@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Lexend } from "next/font/google";
 import "./globals.css";
+import { Toaster } from "@/components/ui/sonner";
 
 const lexend = Lexend({
   variable: "--font-lexend",
@@ -28,6 +29,7 @@ export default async function RootLayout({
         className={`${lexend.variable} antialiased font-sans`}
       >
         {children}
+        <Toaster richColors position="top-right" />
       </body>
     </html>
   );

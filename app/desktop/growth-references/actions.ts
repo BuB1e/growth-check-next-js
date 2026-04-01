@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { GrowthReferenceAction } from "@/actions/GrowthReferenceAction";
 import { Sex, Metric_type } from "@/types";
+import type { CreateGrowthReferenceDTO, UpdateGrowthReferenceDTO } from "@/dto";
 
 export type GrowthReferenceActionState = {
   errors?: Record<string, string[]>;
@@ -62,7 +63,8 @@ export async function createGrowthReferenceAction(
   }
 
   try {
-    await GrowthReferenceAction.createGrowthReference(validatedFields.data);
+    const payload: CreateGrowthReferenceDTO = validatedFields.data;
+    await GrowthReferenceAction.createGrowthReference(payload);
     revalidatePath("/desktop/growth-references");
   } catch (error) {
     console.error("[createGrowthReferenceAction] Failed:", error);
@@ -78,17 +80,7 @@ export async function createGrowthReferenceAction(
 
 export async function updateGrowthReferenceAction(
   id: string,
-  data: {
-    name?: string;
-    weightMean?: number;
-    weightSd?: number;
-    heightMean?: number;
-    heightSd?: number;
-    bmiMean?: number;
-    bmiSd?: number;
-    minAge?: number;
-    maxAge?: number;
-  },
+  data: UpdateGrowthReferenceDTO,
 ): Promise<GrowthReferenceActionState> {
   try {
     await GrowthReferenceAction.updateGrowthReference(id, data);

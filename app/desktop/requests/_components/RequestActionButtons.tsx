@@ -10,6 +10,7 @@ import {
   approveTransferRequestAction,
   rejectTransferRequestAction
 } from "../actions";
+import { toast } from "sonner";
 
 interface RequestActionButtonsProps {
   id: number | string;
@@ -37,13 +38,13 @@ export function RequestActionButtons({ id, type, handlerId }: RequestActionButto
       }
 
       if (result.success) {
-        // Success
+        toast.success(actionType === "approve" ? "อนุมัติคำขอเรียบร้อยแล้ว" : "ปฏิเสธคำขอเรียบร้อยแล้ว");
         router.refresh();
       } else {
-        alert(result.error || "เกิดข้อผิดพลาด");
+        toast.error(result.error || "เกิดข้อผิดพลาด");
       }
     } catch {
-      alert("เกิดข้อผิดพลาดในการเชื่อมต่อ");
+      toast.error("เกิดข้อผิดพลาดในการเชื่อมต่อ");
     } finally {
       setIsPending(false);
     }
@@ -54,7 +55,7 @@ export function RequestActionButtons({ id, type, handlerId }: RequestActionButto
       <Button
         onClick={() => handleAction("approve")}
         disabled={isPending}
-        className="bg-green-600 hover:bg-green-700 text-white min-w-[120px]"
+        className="bg-green-600 hover:bg-green-700 text-white min-w-30"
       >
         {isPending ? (
           <Loader2 className="h-4 w-4 animate-spin mr-2" />
@@ -67,7 +68,7 @@ export function RequestActionButtons({ id, type, handlerId }: RequestActionButto
         variant="destructive"
         onClick={() => handleAction("reject")}
         disabled={isPending}
-        className="min-w-[120px]"
+        className="min-w-30"
       >
         {isPending ? (
           <Loader2 className="h-4 w-4 animate-spin mr-2" />

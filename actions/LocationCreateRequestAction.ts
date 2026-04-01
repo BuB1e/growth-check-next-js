@@ -87,7 +87,13 @@ export class LocationCreateRequestAction {
   static async createRequest(
     data: CreateLocationRequestDTO,
   ): Promise<LocationCreateRequestResponse> {
-    const response = await axios.post(`${this.ACTION_ENDPOINT}/`, data);
+    const activeHeaders =
+      typeof window === "undefined"
+        ? await (await import("@/lib/auth/header-utils.server")).getForwardHeaders()
+        : undefined;
+    const response = await axios.post(`${this.ACTION_ENDPOINT}/`, data, {
+      headers: activeHeaders,
+    });
     return response.data;
   }
 
@@ -95,11 +101,23 @@ export class LocationCreateRequestAction {
     id: number,
     data: UpdateLocationRequestDTO,
   ): Promise<LocationCreateRequestResponse> {
-    const response = await axios.patch(`${this.ACTION_ENDPOINT}/${id}`, data);
+    const activeHeaders =
+      typeof window === "undefined"
+        ? await (await import("@/lib/auth/header-utils.server")).getForwardHeaders()
+        : undefined;
+    const response = await axios.patch(`${this.ACTION_ENDPOINT}/${id}`, data, {
+      headers: activeHeaders,
+    });
     return response.data;
   }
 
   static async deleteRequest(id: number): Promise<void> {
-    await axios.delete(`${this.ACTION_ENDPOINT}/${id}`);
+    const activeHeaders =
+      typeof window === "undefined"
+        ? await (await import("@/lib/auth/header-utils.server")).getForwardHeaders()
+        : undefined;
+    await axios.delete(`${this.ACTION_ENDPOINT}/${id}`, {
+      headers: activeHeaders,
+    });
   }
 }

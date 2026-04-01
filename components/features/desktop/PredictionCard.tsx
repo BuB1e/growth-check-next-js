@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/select";
 import type { PredictionModel } from "@/app/desktop/children/actions";
 import { DevelopmentStatusToThai, DevelopmentStatus } from "@/types/Enums";
+import { toast } from "sonner";
 
 interface PredictionCardProps {
   childId: number;
@@ -290,6 +291,7 @@ export function PredictionCard({
 
       if (!result.success) {
         if (isMountedRef.current) {
+          toast.error(result.error ?? "ตรวจสอบสถานะการทำนายไม่สำเร็จ");
           setUiState("error");
           setErrorMessage(result.error ?? "ตรวจสอบสถานะการทำนายไม่สำเร็จ");
         }
@@ -304,6 +306,7 @@ export function PredictionCard({
           setResolvedPrediction(result.data);
           setUiState("success");
           setSuccessMessage("ผลทำนายพร้อมใช้งานแล้ว");
+          toast.success("ผลทำนายพร้อมใช้งานแล้ว");
         }
         pendingRequestRef.current = null;
         clearPendingFromStorage();
@@ -350,6 +353,7 @@ export function PredictionCard({
     if (!result.success || !result.data) {
       setUiState("error");
       setErrorMessage(result.error ?? "ไม่สามารถส่งคำขอทำนายได้ กรุณาลองใหม่");
+      toast.error(result.error ?? "ไม่สามารถส่งคำขอทำนายได้ กรุณาลองใหม่");
       pendingRequestRef.current = null;
       return;
     }
@@ -360,6 +364,7 @@ export function PredictionCard({
       setResolvedPrediction(prediction);
       setUiState("success");
       setSuccessMessage("ผลทำนายพร้อมใช้งานแล้ว");
+      toast.success("ผลทำนายพร้อมใช้งานแล้ว");
       pendingRequestRef.current = null;
       clearPendingFromStorage();
       router.refresh();
@@ -375,6 +380,7 @@ export function PredictionCard({
     };
 
     setUiState("queued");
+    toast.success("ส่งคำขอทำนายแล้ว ระบบกำลังประมวลผล");
     pendingRequestRef.current = {
       baselinePredictionId: pendingRequestRef.current?.baselinePredictionId ?? null,
       baselinePredictionSignature:

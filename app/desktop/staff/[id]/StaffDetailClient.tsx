@@ -32,6 +32,7 @@ import { Button } from "@/components/ui/button";
 import { ShieldCheck, UserCog, AlertCircle, Loader2 } from "lucide-react";
 import { authClient } from "@/lib/auth/auth-client";
 import { updateStaffRoleAction } from "./actions";
+import { toast } from "sonner";
 
 interface StaffDetailClientProps {
   user: UserResponse;
@@ -80,12 +81,13 @@ export default function StaffDetailClient({ user }: StaffDetailClientProps) {
       
       if (result.success) {
         setSelectedRole(pendingRole);
+        toast.success("อัปเดตสิทธิ์ผู้ใช้งานเรียบร้อยแล้ว");
         router.refresh();
       } else {
-        alert(result.error || "เกิดข้อผิดพลาดในการบันทึกข้อมูล");
+        toast.error(result.error || "เกิดข้อผิดพลาดในการบันทึกข้อมูล");
       }
     } catch (err) {
-      alert("เกิดข้อผิดพลาดในการเชื่อมต่อกรุณาลองใหม่อีกครั้ง");
+      toast.error("เกิดข้อผิดพลาดในการเชื่อมต่อ กรุณาลองใหม่อีกครั้ง");
     } finally {
       setIsUpdating(false);
       setPendingRole(null);

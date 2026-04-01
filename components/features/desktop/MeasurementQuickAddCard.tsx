@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { calculateAge, formatBE } from "@/lib/date-utils";
 import { createChildDataAction } from "@/app/desktop/children/actions";
+import { toast } from "sonner";
 
 const measurementSchema = z.object({
   height: z.number().positive("ส่วนสูงต้องมากกว่า 0"),
@@ -100,11 +101,13 @@ export function MeasurementQuickAddCard({
 
     if (!result.success) {
       setIsError(true);
+      toast.error(result.error ?? "บันทึกข้อมูลไม่สำเร็จ กรุณาลองใหม่");
       setIsPending(false);
       return;
     }
 
     setSaveSuccess(true);
+    toast.success("บันทึกข้อมูลล่าสุดเรียบร้อยแล้ว");
     resetForm();
     router.refresh();
     setIsPending(false);

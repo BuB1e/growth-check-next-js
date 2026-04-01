@@ -16,6 +16,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Loader2, Lock, Check } from "lucide-react";
+import { toast } from "sonner";
 
 // TODO: Adjust min-length to match backend password policy
 const changePasswordSchema = z
@@ -75,12 +76,14 @@ export function ChangePasswordForm({ onSubmit }: ChangePasswordFormProps) {
           newPassword: values.newPassword,
         });
         setSuccessMessage("เปลี่ยนรหัสผ่านเรียบร้อยแล้ว");
+        toast.success("เปลี่ยนรหัสผ่านเรียบร้อยแล้ว");
         form.reset();
         setTimeout(() => setSuccessMessage(null), 3000);
       } catch {
         setErrorMessage(
           "เกิดข้อผิดพลาดในการเปลี่ยนรหัสผ่าน กรุณาลองอีกครั้ง",
         );
+        toast.error("เกิดข้อผิดพลาดในการเปลี่ยนรหัสผ่าน กรุณาลองอีกครั้ง");
       }
     });
   };
@@ -183,7 +186,7 @@ export function ChangePasswordForm({ onSubmit }: ChangePasswordFormProps) {
               <Button
                 type="submit"
                 disabled={isPending || !form.formState.isDirty}
-                className="h-11 min-w-[140px] text-base"
+                className="h-11 min-w-35 text-base"
               >
                 {isPending ? (
                   <>

@@ -8,6 +8,7 @@ import { updateUserRequestStatusAction } from "../../../app/desktop/user-request
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Input } from "@/components/ui/input";
 import { useUserRequestStore } from "@/stores/UserRequestStore";
+import { toast } from "sonner";
 
 interface UserRequestActionHandlerProps {
   requestId: string;
@@ -35,10 +36,14 @@ export function UserRequestActionHandler({
 
       if (!result.success) {
         setError(result.error || "เกิดข้อผิดพลาดในการอนุมัติ");
+        toast.error(result.error || "เกิดข้อผิดพลาดในการอนุมัติ");
+      } else {
+        toast.success("อนุมัติคำร้องเรียบร้อยแล้ว");
       }
     } catch (err) {
       console.error("[UserRequestActionHandler] Approve Error:", err);
       setError("เกิดข้อผิดพลาดที่ไม่คาดคิด");
+      toast.error("เกิดข้อผิดพลาดที่ไม่คาดคิด");
     } finally {
       setIsSubmitting(false);
     }
@@ -47,6 +52,7 @@ export function UserRequestActionHandler({
   const handleReject = async () => {
     if (!rejectReason.trim()) {
       setError("กรุณาระบุเหตุผลในการปฏิเสธ");
+      toast.error("กรุณาระบุเหตุผลในการปฏิเสธ");
       return;
     }
 
@@ -60,10 +66,14 @@ export function UserRequestActionHandler({
 
       if (!result.success) {
         setError(result.error || "เกิดข้อผิดพลาดในการปฏิเสธ");
+        toast.error(result.error || "เกิดข้อผิดพลาดในการปฏิเสธ");
+      } else {
+        toast.success("ปฏิเสธคำร้องเรียบร้อยแล้ว");
       }
     } catch (err) {
       console.error("[UserRequestActionHandler] Reject Error:", err);
       setError("เกิดข้อผิดพลาดที่ไม่คาดคิด");
+      toast.error("เกิดข้อผิดพลาดที่ไม่คาดคิด");
     } finally {
       setIsSubmitting(false);
     }
@@ -116,7 +126,7 @@ export function UserRequestActionHandler({
           <div className="flex flex-wrap items-center gap-4 min-w-[320px]">
             <Button
               variant="outline"
-              className="flex-1 md:flex-none md:min-w-[140px] h-12 border-2 text-destructive border-destructive/20 hover:bg-destructive/25 hover:text-destructive-foreground transition-all duration-300 font-bold"
+              className="flex-1 md:flex-none md:min-w-35 h-12 border-2 text-destructive border-destructive/20 hover:bg-destructive/25 hover:text-destructive-foreground transition-all duration-300 font-bold"
               onClick={() => setShowRejectInput(true)}
               disabled={isSubmitting}
             >
@@ -124,7 +134,7 @@ export function UserRequestActionHandler({
               ปฏิเสธ
             </Button>
             <Button
-              className="flex-1 md:flex-none md:min-w-[180px] h-12 bg-green-600 hover:bg-green-700 shadow-lg shadow-green-200 hover:shadow-green-300 transition-all duration-300 font-bold text-base"
+              className="flex-1 md:flex-none md:min-w-45 h-12 bg-green-600 hover:bg-green-700 shadow-lg shadow-green-200 hover:shadow-green-300 transition-all duration-300 font-bold text-base"
               onClick={handleApprove}
               disabled={isSubmitting}
             >

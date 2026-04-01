@@ -19,7 +19,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { PlusCircle, Loader2, Pencil } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import type { GrowthReferenceResponse } from "@/dto";
 import { Sex, Metric_type } from "@/types";
 
@@ -122,35 +122,55 @@ async function GrowthReferenceTableContent({ searchParams }: PageProps) {
                   <TableHead className="text-right">SD น้ำหนัก</TableHead>
                   <TableHead className="text-right">Mean ส่วนสูง</TableHead>
                   <TableHead className="text-right">SD ส่วนสูง</TableHead>
-                  <TableHead className="w-24" />
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {references.map((ref) => (
                   <TableRow key={ref.id} className="hover:bg-muted/50 transition-colors">
-                    <TableCell className="font-medium">{ref.name}</TableCell>
-                    <TableCell>
-                      <Badge variant={ref.sex === "MALE" ? "default" : "secondary"}>
-                        {SEX_LABELS[ref.sex] ?? ref.sex}
-                      </Badge>
+                    <TableCell className="p-0">
+                      <Link
+                        href={`/desktop/growth-references/${ref.id}`}
+                        className="block px-4 py-3 font-medium"
+                      >
+                        {ref.name}
+                      </Link>
                     </TableCell>
-                    <TableCell>
-                      <Badge variant="outline">{METRIC_LABELS[ref.metric] ?? ref.metric}</Badge>
+                    <TableCell className="p-0">
+                      <Link href={`/desktop/growth-references/${ref.id}`} className="block px-4 py-3">
+                        <Badge variant={ref.sex === "MALE" ? "default" : "secondary"}>
+                          {SEX_LABELS[ref.sex] ?? ref.sex}
+                        </Badge>
+                      </Link>
                     </TableCell>
-                    <TableCell className="text-right">
-                      {ref.minAge} – {ref.maxAge}
+                    <TableCell className="p-0">
+                      <Link href={`/desktop/growth-references/${ref.id}`} className="block px-4 py-3">
+                        <Badge variant="outline">{METRIC_LABELS[ref.metric] ?? ref.metric}</Badge>
+                      </Link>
                     </TableCell>
-                    <TableCell className="text-right">{ref.weightMean.toFixed(2)}</TableCell>
-                    <TableCell className="text-right">{ref.weightSd.toFixed(2)}</TableCell>
-                    <TableCell className="text-right">{ref.heightMean.toFixed(2)}</TableCell>
-                    <TableCell className="text-right">{ref.heightSd.toFixed(2)}</TableCell>
-                    <TableCell>
-                      <Button size="sm" variant="outline" asChild>
-                        <Link href={`/desktop/growth-references/${ref.id}`}>
-                          <Pencil className="h-3.5 w-3.5 mr-1" />
-                          แก้ไข
-                        </Link>
-                      </Button>
+                    <TableCell className="p-0 text-right">
+                      <Link href={`/desktop/growth-references/${ref.id}`} className="block px-4 py-3">
+                        {ref.minAge} – {ref.maxAge}
+                      </Link>
+                    </TableCell>
+                    <TableCell className="p-0 text-right">
+                      <Link href={`/desktop/growth-references/${ref.id}`} className="block px-4 py-3">
+                        {ref.weightMean.toFixed(2)}
+                      </Link>
+                    </TableCell>
+                    <TableCell className="p-0 text-right">
+                      <Link href={`/desktop/growth-references/${ref.id}`} className="block px-4 py-3">
+                        {ref.weightSd.toFixed(2)}
+                      </Link>
+                    </TableCell>
+                    <TableCell className="p-0 text-right">
+                      <Link href={`/desktop/growth-references/${ref.id}`} className="block px-4 py-3">
+                        {ref.heightMean.toFixed(2)}
+                      </Link>
+                    </TableCell>
+                    <TableCell className="p-0 text-right">
+                      <Link href={`/desktop/growth-references/${ref.id}`} className="block px-4 py-3">
+                        {ref.heightSd.toFixed(2)}
+                      </Link>
                     </TableCell>
                   </TableRow>
                 ))}

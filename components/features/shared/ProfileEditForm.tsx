@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/form";
 import type { UserResponse } from "@/dto";
 import { Loader2, Pencil, Check } from "lucide-react";
+import { toast } from "sonner";
 
 // TODO: Adjust validation rules to match backend constraints
 const profileSchema = z.object({
@@ -64,10 +65,12 @@ export function ProfileEditForm({ user, onSubmit }: ProfileEditFormProps) {
       try {
         await onSubmit(values);
         setSuccessMessage("บันทึกข้อมูลเรียบร้อยแล้ว");
+        toast.success("บันทึกข้อมูลเรียบร้อยแล้ว");
         // Clear success message after 3 seconds
         setTimeout(() => setSuccessMessage(null), 3000);
       } catch {
         setErrorMessage("เกิดข้อผิดพลาดในการบันทึกข้อมูล กรุณาลองอีกครั้ง");
+        toast.error("เกิดข้อผิดพลาดในการบันทึกข้อมูล กรุณาลองอีกครั้ง");
       }
     });
   };
@@ -162,7 +165,7 @@ export function ProfileEditForm({ user, onSubmit }: ProfileEditFormProps) {
               <Button
                 type="submit"
                 disabled={isPending || !form.formState.isDirty}
-                className="h-11 min-w-[140px] text-base"
+                className="h-11 min-w-35 text-base"
               >
                 {isPending ? (
                   <>

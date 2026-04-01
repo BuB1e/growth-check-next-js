@@ -12,8 +12,6 @@ import { getForwardHeaders } from "@/lib/auth/auth-guard";
 type GetChildrenParams = OptionsGetChildrenDTO & {
   page?: number;
   limit?: number;
-  minAgeYears?: number | string;
-  maxAgeYears?: number | string;
   status?: string;
   sex?: string;
 };
@@ -157,18 +155,8 @@ export class ChildAction {
       isNonEmptyString(keyword) &&
       !isNonEmptyString(params.firstName) &&
       !isNonEmptyString(params.lastName);
-    const minAgeMonths = toOptionalNumber(params.minAge);
-    const maxAgeMonths = toOptionalNumber(params.maxAge);
-    const minAgeYears = toOptionalNumber(params.minAgeYears);
-    const maxAgeYears = toOptionalNumber(params.maxAgeYears);
-    
-    const computedMinAge = isDefined(minAgeMonths) || isDefined(minAgeYears)
-      ? (minAgeYears ?? 0) * 12 + (minAgeMonths ?? 0)
-      : undefined;
-      
-    const computedMaxAge = isDefined(maxAgeMonths) || isDefined(maxAgeYears)
-      ? (maxAgeYears ?? 0) * 12 + (maxAgeMonths ?? 0)
-      : undefined;
+    const computedMinAge = toOptionalNumber(params.minAge);
+    const computedMaxAge = toOptionalNumber(params.maxAge);
 
     const hasClientOnlyFilters =
       isNonEmptyString(params.status) ||
@@ -210,6 +198,7 @@ export class ChildAction {
               page: currentPage,
               limit: fetchLimit,
             },
+            headers: activeHeaders,
           },
         );
 
@@ -314,7 +303,13 @@ export class ChildAction {
   }
 
   static async createChild(data: CreateChildDTO): Promise<ChildResponse> {
-    const response = await axios.post(`${this.ACTION_ENDPOINT}/`, data);
+    const activeHeaders =
+      typeof window === "undefined"
+        ? await (await import("@/lib/auth/header-utils.server")).getForwardHeaders()
+        : undefined;
+    const response = await axios.post(`${this.ACTION_ENDPOINT}/`, data, {
+      headers: activeHeaders,
+    });
     return response.data;
   }
 
@@ -322,7 +317,13 @@ export class ChildAction {
     id: string,
     data: UpdateChildDTO,
   ): Promise<ChildResponse> {
-    const response = await axios.patch(`${this.ACTION_ENDPOINT}/${id}`, data);
+    const activeHeaders =
+      typeof window === "undefined"
+        ? await (await import("@/lib/auth/header-utils.server")).getForwardHeaders()
+        : undefined;
+    const response = await axios.patch(`${this.ACTION_ENDPOINT}/${id}`, data, {
+      headers: activeHeaders,
+    });
     return response.data;
   }
 
@@ -330,13 +331,29 @@ export class ChildAction {
     id: string,
     model: "arima" | "lstm",
   ): Promise<{ message?: string }> {
-    const response = await axios.put(`${this.ACTION_ENDPOINT}/predict/${id}`, {
-      model,
-    });
+    const activeHeaders =
+      typeof window === "undefined"
+        ? await (await import("@/lib/auth/header-utils.server")).getForwardHeaders()
+        : undefined;
+    const response = await axios.put(
+      `${this.ACTION_ENDPOINT}/predict/${id}`,
+      {
+        model,
+      },
+      {
+        headers: activeHeaders,
+      },
+    );
     return response.data;
   }
 
   static async deleteChild(id: string): Promise<void> {
-    await axios.delete(`${this.ACTION_ENDPOINT}/${id}`);
+    const activeHeaders =
+      typeof window === "undefined"
+        ? await (await import("@/lib/auth/header-utils.server")).getForwardHeaders()
+        : undefined;
+    await axios.delete(`${this.ACTION_ENDPOINT}/${id}`, {
+      headers: activeHeaders,
+    });
   }
 }

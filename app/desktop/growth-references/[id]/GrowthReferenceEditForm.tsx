@@ -17,6 +17,7 @@ import { Loader2, Save, Trash2 } from "lucide-react";
 import type { GrowthReferenceResponse } from "@/dto";
 import { updateGrowthReferenceAction, deleteGrowthReferenceAction } from "../actions";
 import { Sex, Metric_type } from "@/types";
+import { toast } from "sonner";
 
 const SEX_LABELS: Record<Sex, string> = {
   MALE: "ชาย",
@@ -65,8 +66,10 @@ export function GrowthReferenceEditForm({ reference }: GrowthReferenceEditFormPr
     setIsPending(false);
     if (result.success) {
       setSuccessMessage(result.message ?? "อัพเดทสำเร็จ");
+      toast.success(result.message ?? "อัปเดตเกณฑ์เรียบร้อยแล้ว");
     } else {
       setErrorMessage(result.message ?? "เกิดข้อผิดพลาด กรุณาลองใหม่");
+      toast.error(result.message ?? "เกิดข้อผิดพลาด กรุณาลองใหม่");
     }
   };
 
@@ -78,10 +81,12 @@ export function GrowthReferenceEditForm({ reference }: GrowthReferenceEditFormPr
     const result = await deleteGrowthReferenceAction(String(reference.id));
 
     if (result.success) {
+      toast.success("ลบเกณฑ์มาตรฐานเรียบร้อยแล้ว");
       router.push("/desktop/growth-references");
       router.refresh();
     } else {
       setErrorMessage(result.message ?? "ไม่สามารถลบได้ กรุณาลองใหม่");
+      toast.error(result.message ?? "ไม่สามารถลบได้ กรุณาลองใหม่");
       setIsDeleting(false);
     }
   };

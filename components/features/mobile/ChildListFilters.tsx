@@ -9,17 +9,33 @@ export function ChildListFilters() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const queryMinAge = searchParams.get("minAge");
+  const queryMaxAge = searchParams.get("maxAge");
+  const minAgeTotal = queryMinAge ? Number(queryMinAge) : NaN;
+  const maxAgeTotal = queryMaxAge ? Number(queryMaxAge) : NaN;
 
   const [search, setSearch] = useState(searchParams.get("q") || "");
   const [status, setStatus] = useState(searchParams.get("status") || "");
   const [minAgeYears, setMinAgeYears] = useState(
-    searchParams.get("minAgeYears") || "",
+    Number.isFinite(minAgeTotal) && minAgeTotal >= 0
+      ? String(Math.floor(minAgeTotal / 12))
+      : "",
   );
   const [maxAgeYears, setMaxAgeYears] = useState(
-    searchParams.get("maxAgeYears") || "",
+    Number.isFinite(maxAgeTotal) && maxAgeTotal >= 0
+      ? String(Math.floor(maxAgeTotal / 12))
+      : "",
   );
-  const [minAge, setMinAge] = useState(searchParams.get("minAge") || "");
-  const [maxAge, setMaxAge] = useState(searchParams.get("maxAge") || "");
+  const [minAge, setMinAge] = useState(
+    Number.isFinite(minAgeTotal) && minAgeTotal >= 0
+      ? String(minAgeTotal % 12)
+      : "",
+  );
+  const [maxAge, setMaxAge] = useState(
+    Number.isFinite(maxAgeTotal) && maxAgeTotal >= 0
+      ? String(maxAgeTotal % 12)
+      : "",
+  );
   const [haStatus, setHaStatus] = useState(
     searchParams.get("haStatus") || "",
   );
@@ -36,6 +52,8 @@ export function ChildListFilters() {
   const applyFilters = useCallback(
     (updates: Record<string, string>) => {
       const params = new URLSearchParams(searchParams.toString());
+      params.delete("minAgeYears");
+      params.delete("maxAgeYears");
       Object.entries(updates).forEach(([key, value]) => {
         if (value) {
           params.set(key, value);
@@ -74,12 +92,19 @@ export function ChildListFilters() {
   };
 
   const applyAdvancedFilters = () => {
+    const minTotalMonths =
+      minAgeYears || minAge
+        ? String((Number(minAgeYears) || 0) * 12 + (Number(minAge) || 0))
+        : "";
+    const maxTotalMonths =
+      maxAgeYears || maxAge
+        ? String((Number(maxAgeYears) || 0) * 12 + (Number(maxAge) || 0))
+        : "";
+
     applyFilters({
       status,
-      minAgeYears,
-      maxAgeYears,
-      minAge,
-      maxAge,
+      minAge: minTotalMonths,
+      maxAge: maxTotalMonths,
       haStatus,
       waStatus,
       locationId,
@@ -100,8 +125,6 @@ export function ChildListFilters() {
     setSex("");
     applyFilters({
       status: "",
-      minAgeYears: "",
-      maxAgeYears: "",
       minAge: "",
       maxAge: "",
       haStatus: "",
@@ -137,7 +160,7 @@ export function ChildListFilters() {
         </form>
         <button
           onClick={() => setShowAdvanced(!showAdvanced)}
-          className={`flex h-[52px] items-center justify-center gap-2 rounded-2xl px-4 shadow-sm ring-1 ring-inset focus:outline-none focus:ring-2 focus:ring-blue-600 transition-colors ${showAdvanced || activeFiltersCount > 0 ? "bg-blue-50 text-blue-700 ring-blue-200" : "bg-white text-gray-700 ring-gray-200 hover:bg-gray-50"}`}
+          className={`flex h-13 items-center justify-center gap-2 rounded-2xl px-4 shadow-sm ring-1 ring-inset focus:outline-none focus:ring-2 focus:ring-blue-600 transition-colors ${showAdvanced || activeFiltersCount > 0 ? "bg-blue-50 text-blue-700 ring-blue-200" : "bg-white text-gray-700 ring-gray-200 hover:bg-gray-50"}`}
         >
           <div className="relative">
             <SlidersHorizontal className="h-5 w-5" />

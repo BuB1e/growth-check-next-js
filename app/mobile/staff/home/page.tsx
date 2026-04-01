@@ -18,14 +18,6 @@ async function ChildListWrapper({
   const q = typeof searchParams?.q === "string" ? searchParams.q : "";
   const status =
     typeof searchParams?.status === "string" ? searchParams.status : "";
-  const minAgeYears =
-    typeof searchParams?.minAgeYears === "string"
-      ? searchParams.minAgeYears
-      : "";
-  const maxAgeYears =
-    typeof searchParams?.maxAgeYears === "string"
-      ? searchParams.maxAgeYears
-      : "";
   const minAge =
     typeof searchParams?.minAge === "string" ? searchParams.minAge : "";
   const maxAge =
@@ -59,8 +51,6 @@ async function ChildListWrapper({
       page={page}
       search={q}
       status={status}
-      minAgeYears={minAgeYears}
-      maxAgeYears={maxAgeYears}
       minAge={minAge}
       maxAge={maxAge}
       haStatus={haStatus}
@@ -142,7 +132,7 @@ function Loading() {
       {[1, 2, 3, 4].map((i) => (
         <div
           key={i}
-          className="h-[88px] bg-gray-100/80 rounded-2xl border border-gray-100"
+          className="h-22 bg-gray-100/80 rounded-2xl border border-gray-100"
         ></div>
       ))}
     </div>
