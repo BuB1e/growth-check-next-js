@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 import { ESidebar, ESidebarToThai } from "@/types";
 import { authClient } from "@/lib/auth/auth-client";
 import { cn } from "@/lib/utils";
+import { SignOutButton } from "../features/shared/SignOutButton";
 
 // Optional helper to get current page title from pathname
 function getPageTitle(pathname: string) {
@@ -39,6 +40,10 @@ export default function TopbarDesktop() {
       </div>
 
       <div className="flex items-center gap-4">
+
+        <SignOutButton />
+
+        <div className="h-8 w-px bg-outline-variant/30 mx-2 hidden sm:block" />
 
         <Link
           href="/desktop/profile"
