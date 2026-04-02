@@ -34,10 +34,11 @@ export class ProfileAction {
       const session = await getCurrentSession();
       
       if (session?.user) {
+        type SessionUserWithProvider = typeof session.user & { provider?: string };
+        const sessionUser = session.user as SessionUserWithProvider;
         // 1. Try to get from session/user if provided by backend
-        const userAsAny = session.user as any;
-        if (userAsAny.provider) {
-          provider = userAsAny.provider;
+        if (sessionUser.provider) {
+          provider = sessionUser.provider;
         } 
         // 2. Heuristic check: Social logins usually have an image (avatar)
         // while native logins on this system might not, unless uploaded.

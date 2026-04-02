@@ -34,6 +34,13 @@ interface ChartDataPoint {
   predictedWeightTrend?: number;
 }
 
+interface LineDotProps {
+  cx: number;
+  cy: number;
+  payload: ChartDataPoint;
+  index?: number;
+}
+
 export function DevelopmentChart({
   history,
   developments,
@@ -222,7 +229,7 @@ export function DevelopmentChart({
           <p className="mb-2 text-[11px] font-semibold text-slate-500">
             คำอธิบาย Metric
           </p>
-          <div className="flex flex-wrap gap-x-3 gap-y-1 text-[11px] font-medium text-slate-700">
+          <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm font-medium text-slate-700">
             <span className="inline-flex items-center gap-1.5">
               <span className="h-2.5 w-2.5 rounded-full bg-blue-500" />
               ส่วนสูงจริง
@@ -347,12 +354,16 @@ export function DevelopmentChart({
                 dataKey="height"
                 stroke="#3b82f6"
                 strokeWidth={2.5}
-                dot={(props: { cx: number; cy: number; payload: ChartDataPoint }) => {
-                  const { cx, cy, payload } = props;
-                  if (typeof payload.height !== 'number') return <g key={`dot-height-null-${payload.dateOrder}`} />;
+                dot={(props: LineDotProps) => {
+                  const { cx, cy, payload, index } = props;
+                  if (typeof payload.height !== 'number') {
+                    return (
+                      <g key={`dot-height-empty-${index ?? `${payload.dateOrder}-${cx}-${cy}`}`} />
+                    );
+                  }
                   return (
                     <circle
-                      key={`dot-height-${payload.dateOrder}`}
+                      key={`dot-height-${index ?? `${payload.dateOrder}-${cx}-${cy}`}`}
                       cx={cx}
                       cy={cy}
                       r={4}
@@ -375,12 +386,16 @@ export function DevelopmentChart({
                 stroke="#8b5cf6"
                 strokeWidth={2}
                 strokeDasharray="6 4"
-                dot={(props: { cx: number; cy: number; payload: ChartDataPoint }) => {
-                  const { cx, cy, payload } = props;
-                  if (typeof payload.predictedHeightTrend !== 'number') return <g key={`pred-dot-height-null-${payload.dateOrder}`} />;
+                dot={(props: LineDotProps) => {
+                  const { cx, cy, payload, index } = props;
+                  if (typeof payload.predictedHeightTrend !== 'number') {
+                    return (
+                      <g key={`dot-pred-height-empty-${index ?? `${payload.dateOrder}-${cx}-${cy}`}`} />
+                    );
+                  }
                   return (
                     <circle
-                      key={`pred-dot-height-${payload.dateOrder}`}
+                      key={`dot-pred-height-${index ?? `${payload.dateOrder}-${cx}-${cy}`}`}
                       cx={cx}
                       cy={cy}
                       r={3.5}
@@ -403,12 +418,16 @@ export function DevelopmentChart({
                 dataKey="weight"
                 stroke="#f97316"
                 strokeWidth={2.5}
-                dot={(props: { cx: number; cy: number; payload: ChartDataPoint }) => {
-                  const { cx, cy, payload } = props;
-                  if (typeof payload.weight !== 'number') return <g key={`dot-weight-null-${payload.dateOrder}`} />;
+                dot={(props: LineDotProps) => {
+                  const { cx, cy, payload, index } = props;
+                  if (typeof payload.weight !== 'number') {
+                    return (
+                      <g key={`dot-weight-empty-${index ?? `${payload.dateOrder}-${cx}-${cy}`}`} />
+                    );
+                  }
                   return (
                     <circle
-                      key={`dot-weight-${payload.dateOrder}`}
+                      key={`dot-weight-${index ?? `${payload.dateOrder}-${cx}-${cy}`}`}
                       cx={cx}
                       cy={cy}
                       r={4}
@@ -431,12 +450,16 @@ export function DevelopmentChart({
                 stroke="#0ea5e9"
                 strokeWidth={2}
                 strokeDasharray="6 4"
-                dot={(props: { cx: number; cy: number; payload: ChartDataPoint }) => {
-                  const { cx, cy, payload } = props;
-                  if (typeof payload.predictedWeightTrend !== 'number') return <g key={`pred-dot-weight-null-${payload.dateOrder}`} />;
+                dot={(props: LineDotProps) => {
+                  const { cx, cy, payload, index } = props;
+                  if (typeof payload.predictedWeightTrend !== 'number') {
+                    return (
+                      <g key={`dot-pred-weight-empty-${index ?? `${payload.dateOrder}-${cx}-${cy}`}`} />
+                    );
+                  }
                   return (
                     <circle
-                      key={`pred-dot-weight-${payload.dateOrder}`}
+                      key={`dot-pred-weight-${index ?? `${payload.dateOrder}-${cx}-${cy}`}`}
                       cx={cx}
                       cy={cy}
                       r={3.5}

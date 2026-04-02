@@ -62,6 +62,100 @@ export function MeasurementDrawer({
   const [predictionMessage, setPredictionMessage] = useState<string | null>(null);
   const [predictionError, setPredictionError] = useState<string | null>(null);
 
+  const sleep = (ms: number) =>
+    new Promise((resolve) => setTimeout(resolve, Math.max(0, ms)));
+
+  const pollPredictionUntilReady = async (input: {
+    childId: number;
+    queuedAt: number;
+    baselineIds: number[];
+    baselineSignatures?: Record<string, string>;
+    initialDelayMs?: number;
+    timeoutMs?: number;
+  }) => {
+    const { pollPredictionForChildAction } = await import(
+      "@/app/mobile/staff/child/[child_id]/actions"
+    );
+
+    const startedAt = Date.now();
+    const timeoutMs = Math.max(1000, Number(input.timeoutMs) || 90_000);
+    let delayMs = Math.max(500, Number(input.initialDelayMs) || 2_500);
+
+    while (Date.now() - startedAt < timeoutMs) {
+      const result = await pollPredictionForChildAction({
+        childId: input.childId,
+        queuedAt: input.queuedAt,
+        baselineIds: input.baselineIds,
+        baselineSignatures: input.baselineSignatures,
+        previousDelayMs: delayMs,
+      });
+
+      if (!result.success) {
+        return {
+          success: false as const,
+          error: result.error ?? "ไม่สามารถตรวจสอบสถานะการทำนายได้",
+        };
+      }
+
+      if (result.status === "ready") {
+        return { success: true as const };
+      }
+
+      delayMs = Math.max(500, Number(result.poll?.nextDelayMs) || delayMs);
+      await sleep(delayMs);
+    }
+
+    return {
+      success: false as const,
+      error: "ยังไม่ได้รับผลทำนายในเวลาที่กำหนด",
+    };
+  };
+
+  const runPredictionWithPolling = async (targetChildId: number) => {
+    const { createPredictionForChildAction } = await import(
+      "@/app/mobile/staff/child/[child_id]/actions"
+    );
+
+    const result = await createPredictionForChildAction(targetChildId, "lstm");
+
+    if (!result.success) {
+      return {
+        success: false as const,
+        error: result.error ?? "ทำนายไม่สำเร็จ กรุณาลองใหม่",
+      };
+    }
+
+    if (result.status === "ready") {
+      return { success: true as const };
+    }
+
+    if (result.status !== "polling" || !result.data) {
+      return {
+        success: false as const,
+        error: "รูปแบบผลลัพธ์การทำนายไม่ถูกต้อง",
+      };
+    }
+
+    const pollData = result.data as {
+      queuedAt: number;
+      baselineIds: number[];
+      baselineSignatures?: Record<string, string>;
+      poll?: {
+        initialMs?: number;
+        timeoutMs?: number;
+      };
+    };
+
+    return pollPredictionUntilReady({
+      childId: targetChildId,
+      queuedAt: Number(pollData.queuedAt) || Date.now(),
+      baselineIds: Array.isArray(pollData.baselineIds) ? pollData.baselineIds : [],
+      baselineSignatures: pollData.baselineSignatures,
+      initialDelayMs: pollData.poll?.initialMs,
+      timeoutMs: pollData.poll?.timeoutMs,
+    });
+  };
+
   const resetForm = () => {
     setHeight("");
     setWeight("");
@@ -102,7 +196,7 @@ export function MeasurementDrawer({
 
     setIsPending(true);
     try {
-      const { createChildDataAction, createPredictionForChildAction } = await import(
+      const { createChildDataAction } = await import(
         "@/app/mobile/staff/child/[child_id]/actions"
       );
       const { years: ageYear, months: ageMonth } = calculateAge(
@@ -124,10 +218,11 @@ export function MeasurementDrawer({
 
       if (childId) {
         setIsPredicting(true);
-        const predictionResult = await createPredictionForChildAction(childId, "lstm");
+        const predictionResult = await runPredictionWithPolling(childId);
         if (predictionResult.success) {
-          setPredictionMessage("บันทึกแล้วและส่งคำขอทำนายผล 6 เดือนเรียบร้อย");
-          toast.success("บันทึกข้อมูลและส่งคำขอทำนายเรียบร้อยแล้ว");
+          setPredictionMessage("บันทึกและทำนายเสร็จเรียบร้อยแล้ว");
+          toast.success("บันทึกข้อมูลและอัปเดตผลทำนายเรียบร้อยแล้ว");
+          router.refresh();
         } else {
           setPredictionError(
             predictionResult.error ?? "บันทึกสำเร็จ แต่ไม่สามารถส่งคำขอทำนายได้",
@@ -140,7 +235,6 @@ export function MeasurementDrawer({
       }
 
       setSaveSuccess(true);
-      router.refresh();
     } catch {
       setIsError(true);
       toast.error("บันทึกข้อมูลไม่สำเร็จ กรุณาลองใหม่");
@@ -160,10 +254,7 @@ export function MeasurementDrawer({
     setPredictionError(null);
 
     try {
-      const { createPredictionForChildAction } = await import(
-        "@/app/mobile/staff/child/[child_id]/actions"
-      );
-      const result = await createPredictionForChildAction(childId, "lstm");
+      const result = await runPredictionWithPolling(childId);
 
       if (!result.success) {
         setPredictionError(result.error ?? "ทำนายไม่สำเร็จ กรุณาลองใหม่");
@@ -171,8 +262,8 @@ export function MeasurementDrawer({
         return;
       }
 
-      setPredictionMessage("ส่งคำขอทำนายแล้ว ระบบกำลังประมวลผล");
-      toast.success("ส่งคำขอทำนายแล้ว ระบบกำลังประมวลผล");
+      setPredictionMessage("ผลทำนายพร้อมใช้งานแล้ว");
+      toast.success("ผลทำนายพร้อมใช้งานแล้ว");
       router.refresh();
     } catch {
       setPredictionError("ไม่สามารถทำนายได้ กรุณาลองใหม่อีกครั้ง");
@@ -220,34 +311,6 @@ export function MeasurementDrawer({
 
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="height" className="text-gray-700 font-medium">
-                  ส่วนสูง (ซม.)
-                </Label>
-                <div className="relative">
-                  <Input
-                    id="height"
-                    type="text"
-                    inputMode="decimal"
-                    placeholder="85.5"
-                    value={height}
-                    onChange={(e) =>
-                      setHeight(e.target.value.replace(/[^0-9.]/g, ""))
-                    }
-                    className="min-h-13 bg-gray-50/50 pl-4 pr-12 text-lg rounded-xl focus-visible:ring-blue-500"
-                  />
-                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 font-medium">
-                    cm
-                  </span>
-                </div>
-                {errors.height && (
-                  <p className="text-sm text-red-500 flex items-center mt-1">
-                    <span className="w-1 h-1 rounded-full bg-red-500 mr-2"></span>
-                    {errors.height}
-                  </p>
-                )}
-              </div>
-
-              <div className="space-y-2">
                 <Label htmlFor="weight" className="text-gray-700 font-medium">
                   น้ำหนัก (กก.)
                 </Label>
@@ -271,6 +334,34 @@ export function MeasurementDrawer({
                   <p className="text-sm text-red-500 flex items-center mt-1">
                     <span className="w-1 h-1 rounded-full bg-red-500 mr-2"></span>
                     {errors.weight}
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="height" className="text-gray-700 font-medium">
+                  ส่วนสูง (ซม.)
+                </Label>
+                <div className="relative">
+                  <Input
+                    id="height"
+                    type="text"
+                    inputMode="decimal"
+                    placeholder="85.5"
+                    value={height}
+                    onChange={(e) =>
+                      setHeight(e.target.value.replace(/[^0-9.]/g, ""))
+                    }
+                    className="min-h-13 bg-gray-50/50 pl-4 pr-12 text-lg rounded-xl focus-visible:ring-blue-500"
+                  />
+                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 font-medium">
+                    cm
+                  </span>
+                </div>
+                {errors.height && (
+                  <p className="text-sm text-red-500 flex items-center mt-1">
+                    <span className="w-1 h-1 rounded-full bg-red-500 mr-2"></span>
+                    {errors.height}
                   </p>
                 )}
               </div>

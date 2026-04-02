@@ -57,6 +57,15 @@ interface UserRequestsTableProps {
   usersMap?: Map<string, UserResponse>;
 }
 
+type UserRequestWithNameFallback = UserCreateStatusResponse & {
+  user?: {
+    firstName?: string;
+    lastName?: string;
+  };
+  firstName?: string;
+  lastName?: string;
+};
+
 function StatusBadge({ status }: { status: string }) {
   switch (status) {
     case Request_status.APPROVE:
@@ -465,7 +474,7 @@ export function UserRequestsTable({ rawData, usersMap = new Map() }: UserRequest
                   <div className="space-y-2">
                   {Array.from(selectedIds).map((id) => {
                     const user = usersMap.get(id);
-                    const req = rawData.data.find(r => r.userId === id) as any;
+                    const req = rawData.data.find((r) => r.userId === id) as UserRequestWithNameFallback | undefined;
                     
                     let name = `User ID: ${id.substring(0, 8)}`;
                     if (user) {

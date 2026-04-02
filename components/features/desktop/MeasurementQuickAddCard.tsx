@@ -128,18 +128,6 @@ export function MeasurementQuickAddCard({
       )}
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        <div className="space-y-2">
-          <Label htmlFor="desktop-height">ส่วนสูง (ซม.)</Label>
-          <Input
-            id="desktop-height"
-            type="text"
-            inputMode="decimal"
-            placeholder="85.5"
-            value={height}
-            onChange={(e) => setHeight(e.target.value.replace(/[^0-9.]/g, ""))}
-          />
-          {errors.height && <p className="text-xs text-red-500">{errors.height}</p>}
-        </div>
 
         <div className="space-y-2">
           <Label htmlFor="desktop-weight">น้ำหนัก (กก.)</Label>
@@ -152,6 +140,19 @@ export function MeasurementQuickAddCard({
             onChange={(e) => setWeight(e.target.value.replace(/[^0-9.]/g, ""))}
           />
           {errors.weight && <p className="text-xs text-red-500">{errors.weight}</p>}
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="desktop-height">ส่วนสูง (ซม.)</Label>
+          <Input
+            id="desktop-height"
+            type="text"
+            inputMode="decimal"
+            placeholder="85.5"
+            value={height}
+            onChange={(e) => setHeight(e.target.value.replace(/[^0-9.]/g, ""))}
+          />
+          {errors.height && <p className="text-xs text-red-500">{errors.height}</p>}
         </div>
       </div>
 

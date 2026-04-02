@@ -4,6 +4,7 @@ import { DevelopmentAction } from "@/actions/DevelopmentAction";
 import type { DevelopmentResponse } from "@/dto";
 import { DevelopmentGrid } from "./DevelopmentGrid";
 import { Loader2 } from "lucide-react";
+import axios from "axios";
 
 export const metadata = {
   title: "คำแนะนำพัฒนาการ (Development Suggestions)",
@@ -13,6 +14,14 @@ export const metadata = {
 interface PageProps {
   // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   searchParams: Promise<{}>;
+}
+
+function isExpectedBuildAuthError(error: unknown): boolean {
+  return (
+    process.env.NEXT_PHASE === "phase-production-build" &&
+    axios.isAxiosError(error) &&
+    error.response?.status === 401
+  );
 }
 
 export default function DevelopmentPage({ searchParams }: PageProps) {
@@ -63,7 +72,9 @@ async function DevelopmentDataWrapper() {
     });
     developments = res.data;
   } catch (error) {
-    console.error("Failed to load developments:", error);
+    if (!isExpectedBuildAuthError(error)) {
+      console.error("Failed to load developments:", error);
+    }
     notFound();
   }
 

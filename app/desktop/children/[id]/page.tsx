@@ -5,6 +5,7 @@ import { ChildDataAction } from "@/actions/ChildDataAction";
 import { LocationAction } from "@/actions/LocationAction";
 import { DevelopmentAction } from "@/actions/DevelopmentAction";
 import { notFound } from "next/navigation";
+import axios from "axios";
 import {
   Card,
   CardContent,
@@ -28,6 +29,14 @@ import type { AiPredictionResponse, LocationResponse } from "@/dto";
 export const metadata = {
   title: "รายละเอียดข้อมูลเด็ก",
 };
+
+function isExpectedBuildAuthError(error: unknown): boolean {
+  return (
+    process.env.NEXT_PHASE === "phase-production-build" &&
+    axios.isAxiosError(error) &&
+    error.response?.status === 401
+  );
+}
 
 // Outer page — does NOT await params. Passes Promise to inner component
 // inside Suspense to avoid the "Uncached data" static build error.
@@ -136,7 +145,9 @@ async function ChildDetailContent({
     });
     developments = devRes.data;
   } catch (error) {
-    console.error("Failed to load developments for chart coloring:", error);
+    if (!isExpectedBuildAuthError(error)) {
+      console.error("Failed to load developments for chart coloring:", error);
+    }
   }
 
   const session = await getCurrentSession();
@@ -160,7 +171,7 @@ async function ChildDetailContent({
         <CardHeader>
           <CardTitle>บันทึกข้อมูลล่าสุด</CardTitle>
           <CardDescription>
-            เพิ่มส่วนสูง น้ำหนัก และวันที่วัดใหม่ (รูปแบบเดียวกับหน้า mobile)
+            เพิ่มน้ำหนัก และ ส่วนสูง และวันที่วัดใหม่
           </CardDescription>
         </CardHeader>
         <CardContent>

@@ -266,15 +266,10 @@ export async function pollChildPredictionAction({
   try {
     const policy = getPollingPolicy();
 
-    const response = await AiPredictionAction.getPredictions({
-      childId,
-      page: 1,
-      limit: 100,
-    });
-
-    const baselineSet = new Set<number>(baselineIds);
-
-    const candidates = response.data.filter((item) => {
+    const buildCandidateScore = (
+      item: AiPredictionResponse,
+      baselineSet: Set<number>,
+    ) => {
       const isNewId = !baselineSet.has(item.id);
       const previousSignature = baselineSignatures?.[String(item.id)];
       const currentSignature = buildPredictionSignature(item);
@@ -285,9 +280,38 @@ export async function pollChildPredictionAction({
       // Increase tolerance for backend clock drift and latencies (2 minutes window)
       const isFreshEnough = t >= queuedAt - 120_000;
 
-      // Some backends may update an existing prediction row instead of inserting a new ID.
-      return isNewId || isUpdatedInPlace || isFreshEnough;
+      return {
+        isNewId,
+        isUpdatedInPlace,
+        isFreshEnough,
+      };
+    };
+
+    const response = await AiPredictionAction.getPredictions({
+      childId,
+      page: 1,
+      limit: 100,
     });
+
+    const baselineSet = new Set<number>(baselineIds);
+
+    const candidates = response.data.filter((item) => {
+      const score = buildCandidateScore(item, baselineSet);
+      // Some backends may update an existing prediction row instead of inserting a new ID.
+      return score.isNewId || score.isUpdatedInPlace || score.isFreshEnough;
+    });
+
+    // Fallback: some backends may return paginated lists that miss the newest row,
+    // so also inspect the dedicated latest endpoint before deciding to stay pending.
+    const latestCandidate = await AiPredictionAction.getLatestPredictionByChildId(childId);
+    if (latestCandidate) {
+      const score = buildCandidateScore(latestCandidate, baselineSet);
+      const isCandidate =
+        score.isNewId || score.isUpdatedInPlace || score.isFreshEnough;
+      if (isCandidate && !candidates.some((item) => item.id === latestCandidate.id)) {
+        candidates.push(latestCandidate);
+      }
+    }
 
     if (!candidates.length) {
       const baseDelay =

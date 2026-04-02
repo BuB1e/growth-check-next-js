@@ -1,12 +1,12 @@
 "use client";
 
+import { useSyncExternalStore } from "react";
 import Link from "next/link";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { LogOut, Search, Bell, Settings, UserCircle } from "lucide-react";
+import { UserCircle } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { ESidebar, ESidebarToThai } from "@/types";
 import { authClient } from "@/lib/auth/auth-client";
-import { cn } from "@/lib/utils";
 import { SignOutButton } from "../features/shared/SignOutButton";
 
 // Optional helper to get current page title from pathname
@@ -25,10 +25,24 @@ function getPageTitle(pathname: string) {
   return "ระบบจัดการส่วนกลาง";
 }
 
+function useIsHydrated() {
+  return useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
+}
+
 export default function TopbarDesktop() {
   const pathname = usePathname();
   const pageTitle = getPageTitle(pathname);
   const { data: session } = authClient.useSession();
+  const isHydrated = useIsHydrated();
+  const displayName = isHydrated ? (session?.user?.name || "ผู้ใช้งาน") : "ผู้ใช้งาน";
+  const displayRole = isHydrated
+    ? ((session?.user as { role?: string } | undefined)?.role || "เจ้าหน้าที่")
+    : "เจ้าหน้าที่";
+  const avatarImage = isHydrated ? session?.user?.image : null;
 
   return (
     <header className="flex bh-20 shrink-0 items-center justify-between gap-6 bg-surface/85 shadow-lg shadow-primary/10 backdrop-blur-xl px-8 sticky top-0 z-10 w-full border-b-0">
@@ -51,15 +65,15 @@ export default function TopbarDesktop() {
         >
           <div className="hidden sm:flex flex-col items-end">
             <span className="text-body-lg font-bold text-on-surface leading-none group-hover:text-primary transition-colors">
-              {session?.user?.name || "ผู้ใช้งาน"}
+              {displayName}
             </span>
             <span className="text-label-md text-on-surface-variant font-medium mt-1 uppercase tracking-wider">
-              {(session?.user as any)?.role || "เจ้าหน้าที่"}
+              {displayRole}
             </span>
           </div>
           <div className="size-12 bg-primary-fixed rounded-xl flex items-center justify-center shadow-lg shadow-primary/10 overflow-hidden group-hover:scale-105 transition-transform">
-             {session?.user?.image ? (
-                <img src={session.user.image} alt="Avatar" className="size-full object-cover" />
+             {avatarImage ? (
+                <img src={avatarImage} alt="Avatar" className="size-full object-cover" />
              ) : (
                 <UserCircle className="size-8 text-primary shadow-sm" />
              )}

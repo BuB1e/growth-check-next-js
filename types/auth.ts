@@ -12,5 +12,5 @@ export interface UserSession {
 
 export interface Session {
   user: UserSession;
-  session?: any;
+  session?: unknown;
 }

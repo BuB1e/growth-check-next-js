@@ -3,10 +3,26 @@ import { RegisterForm } from "@/components/features/register/RegisterForm";
 import { TeamAction } from "@/actions/TeamAction";
 import { TeamResponse } from "@/dto";
 import { Loader2 } from "lucide-react";
+import axios from "axios";
 
 export const metadata = {
   title: "ลงทะเบียนใหม่ - Growth Check",
 };
+
+function isExpectedBuildAuthError(error: unknown): boolean {
+  return (
+    process.env.NEXT_PHASE === "phase-production-build" &&
+    axios.isAxiosError(error) &&
+    error.response?.status === 401
+  );
+}
+
+function isExpectedRegisterAuthError(error: unknown): boolean {
+  return (
+    axios.isAxiosError(error) &&
+    (error.response?.status === 401 || error.response?.status === 403)
+  );
+}
 
 export default function RegisterPage() {
   return (
@@ -30,12 +46,21 @@ async function RegisterDataWrapper() {
   // We fetch a high limit to ensure all teams are available for client-side search
   let teams: TeamResponse[] = [];
   try {
-    const res = await TeamAction.getTeams({ limit: 1000, page: 1 });
+    const res = await TeamAction.getTeams(
+      { limit: 1000, page: 1, deleted: false },
+      {},
+    );
     if (res && res.data) {
       teams = res.data;
     }
   } catch (error) {
-    console.error("Failed to fetch teams for registration:", error);
+    if (!isExpectedBuildAuthError(error) && !isExpectedRegisterAuthError(error)) {
+      const errorMessage =
+        error instanceof Error ? error.message : "unknown error";
+      console.error(
+        `Failed to fetch teams for registration: ${errorMessage}`,
+      );
+    }
   }
 
   return <RegisterForm teams={teams} />;

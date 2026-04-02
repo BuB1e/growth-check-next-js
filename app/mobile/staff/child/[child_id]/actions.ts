@@ -96,46 +96,23 @@ export async function createPredictionForChildAction(
   childId: number,
   model: "lstm" = "lstm",
 ) {
-  try {
-    const history = await ChildDataAction.getChildDataList({
-      childId,
-      page: 1,
-      limit: 100,
-    });
+  const { createChildPredictionQueueAction } = await import(
+    "@/app/desktop/children/actions"
+  );
 
-    if (history.length < 3) {
-      return {
-        success: false,
-        error: "ต้องมีข้อมูลวัดอย่างน้อย 3 ครั้งก่อนเริ่มการทำนาย",
-      };
-    }
+  return createChildPredictionQueueAction(childId, model);
+}
 
-    const latest = [...history].sort(
-      (a, b) => new Date(b.heightDate).getTime() - new Date(a.heightDate).getTime(),
-    )[0];
+export async function pollPredictionForChildAction(input: {
+  childId: number;
+  queuedAt: number;
+  baselineIds: number[];
+  baselineSignatures?: Record<string, string>;
+  previousDelayMs?: number;
+}) {
+  const { pollChildPredictionAction } = await import(
+    "@/app/desktop/children/actions"
+  );
 
-    if (!latest || !latest.heightDevelopmentId || !latest.weightDevelopmentId) {
-      return {
-        success: false,
-        error: "ไม่พบข้อมูลเกณฑ์พัฒนาการสำหรับการทำนาย",
-      };
-    }
-
-    await ChildAction.predictChild(childId.toString(), model);
-
-    return {
-      success: true,
-      data: {
-        queuedAt: Date.now(),
-        model,
-        message: "Prediction request sent successfully",
-      },
-    };
-  } catch (error) {
-    console.error("Failed to create prediction:", error);
-    return {
-      success: false,
-      error: "ไม่สามารถทำนายการเจริญเติบโตได้ กรุณาลองใหม่อีกครั้ง",
-    };
-  }
+  return pollChildPredictionAction(input);
 }

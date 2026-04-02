@@ -94,7 +94,7 @@ export function DevelopmentGrid({ defaultDevelopments }: DevelopmentGridProps) {
         });
       }, 2000); // clear success mark after 2 seconds
     } else {
-      toast.error(result.error ?? "บันทึกคำแนะนำไม่สำเร็จ");
+      toast.error(result.message ?? "บันทึกคำแนะนำไม่สำเร็จ");
       setErrorIds((prev) => new Set(prev).add(id));
       // Revert optimistic update
       setData((prev) =>

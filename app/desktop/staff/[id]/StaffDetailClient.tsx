@@ -28,7 +28,6 @@ import {
   AlertDialogHeader, 
   AlertDialogTitle 
 } from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
 import { ShieldCheck, UserCog, AlertCircle, Loader2 } from "lucide-react";
 import { authClient } from "@/lib/auth/auth-client";
 import { updateStaffRoleAction } from "./actions";
@@ -42,7 +41,7 @@ export default function StaffDetailClient({ user }: StaffDetailClientProps) {
   const router = useRouter();
   const session = authClient.useSession();
   
-  const currentUserRole = (session.data?.user as any)?.role as Role | undefined;
+  const currentUserRole = (session.data?.user as { role?: Role } | undefined)?.role;
   const isAdmin = currentUserRole === Role.ADMIN;
   
   const [selectedRole, setSelectedRole] = useState<Role>(user.role as Role);
@@ -86,7 +85,7 @@ export default function StaffDetailClient({ user }: StaffDetailClientProps) {
       } else {
         toast.error(result.error || "เกิดข้อผิดพลาดในการบันทึกข้อมูล");
       }
-    } catch (err) {
+    } catch {
       toast.error("เกิดข้อผิดพลาดในการเชื่อมต่อ กรุณาลองใหม่อีกครั้ง");
     } finally {
       setIsUpdating(false);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useSyncExternalStore } from "react";
 import {
   Sidebar,
   SidebarContent,
@@ -84,15 +84,19 @@ const sidebarNavItems = [
   },
 ];
 
+function useIsHydrated() {
+  return useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
+}
+
 export default function DesktopSidebar() {
   const pathname = usePathname();
-  const [isMounted, setIsMounted] = useState(false);
   const { data: session } = authClient.useSession();
   const userRole = (session as CustomSession)?.user?.role;
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
+  const isHydrated = useIsHydrated();
 
   const filteredNavItems = sidebarNavItems.filter((item) => {
     if (
@@ -100,6 +104,7 @@ export default function DesktopSidebar() {
       item.type === ESidebar.GROWTH_REFERENCE ||
       item.type === ESidebar.DEVELOPMENT
     ) {
+      if (!isHydrated) return false;
       return userRole === Role.ADMIN;
     }
     return true;
@@ -118,7 +123,7 @@ export default function DesktopSidebar() {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu className="gap-2">
-              {isMounted && filteredNavItems.map((item) => {
+              {filteredNavItems.map((item) => {
                 const isActive = pathname.startsWith(item.url);
                 return (
                   <SidebarMenuItem key={item.title}>

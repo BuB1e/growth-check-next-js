@@ -95,17 +95,107 @@ export function ChildDetailTabs({
     ? getPredictionSummaryValue(latestPrediction.weight)
     : null;
 
+  const sleep = (ms: number) =>
+    new Promise((resolve) => setTimeout(resolve, Math.max(0, ms)));
+
+  const pollPredictionUntilReady = async (input: {
+    childId: number;
+    queuedAt: number;
+    baselineIds: number[];
+    baselineSignatures?: Record<string, string>;
+    initialDelayMs?: number;
+    timeoutMs?: number;
+  }) => {
+    const { pollPredictionForChildAction } = await import(
+      "@/app/mobile/staff/child/[child_id]/actions"
+    );
+
+    const startedAt = Date.now();
+    const timeoutMs = Math.max(1000, Number(input.timeoutMs) || 90_000);
+    let delayMs = Math.max(500, Number(input.initialDelayMs) || 2_500);
+
+    while (Date.now() - startedAt < timeoutMs) {
+      const result = await pollPredictionForChildAction({
+        childId: input.childId,
+        queuedAt: input.queuedAt,
+        baselineIds: input.baselineIds,
+        baselineSignatures: input.baselineSignatures,
+        previousDelayMs: delayMs,
+      });
+
+      if (!result.success) {
+        return {
+          success: false as const,
+          error: result.error ?? "ไม่สามารถตรวจสอบสถานะการทำนายได้",
+        };
+      }
+
+      if (result.status === "ready") {
+        return { success: true as const };
+      }
+
+      delayMs = Math.max(500, Number(result.poll?.nextDelayMs) || delayMs);
+      await sleep(delayMs);
+    }
+
+    return {
+      success: false as const,
+      error: "ยังไม่ได้รับผลทำนายในเวลาที่กำหนด",
+    };
+  };
+
+  const runPredictionWithPolling = async (targetChildId: number) => {
+    const { createPredictionForChildAction } = await import(
+      "@/app/mobile/staff/child/[child_id]/actions"
+    );
+
+    const result = await createPredictionForChildAction(targetChildId, "lstm");
+
+    if (!result.success) {
+      return {
+        success: false as const,
+        error: result.error ?? "ทำนายไม่สำเร็จ กรุณาลองใหม่",
+      };
+    }
+
+    if (result.status === "ready") {
+      return { success: true as const };
+    }
+
+    if (result.status !== "polling" || !result.data) {
+      return {
+        success: false as const,
+        error: "รูปแบบผลลัพธ์การทำนายไม่ถูกต้อง",
+      };
+    }
+
+    const pollData = result.data as {
+      queuedAt: number;
+      baselineIds: number[];
+      baselineSignatures?: Record<string, string>;
+      poll?: {
+        initialMs?: number;
+        timeoutMs?: number;
+      };
+    };
+
+    return pollPredictionUntilReady({
+      childId: targetChildId,
+      queuedAt: Number(pollData.queuedAt) || Date.now(),
+      baselineIds: Array.isArray(pollData.baselineIds) ? pollData.baselineIds : [],
+      baselineSignatures: pollData.baselineSignatures,
+      initialDelayMs: pollData.poll?.initialMs,
+      timeoutMs: pollData.poll?.timeoutMs,
+    });
+  };
+
   const handleManualPrediction = async () => {
     setIsManualPredicting(true);
     setManualPredictMessage(null);
     setManualPredictError(null);
 
     try {
-      const { createPredictionForChildAction } = await import(
-        "@/app/mobile/staff/child/[child_id]/actions"
-      );
-
-      const result = await createPredictionForChildAction(child.id, "lstm");
+      const result = await runPredictionWithPolling(child.id);
       if (!result.success) {
         const message = result.error ?? "ทำนายไม่สำเร็จ กรุณาลองใหม่";
         setManualPredictError(message);
@@ -113,8 +203,8 @@ export function ChildDetailTabs({
         return;
       }
 
-      setManualPredictMessage("ส่งคำขอทำนายผล 6 เดือนแล้ว ระบบกำลังประมวลผล");
-      toast.success("ส่งคำขอทำนายผล 6 เดือนแล้ว");
+      setManualPredictMessage("ผลทำนายพร้อมใช้งานแล้ว");
+      toast.success("ผลทำนายพร้อมใช้งานแล้ว");
       router.refresh();
     } catch {
       setManualPredictError("ไม่สามารถทำนายได้ กรุณาลองใหม่อีกครั้ง");
