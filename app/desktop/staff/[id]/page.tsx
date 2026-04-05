@@ -43,7 +43,8 @@ async function StaffDetailContent({ params }: PageProps) {
   try {
     user = await UserAction.getUserById(id);
   } catch (error) {
-    console.error("Failed to fetch staff member:", error);
+    const errorMessage = error instanceof Error ? error.message : "unknown error";
+    console.error(`Failed to fetch staff member: ${errorMessage}`);
     notFound();
   }
 

@@ -81,20 +81,44 @@ async function RequestsDataWrapper({
       ? parsedLimit
       : EnvConfig.PAGINATION_LIMIT_DESKTOP_SIZE;
   const q = typeof sp?.q === "string" ? sp.q : undefined;
+  const normalizedQ = q?.trim().toLowerCase();
+  const roleRaw = typeof sp?.role === "string" ? sp.role : undefined;
+  const role =
+    roleRaw === Role.USER || roleRaw === Role.HEAD || roleRaw === Role.ADMIN
+      ? roleRaw
+      : undefined;
 
   // Default to WAITING status, no "all" option
   const requestStatus = (sp?.status as Request_status) || Request_status.WAITING;
+  const queryPage = page;
+  const queryLimit = limit;
+  const fetchPage = normalizedQ ? 1 : queryPage;
+  const fetchLimit = normalizedQ ? 1000 : queryLimit;
 
   let data: PaginatedResponseDTO<UserCreateStatusResponse> | null = null;
   const usersMap: Map<string, UserResponse> = new Map();
 
   try {
-    data = await UserCreateStatusAction.getStatuses({
-      page,
-      limit,
-      q,
-      status: requestStatus,
-    });
+    try {
+      data = await UserCreateStatusAction.getStatuses({
+        page: fetchPage,
+        limit: fetchLimit,
+        q,
+        role,
+        status: requestStatus,
+      });
+    } catch (error) {
+      if (!normalizedQ) {
+        throw error;
+      }
+
+      data = await UserCreateStatusAction.getStatuses({
+        page: fetchPage,
+        limit: fetchLimit,
+        role,
+        status: requestStatus,
+      });
+    }
 
     // Fetch users to map with userId for displaying names
     if (data && data.data && data.data.length > 0) {
@@ -106,9 +130,37 @@ async function RequestsDataWrapper({
           usersMap.set(user.id, user);
         });
       }
+
+      if (normalizedQ) {
+        const filtered = data.data.filter((request) => {
+          const user = usersMap.get(request.userId);
+          if (!user) {
+            return false;
+          }
+
+          const fullName = `${user.firstName} ${user.lastName}`.trim().toLowerCase();
+          const email = user.email.toLowerCase();
+          return fullName.includes(normalizedQ) || email.includes(normalizedQ);
+        });
+        const start = (queryPage - 1) * queryLimit;
+        const end = start + queryLimit;
+        const pagedFiltered = filtered.slice(start, end);
+
+        data = {
+          data: pagedFiltered,
+          meta: {
+            ...data.meta,
+            total: filtered.length,
+            totalPages: filtered.length > 0 ? Math.ceil(filtered.length / queryLimit) : 0,
+            page: queryPage,
+            limit: queryLimit,
+          },
+        };
+      }
     }
   } catch (error) {
-    console.error("Failed to load requests:", error);
+    const errorMessage = error instanceof Error ? error.message : "unknown error";
+    console.error(`Failed to load requests: ${errorMessage}`);
   }
 
   if (!data) {

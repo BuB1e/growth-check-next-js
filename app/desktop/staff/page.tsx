@@ -10,7 +10,6 @@ import { Loader2 } from "lucide-react";
 import { UserAction } from "@/actions/UserAction";
 import { UserCreateStatusAction } from "@/actions/UserCreateStatusAction";
 import { UserResponse, UserCreateStatusResponse, PaginatedMetaDTO } from "@/dto";
-import { columns } from "@/components/features/desktop/columns";
 import { StaffTable } from "@/components/features/desktop/StaffTable";
 import StaffFilters from "@/components/features/desktop/StaffFilters";
 import { Role, Request_status } from "@/types/Enums";
@@ -77,6 +76,7 @@ async function StaffDataWrapper({
       : EnvConfig.PAGINATION_LIMIT_DESKTOP_SIZE;
 
   const q = typeof params.q === "string" ? params.q : undefined;
+  const normalizedQ = q?.trim().toLowerCase();
   const roleRaw = typeof params.role === "string" ? params.role : undefined;
   const role =
     roleRaw === Role.ADMIN || roleRaw === Role.USER || roleRaw === Role.HEAD
@@ -85,16 +85,35 @@ async function StaffDataWrapper({
 
   let users: UserResponse[] = [];
   let meta: PaginatedMetaDTO | undefined;
+  const queryPage = page;
+  const queryLimit = limit;
+  const fetchPage = normalizedQ ? 1 : queryPage;
+  const fetchLimit = normalizedQ ? 1000 : queryLimit;
 
   try {
     // 1. Fetch only APPROVED user statuses from the backend.
-    const statusesResponse = await UserCreateStatusAction.getStatuses({
-      page,
-      limit,
-      q,
-      role: role as string,
-      status: Request_status.APPROVE,
-    });
+    // If backend rejects q on this endpoint, fallback to local filtering.
+    let statusesResponse: Awaited<ReturnType<typeof UserCreateStatusAction.getStatuses>>;
+    try {
+      statusesResponse = await UserCreateStatusAction.getStatuses({
+        page: fetchPage,
+        limit: fetchLimit,
+        q,
+        role: role as string,
+        status: Request_status.APPROVE,
+      });
+    } catch (error) {
+      if (!normalizedQ) {
+        throw error;
+      }
+
+      statusesResponse = await UserCreateStatusAction.getStatuses({
+        page: fetchPage,
+        limit: fetchLimit,
+        role: role as string,
+        status: Request_status.APPROVE,
+      });
+    }
 
     meta = statusesResponse.meta;
 
@@ -115,9 +134,30 @@ async function StaffDataWrapper({
       users = statusesResponse.data
         .map((status: UserCreateStatusResponse) => userMap.get(status.userId))
         .filter((user: UserResponse | undefined): user is UserResponse => !!user);
+
+      if (normalizedQ) {
+        const searchedUsers = users.filter((user) => {
+          const fullName = `${user.firstName} ${user.lastName}`.trim().toLowerCase();
+          const email = user.email.toLowerCase();
+          return fullName.includes(normalizedQ) || email.includes(normalizedQ);
+        });
+
+        const start = (queryPage - 1) * queryLimit;
+        const end = start + queryLimit;
+        users = searchedUsers.slice(start, end);
+
+        meta = {
+          ...meta,
+          total: searchedUsers.length,
+          totalPages: searchedUsers.length > 0 ? Math.ceil(searchedUsers.length / queryLimit) : 0,
+          page: queryPage,
+          limit: queryLimit,
+        };
+      }
     }
   } catch (error) {
-    console.error("Failed to fetch staff data:", error);
+    const errorMessage = error instanceof Error ? error.message : "unknown error";
+    console.error(`Failed to fetch staff data: ${errorMessage}`);
   }
 
   if (!meta || meta.total === 0) {
