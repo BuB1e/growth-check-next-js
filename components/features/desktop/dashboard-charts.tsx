@@ -94,7 +94,7 @@ function MetricChip({
         <p className="font-bold text-foreground">
           {value} คน{" "}
           <span className="text-xs font-normal text-muted-foreground">
-            ({pct}%)
+            {isNaN(Number(pct)) ? '' : '(' + pct + '%)'}
           </span>
         </p>
       </div>
@@ -277,7 +277,7 @@ export function ChildHealthStatusChart({
             <div className="leading-tight">
               <span className="font-semibold">{d.label}</span>
               <span className="text-muted-foreground ml-1.5">
-                ({d.count} คน · {((d.count / total) * 100).toFixed(0)}%)
+                ({d.count} คน · {isNaN(((d.count / total) * 100)) ? '0' : ((d.count / total) * 100).toFixed(0)}%)
               </span>
               <p className="text-xs text-muted-foreground">{d.desc}</p>
             </div>
